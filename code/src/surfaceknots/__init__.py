@@ -55,6 +55,16 @@ from surfaceknots.unlink import (
     certify_classical_unlink,
     find_unlink_movie,
 )
+from surfaceknots.invariants.tier3 import (
+    CoverHomologyResult,
+    DoubleBranchedCoverResult,
+    SymmetricQuandleResult,
+    SymmetryProfile,
+    double_branched_cover_invariants,
+    lomonaco_pi2_invariants,
+    octahedral_symmetric_quandle_invariants,
+    symmetry_profile,
+)
 from surfaceknots.yoshikawa_data import (
     YOSHIKAWA_BY_LABEL,
     YOSHIKAWA_TABLE,
@@ -66,15 +76,19 @@ from surfaceknots.yoshikawa_data import (
     invariant_discrimination_key,
 )
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 __all__ = [
     "ClassicalLinkDiagram",
     "ComponentTopology",
+    "CoverHomologyResult",
+    "DoubleBranchedCoverResult",
     "MarkedDiagram",
     "PlanarShadow",
     "RotationSystem",
     "SurfaceTopology",
+    "SymmetricQuandleResult",
+    "SymmetryProfile",
     "TangleDiagram",
     "TriPlaneDiagram",
     "UnlinkCertificate",
@@ -90,6 +104,7 @@ __all__ = [
     "compute_full_invariant_record",
     "connected_diagram_components",
     "disjoint_union",
+    "double_branched_cover_invariants",
     "enumerate_admissible_ch_diagrams",
     "enumerate_census_level_candidates",
     "enumerate_prime_ch_census",
@@ -108,7 +123,9 @@ __all__ = [
     "list_level_yoshikawa_neighbors",
     "list_omega1_6_stabilizations",
     "list_omega2_pokes",
+    "lomonaco_pi2_invariants",
     "merge_diagrams_c",
+    "octahedral_symmetric_quandle_invariants",
     "planar_connected_sum",
     "post_filter_and_merge_ch11_survivors",
     "quadrangulation_to_shadow",
@@ -117,5 +134,6 @@ __all__ = [
     "standard_torus_triplane",
     "standard_unknot_s2_triplane",
     "stratify_and_export_ch11",
+    "symmetry_profile",
     "tunnel_diagrams_c",
 ]
