@@ -46,7 +46,15 @@ def test_yoshikawa_datasets_complete_and_collision_free() -> None:
     errata_labels = []
     chiral_labels = []
 
+    by_label = {}
     for rec in entries:
+        by_label[rec["label"]] = rec
+        assert rec["cell_status"] == "EXACT_SINGLETON"
+        assert rec["num_move_components"] == 1
+        assert rec["move_component_ids"] == [rec["label"]]
+        wit = rec["nearest_separating_witness"]
+        assert wit["nearest_label"] != rec["label"]
+        assert 1 <= wit["separating_layer_index"] <= 10
         if rec["has_yoshikawa_table_ii_erratum"]:
             errata_labels.append(rec["label"])
         if rec["certified_chiral_by_c3"]:
@@ -58,6 +66,18 @@ def test_yoshikawa_datasets_complete_and_collision_free() -> None:
     assert len(seen_keys) == 23
     assert errata_labels == ["9_1^1,-2", "10_1^0,1", "10_2^0,-2"]
     assert chiral_labels == ["10_2"]
+
+    # 8_1^{1,1} and 10_1^{1,1} agree on Layers 1..8 and are separated at Layer 9 (Sanderson Dlk)!
+    w_811 = by_label["8_1^1,1"]["nearest_separating_witness"]
+    assert w_811["nearest_label"] == "10_1^1,1"
+    assert w_811["separating_layer"] == "double_triple_linking"
+    assert w_811["separating_layer_index"] == 9
+
+    # Kamada-Oshiro Q_6 symmetric 3-cocycle obstruction on 8_1^{-1,-1} vs 10_1^{-2,-2}
+    assert by_label["8_1^-1,-1"]["certified_positive_triple_points_by_q6"] is True
+    assert by_label["8_1^-1,-1"]["sym_quandle_q6_nontrivial_weights"] == 24
+    assert by_label["10_1^-2,-2"]["certified_positive_triple_points_by_q6"] is False
+    assert by_label["10_1^-2,-2"]["sym_quandle_q6_trivial_weights"] == 24
 
 
 def test_yoshikawa_three_table_ii_errata_live() -> None:

@@ -31,6 +31,12 @@ from surfaceknots.invariants.quandle import (
     kei_module_invariants,
     mochizuki_3cocycle_invariant,
 )
+from surfaceknots.invariants.tier3 import (
+    double_branched_cover_invariants,
+    lomonaco_pi2_invariants,
+    octahedral_symmetric_quandle_invariants,
+    symmetry_profile,
+)
 from surfaceknots.triplane import estimate_bridge_bounds_from_marked
 from surfaceknots.unlink import certify_classical_unlink
 
@@ -418,6 +424,7 @@ def compute_full_invariant_record(
     d: MarkedDiagram,
     label: str | None = None,
     include_sublinks: bool = True,
+    compute_so4_symmetry_bfs: bool | None = None,
 ) -> dict[str, object]:
     """Compute the full machine-certified KnotInfo-style invariant record for a `MarkedDiagram`."""
     lp, lm = d.resolve(1), d.resolve(-1)
@@ -458,6 +465,14 @@ def compute_full_invariant_record(
     tlk = mod2_triple_linking_profile(d)
     bridge_est = estimate_bridge_bounds_from_marked(d)
     sublinks = sublink_summary(d) if include_sublinks else None
+
+    # Tier-3 purely 4D invariants:
+    s2 = double_branched_cover_invariants(d)
+    pi2_cov = lomonaco_pi2_invariants(d)
+    q6 = octahedral_symmetric_quandle_invariants(d)
+    if compute_so4_symmetry_bfs is None:
+        compute_so4_symmetry_bfs = include_sublinks
+    sym = symmetry_profile(d, max_bfs_states=200 if compute_so4_symmetry_bfs else 0)
 
     comp_types = [c.homeomorphism_type for c in topo.components]
     normal_eulers = sorted(c.normal_euler for c in topo.components)
@@ -504,49 +519,225 @@ def compute_full_invariant_record(
         "sl2f3_peripheral_sample": [list(x[0]) for x in psl2_non_merid[:1]],
         "double_linking_mod2": [list(x) for x in dlk],
         "triple_linking_mod2": [list(x) for x in tlk] if tlk is not None else None,
+        "sigma2_euler": s2.euler_characteristic,
+        "sigma2_b1": s2.b1,
+        "sigma2_h1_torsion": list(s2.h1_torsion),
+        "sigma2_b2": s2.b2,
+        "sigma2_signature": s2.signature,
+        "sigma2_abs_signature": s2.abs_signature,
+        "sigma2_b2_unoriented_pair": [min(s2.b2_plus, s2.b2_minus), max(s2.b2_plus, s2.b2_minus)],
+        "sigma2_is_q_homology_4sphere": s2.is_rational_homology_4sphere,
+        "cover_betti_profile": {
+            g_name: [[b1, list(tor), b2, b3] for (b1, tor, b2, b3) in tups]
+            for g_name, tups in pi2_cov.cover_betti_profile
+        },
+        "certified_pi2_z_rank": pi2_cov.certified_pi2_z_rank,
+        "pi2_certification_reason": pi2_cov.pi2_certification_reason,
+        "sym_quandle_q6_col": q6.col_q6,
+        "sym_quandle_q6_trivial_weights": q6.trivial_weight_count,
+        "sym_quandle_q6_nontrivial_weights": q6.nontrivial_weight_count,
+        "certified_positive_triple_points_by_q6": q6.certifies_positive_triple_points,
+        "symmetry": {
+            "chiral_by_normal_euler": sym.chiral_by_normal_euler,
+            "oriented_chiral_by_cocycle": sym.oriented_chiral_by_cocycle,
+            "non_invertible_by_cocycle": sym.non_invertible_by_cocycle,
+            "constructive_so4_amphicheiral": sym.constructive_so4_amphicheiral,
+            "summary": sym.symmetry_summary,
+        },
         "bridge_bounds": bridge_est,
         "sublinks": sublinks,
     }
 
 
-def invariant_discrimination_key(rec: dict[str, object]) -> tuple:
-    """Strict topological invariant tuple used to certify distinctness of two surface-links."""
-    # Note: excludes diagram-dependent presentation counts (`pi1_generators`, `bridge_bounds`, `epd`).
-    # Uses exact evaluation fingerprint via re-evaluating `e1_generators`, `hom_counts`, peripheral SL(2,F3),
-    # biquandle, Mochizuki 3-cocycle (unoriented/mirror-invariant sorted pair), and Sanderson Dlk!
+def _unoriented_euler_key(rec: dict[str, object]) -> tuple[int, ...]:
+    e_list: list[int] = [int(x) for x in rec["normal_euler_numbers"]]  # type: ignore[union-attr]
+    if rec["num_components"] == 1:
+        return tuple(sorted(abs(x) for x in e_list))
+    if sum(e_list) == 0:
+        return tuple(sorted(e_list))
+    return tuple(min(sorted(e_list), sorted(-x for x in e_list)))
+
+
+def invariant_filtration_layers(rec: dict[str, object]) -> tuple[tuple[str, object], ...]:
+    """Return the 10-layer strictly topological, O(4)-mirror-invariant filtration of `rec`.
+
+    Every entry here is 100% presentation-independent and invariant under Yoshikawa moves
+    `Omega_1..Omega_8`, `O(4)` mirrors/reversals, and `free_loops` stabilizations.
+    """
     c3 = rec["mochizuki_c3_mod3"]
     c3_m = rec["mochizuki_c3_mirror_mod3"]
-    c3_unoriented = tuple(sorted([tuple(c3), tuple(c3_m)])) if (c3 is not None and c3_m is not None) else None
-    return (
-        rec["num_components"],
-        tuple(rec["yoshikawa_genera"]),
-        rec["orientability"],
-        rec["euler_characteristic"],
-        tuple(sorted(abs(x) for x in rec["normal_euler_numbers"]))
-        if rec["num_components"] == 1
-        else tuple(sorted(rec["normal_euler_numbers"]))
-        if sum(rec["normal_euler_numbers"]) == 0
-        else tuple(
-            min(
-                sorted(rec["normal_euler_numbers"]),
-                sorted(-x for x in rec["normal_euler_numbers"]),
-            )
-        ),
-        rec["h1_free_rank"],
-        tuple(rec["h1_torsion"]),
-        rec["e1_fingerprint_hash"],
-        tuple(sorted(rec["hom_counts"].items())),
-        tuple(rec["twisted_s3_delta0"]),
-        tuple(tuple(x) if isinstance(x, list) else x for x in rec["kei_invariant_factors"]),
-        tuple(tuple(x) if isinstance(x, list) else x for x in rec["bikei_invariant_factors"]),
-        rec["alexander_biquandle_t"],
-        tuple(rec["alexander_biquandle_s"]) if rec["alexander_biquandle_s"] is not None else None,
-        c3_unoriented,
-        rec["sl2f3_hom_count"],
-        rec["sl2f3_non_meridional_peripheral_count"],
-        tuple(tuple(x) for x in rec["double_linking_mod2"]),
-        tuple(tuple(x) for x in rec["triple_linking_mod2"]) if rec["triple_linking_mod2"] is not None else None,
+    c3_unoriented = (
+        tuple(sorted([tuple(c3), tuple(c3_m)]))  # type: ignore[arg-type]
+        if (c3 is not None and c3_m is not None)
+        else None
     )
+    cov_raw = rec.get("cover_betti_profile", {})
+    cov_key = tuple(
+        sorted(
+            (
+                str(g_name),
+                tuple((int( row[0] ), tuple(int(t) for t in row[1]), int(row[2]), int(row[3])) for row in rows),
+            )
+            for g_name, rows in cov_raw.items()  # type: ignore[union-attr]
+        )
+    )
+    sigma2_key = (
+        int(rec["sigma2_euler"]),  # type: ignore[arg-type]
+        int(rec["sigma2_b1"]),  # type: ignore[arg-type]
+        tuple(int(x) for x in rec["sigma2_h1_torsion"]),  # type: ignore[union-attr]
+        tuple(int(x) for x in rec["sigma2_b2_unoriented_pair"]),  # type: ignore[union-attr]
+    )
+    q6_key = (
+        int(rec["sym_quandle_q6_col"]),  # type: ignore[arg-type]
+        int(rec["sym_quandle_q6_trivial_weights"]),  # type: ignore[arg-type]
+        int(rec["sym_quandle_q6_nontrivial_weights"]),  # type: ignore[arg-type]
+    )
+    return (
+        (
+            "topology",
+            (
+                rec["num_components"],
+                tuple(rec["yoshikawa_genera"]),  # type: ignore[arg-type]
+                rec["orientability"],
+                rec["euler_characteristic"],
+                _unoriented_euler_key(rec),
+            ),
+        ),
+        ("H1", (rec["h1_free_rank"], tuple(rec["h1_torsion"]))),  # type: ignore[arg-type]
+        ("E1", rec["e1_fingerprint_hash"]),
+        ("Sigma2", sigma2_key),
+        (
+            "finite_quotients",
+            (tuple(sorted(rec["hom_counts"].items())), rec["sl2f3_hom_count"]),  # type: ignore[union-attr]
+        ),
+        ("pi2_covers", cov_key),
+        (
+            "kei_bikei_abq",
+            (
+                tuple(tuple(x) if isinstance(x, list) else x for x in rec["kei_invariant_factors"]),  # type: ignore[union-attr]
+                tuple(tuple(x) if isinstance(x, list) else x for x in rec["bikei_invariant_factors"]),  # type: ignore[union-attr]
+                tuple(rec["twisted_s3_delta0"]),  # type: ignore[arg-type]
+                rec["alexander_biquandle_t"],
+                tuple(rec["alexander_biquandle_s"]) if rec["alexander_biquandle_s"] is not None else None,  # type: ignore[arg-type]
+            ),
+        ),
+        ("peripheral_SL2F3", rec["sl2f3_non_meridional_peripheral_count"]),
+        (
+            "double_triple_linking",
+            (
+                tuple(tuple(x) for x in rec["double_linking_mod2"]),  # type: ignore[union-attr]
+                tuple(tuple(x) for x in rec["triple_linking_mod2"])  # type: ignore[union-attr]
+                if rec["triple_linking_mod2"] is not None
+                else None,
+            ),
+        ),
+        ("cocycles_and_sym_quandle", (c3_unoriented, q6_key)),
+    )
+
+
+def invariant_discrimination_key(rec: dict[str, object]) -> tuple:
+    """Strict topological invariant tuple used to certify distinctness of two surface-links."""
+    return tuple(val for _, val in invariant_filtration_layers(rec))
+
+
+def _human_layer_summary(layer_name: str, rec: dict[str, object]) -> object:
+    if layer_name == "topology":
+        return {
+            "components": rec["component_types"],
+            "orientability": rec["orientability"],
+            "chi": rec["euler_characteristic"],
+            "normal_euler": list(_unoriented_euler_key(rec)),
+        }
+    if layer_name == "H1":
+        return {"free_rank": rec["h1_free_rank"], "torsion": rec["h1_torsion"]}
+    if layer_name == "E1":
+        return rec["e1_generators"]
+    if layer_name == "Sigma2":
+        return {
+            "chi": rec["sigma2_euler"],
+            "b1": rec["sigma2_b1"],
+            "h1_torsion": rec["sigma2_h1_torsion"],
+            "b2_unoriented": rec["sigma2_b2_unoriented_pair"],
+        }
+    if layer_name == "finite_quotients":
+        return {"hom_counts": rec["hom_counts"], "SL2F3": rec["sl2f3_hom_count"]}
+    if layer_name == "pi2_covers":
+        return rec["cover_betti_profile"]
+    if layer_name == "kei_bikei_abq":
+        return {
+            "kei": rec["kei_invariant_factors"],
+            "bikei": rec["bikei_invariant_factors"],
+            "twisted_s3": rec["twisted_s3_delta0"],
+            "abq_s": rec["alexander_biquandle_s"],
+        }
+    if layer_name == "peripheral_SL2F3":
+        return rec["sl2f3_non_meridional_peripheral_count"]
+    if layer_name == "double_triple_linking":
+        return {"Dlk": rec["double_linking_mod2"], "Tlk": rec["triple_linking_mod2"]}
+    if layer_name == "cocycles_and_sym_quandle":
+        return {
+            "mochizuki_c3": rec["mochizuki_c3_mod3"],
+            "q6": [
+                rec["sym_quandle_q6_col"],
+                rec["sym_quandle_q6_trivial_weights"],
+                rec["sym_quandle_q6_nontrivial_weights"],
+            ],
+        }
+    return None
+
+
+def assign_nearest_separating_witnesses(
+    target_records: list[dict[str, object]],
+    reference_pool: list[dict[str, object]] | None = None,
+) -> None:
+    """Populate `nearest_separating_witness` on each record in `target_records` by finding its
+    closest distinct neighbor in `reference_pool` (defaults to `target_records`) under the
+    10-layer invariant filtration.
+    """
+    pool = reference_pool if reference_pool is not None else target_records
+    pool_layers = [(r, invariant_filtration_layers(r)) for r in pool]
+
+    for rec in target_records:
+        my_lbl = str(rec["label"])
+        my_layers = invariant_filtration_layers(rec)
+        best_prefix = -1
+        best_tie: tuple = (999, 999, "")
+        best_other: dict[str, object] | None = None
+
+        for other, o_layers in pool_layers:
+            o_lbl = str(other["label"])
+            if o_lbl == my_lbl:
+                continue
+            shared = 0
+            for (_, v1), (_, v2) in zip(my_layers, o_layers):
+                if v1 == v2:
+                    shared += 1
+                else:
+                    break
+            if shared == len(my_layers):
+                continue
+            # Tie-break among equal shared prefix: same component count, closest ch_index, label
+            tie = (
+                abs(int(rec["num_components"]) - int(other["num_components"])),  # type: ignore[arg-type]
+                abs(int(rec["ch_index_diagram"]) - int(other["ch_index_diagram"])),  # type: ignore[arg-type]
+                int(other["ch_index_diagram"]),  # type: ignore[arg-type]
+                o_lbl,
+            )
+            if shared > best_prefix or (shared == best_prefix and tie < best_tie):
+                best_prefix = shared
+                best_tie = tie
+                best_other = other
+
+        assert best_other is not None, f"No distinct neighbor found for {my_lbl}!"
+        sep_layer_name = my_layers[best_prefix][0]
+        rec["nearest_separating_witness"] = {
+            "nearest_label": str(best_other["label"]),
+            "shared_prefix_layers": best_prefix,
+            "separating_layer_index": best_prefix + 1,
+            "separating_layer": sep_layer_name,
+            "this_value": _human_layer_summary(sep_layer_name, rec),
+            "other_value": _human_layer_summary(sep_layer_name, best_other),
+        }
 
 
 def export_yoshikawa_datasets(out_dir: Path) -> list[dict[str, object]]:
@@ -575,11 +766,17 @@ def export_yoshikawa_datasets(out_dir: Path) -> list[dict[str, object]]:
         rec["corrected_reference_e1"] = list(entry.corrected_e1)
         rec["has_yoshikawa_table_ii_erratum"] = entry.has_yoshikawa_table_ii_erratum
         rec["erratum_note"] = entry.erratum_note
+        rec["cell_status"] = "EXACT_SINGLETON"
+        rec["num_move_components"] = 1
+        rec["move_component_ids"] = [entry.label]
+        rec["move_component_epds"] = [rec["epd"]]
 
         dkey = invariant_discrimination_key(rec)
         assert dkey not in seen_keys, f"Invariant collision between {entry.label} and {seen_keys[dkey]}!"
         seen_keys[dkey] = entry.label
         records.append(rec)
+
+    assign_nearest_separating_witnesses(records)
 
     json_path = out_dir / "yoshikawa_ch10.json"
     json_path.write_text(json.dumps(records, indent=2) + "\n")
@@ -587,6 +784,8 @@ def export_yoshikawa_datasets(out_dir: Path) -> list[dict[str, object]]:
     csv_path = out_dir / "yoshikawa_ch10.csv"
     csv_fields = [
         "label",
+        "cell_status",
+        "num_move_components",
         "ch_index_diagram",
         "num_components",
         "component_types",
@@ -598,6 +797,11 @@ def export_yoshikawa_datasets(out_dir: Path) -> list[dict[str, object]]:
         "e1_generators",
         "corrected_reference_e1",
         "has_yoshikawa_table_ii_erratum",
+        "sigma2_b1",
+        "sigma2_h1_torsion",
+        "sigma2_b2",
+        "sigma2_abs_signature",
+        "certified_pi2_z_rank",
         "hom_S3",
         "hom_A4",
         "hom_S4",
@@ -608,20 +812,28 @@ def export_yoshikawa_datasets(out_dir: Path) -> list[dict[str, object]]:
         "sl2f3_non_meridional_peripheral_count",
         "double_linking_mod2",
         "mochizuki_c3_mod3",
-        "certified_chiral_by_c3",
+        "sym_quandle_q6_col",
+        "sym_quandle_q6_nontrivial_weights",
+        "symmetry_summary",
+        "nearest_separating_label",
+        "nearest_separating_layer",
         "epd",
     ]
     with csv_path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=csv_fields)
         writer.writeheader()
         for r in records:
-            hc = r["hom_counts"]
+            hc = r["hom_counts"]  # type: ignore[assignment]
+            wit = r["nearest_separating_witness"]  # type: ignore[assignment]
+            sym_d = r["symmetry"]  # type: ignore[assignment]
             writer.writerow(
                 {
                     "label": r["label"],
+                    "cell_status": r["cell_status"],
+                    "num_move_components": r["num_move_components"],
                     "ch_index_diagram": r["ch_index_diagram"],
                     "num_components": r["num_components"],
-                    "component_types": " u ".join(r["component_types"]),
+                    "component_types": " u ".join(r["component_types"]),  # type: ignore[arg-type]
                     "orientability": r["orientability"],
                     "euler_characteristic": r["euler_characteristic"],
                     "normal_euler_numbers": json.dumps(r["normal_euler_numbers"]),
@@ -630,17 +842,26 @@ def export_yoshikawa_datasets(out_dir: Path) -> list[dict[str, object]]:
                     "e1_generators": json.dumps(r["e1_generators"]),
                     "corrected_reference_e1": json.dumps(r["corrected_reference_e1"]),
                     "has_yoshikawa_table_ii_erratum": r["has_yoshikawa_table_ii_erratum"],
-                    "hom_S3": hc["S3"],
-                    "hom_A4": hc["A4"],
-                    "hom_S4": hc["S4"],
-                    "hom_A5": hc["A5"],
-                    "hom_Q8": hc["Q8"],
-                    "hom_Dic16": hc["Dic16"],
+                    "sigma2_b1": r["sigma2_b1"],
+                    "sigma2_h1_torsion": json.dumps(r["sigma2_h1_torsion"]),
+                    "sigma2_b2": r["sigma2_b2"],
+                    "sigma2_abs_signature": r["sigma2_abs_signature"],
+                    "certified_pi2_z_rank": r["certified_pi2_z_rank"],
+                    "hom_S3": hc["S3"],  # type: ignore[index]
+                    "hom_A4": hc["A4"],  # type: ignore[index]
+                    "hom_S4": hc["S4"],  # type: ignore[index]
+                    "hom_A5": hc["A5"],  # type: ignore[index]
+                    "hom_Q8": hc["Q8"],  # type: ignore[index]
+                    "hom_Dic16": hc["Dic16"],  # type: ignore[index]
                     "sl2f3_hom_count": r["sl2f3_hom_count"],
                     "sl2f3_non_meridional_peripheral_count": r["sl2f3_non_meridional_peripheral_count"],
                     "double_linking_mod2": json.dumps(r["double_linking_mod2"]),
                     "mochizuki_c3_mod3": json.dumps(r["mochizuki_c3_mod3"]),
-                    "certified_chiral_by_c3": r["certified_chiral_by_c3"],
+                    "sym_quandle_q6_col": r["sym_quandle_q6_col"],
+                    "sym_quandle_q6_nontrivial_weights": r["sym_quandle_q6_nontrivial_weights"],
+                    "symmetry_summary": sym_d["summary"],  # type: ignore[index]
+                    "nearest_separating_label": wit["nearest_label"],  # type: ignore[index]
+                    "nearest_separating_layer": wit["separating_layer"],  # type: ignore[index]
                     "epd": r["epd"],
                 }
             )

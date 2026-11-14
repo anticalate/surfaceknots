@@ -356,6 +356,47 @@ def tietze_simplify(pres: GroupPresentation) -> GroupPresentation:
             rels = [shift_down(r) for r in new_rels]
             meridians = [shift_down(m) for m in new_meridians]
             num_g -= 1
+        elif len(rels) >= 2:
+            # Tietze I (Dehn relator shortening): if a prefix `u` (`len(u) = floor(L/2) + 1`) of a
+            # cyclic shift of `s^{+-1}` occurs inside a cyclic shift of `r`, replace `u` by `v^{-1}`,
+            # strictly reducing `sum(len(r))` without altering generator meanings or meridians.
+            shortened = False
+            for idx_s, s in enumerate(rels):
+                ls = len(s)
+                if ls < 2:
+                    continue
+                lu = (ls // 2) + 1
+                inv_s = invert_word(s)
+                candidates_uv: list[tuple[Word, Word]] = []
+                for base_s in (s, inv_s):
+                    doubled_s = base_s + base_s
+                    for offset in range(ls):
+                        u = doubled_s[offset : offset + lu]
+                        v = doubled_s[offset + lu : offset + ls]
+                        candidates_uv.append((u, invert_word(v)))
+                for idx_r in range(len(rels)):
+                    if idx_r == idx_s:
+                        continue
+                    r = rels[idx_r]
+                    lr = len(r)
+                    if lr < lu:
+                        continue
+                    ext_r = r + r[: lu - 1]
+                    for u, inv_v in candidates_uv:
+                        u0 = u[0]
+                        for pos in range(lr):
+                            if ext_r[pos] == u0 and ext_r[pos : pos + lu] == u:
+                                r_rot = r[pos:] + r[:pos]
+                                rels[idx_r] = cyclically_reduce_word(inv_v + r_rot[lu:])
+                                shortened = True
+                                break
+                        if shortened:
+                            break
+                    if shortened:
+                        break
+                if shortened:
+                    changed = True
+                    break
 
     return GroupPresentation(
         num_generators=num_g,

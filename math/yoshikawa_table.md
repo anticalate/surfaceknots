@@ -80,7 +80,44 @@ Running `check_e1_ideal_against_reference` (exact integral Hermite Normal Form o
 
 ---
 
-## 3. Canonical Machine-Certified EPD Codes (`ch <= 10`)
+## 3. Tier-3 4D Invariants, Symmetry Certificates, & Nearest Separating Witnesses
+
+Beyond classical $\pi_1$ and Fox–Alexander ideals, [`yoshikawa_ch10.json`](../code/data/yoshikawa_ch10.json) records four purely 4-dimensional invariants (proved in [`foundations_and_invariants.md`](./foundations_and_invariants.md), §5) together with each entry's **`cell_status`** (`EXACT_SINGLETON` across all 23 entries) and **`nearest_separating_witness`** under our 10-layer invariant filtration:
+
+1. **Total Mod-2 Double Branched Cover $\Sigma_2(S^4, F)$**: Exact $(b_1,\; \operatorname{Tors} H_1,\; b_2,\; |\sigma|,\; \{b_2^+, b_2^-\})$ via Fox–Plans + Hirzebruch–Atiyah–Singer $\sigma(\Sigma_2) = -\frac{1}{2} e(F)$. Notice how $\Sigma_2$ evaluates at the canonical meridional specialization $(t_i, u_j) = (-1, -1)$, separating $10_1^{0,1}$ ($\Sigma_2$ a $\mathbb{Q}$-homology 4-sphere with $H_1 = \mathbb{Z}_4, b_2 = 0$) from $10_2^{0,1}$ ($b_1(\Sigma_2) = 1, b_2(\Sigma_2) = 2$) even before consulting meridional $E_1$ generators!
+2. **Lomonaco $\pi_2(E)$ & Regular Finite Cover Betti Profiles**: Exact Poincaré–Lefschetz Betti numbers $(b_1, \operatorname{Tors} H_1, b_2, b_3)$ on regular finite covers $\widetilde{E}_\rho \to E = S^4 \setminus \nu(F)$, certifying $\operatorname{rk}_{\mathbb{Z}} \pi_2(E)$ whenever $\ker(\rho)$ is trivial or infinite cyclic with trivial Alexander determinant.
+3. **Kamada–Oshiro Octahedral Symmetric Quandle $(Q_6, *, \rho)$**: Unoriented coloring count $|\operatorname{Col}_{(Q_6, \rho)}(D)|$ and 3-cocycle state-sum distribution in $H^3_{Q,\rho}(Q_6; \mathbb{Z}_2) \cong \mathbb{Z}_2^{12}$. On $8_1^{-1,-1}$ vs $10_1^{-2,-2}$ (both having $\pi_1 \cong Q_8$ and $24$ colorings), all $24$ colorings of $8_1^{-1,-1}$ carry nontrivial 3-cocycle weight (`0 + 24u`), **machine-certifying $t(8_1^{-1,-1}) > 0$** directly from unlinking movies without trisections or chart moves!
+4. **4D Symmetry Certificates**: Constructive $\mathrm{SO}(4)$ Yoshikawa move paths connecting $D$ to its spatial mirror $R_z(D)$ (`X0 <-> X1`) vs algebraic chirality/non-invertibility obstructions from normal Euler numbers and Mochizuki's $R_3$ 3-cocycle. Remarkably, **17 of the 23** Yoshikawa entries are constructively $\mathrm{SO}(4)$-amphicheiral (including $\tau^0(3_1) = 8_1$ and $\tau^3(3_1) = 10_3$, despite $3_1$ being chiral in $S^3$), whereas $2_1^{-1}$ is chiral by $e = \pm 2$ and $10_2 = \tau^2(3_1)$ is both non-invertible ($+10_2 \not\cong -10_2$) and oriented-chiral ($(+10_2)^* \not\cong +10_2$).
+
+| Label | $\Sigma_2(S^4, F)$: $(\chi, b_1, \operatorname{Tors} H_1, b_2, |\sigma|)$ | Certified $\operatorname{rk}_{\mathbb{Z}}\pi_2(E)$ & Key Cover $(b_1, b_2, b_3)$ | $(Q_6, \rho)$ State Sum | 4D Symmetry Certificate | Nearest Neighbor & Separating Layer |
+| :--- | :--- | :--- | :---: | :--- | :--- |
+| $0_1$ | $(2, 0, 0, 0, 0)$ ($\cong S^4$) | $0$ ($\pi_1 \cong \mathbb{Z}$) | `6 + 0u` | $\mathrm{SO}(4)$-amphicheiral | $8_1$ at Layer 3 (`E1`) |
+| $2_1^1$ | $(4, 0, 0, 2, 0)$ ($\cong S^2 \times S^2$) | — ($Z_2$: $(1, 4, 0)$) | `6 + 0u` | $\mathrm{SO}(4)$-amphicheiral | $10_1^1$ at Layer 3 (`E1`) |
+| $2_1^{-1}$ | $(3, 0, 0, 1, 1)$ ($\cong \overline{\mathbb{C}P}^2$ / $\mathbb{C}P^2$) | $1$ ($Z_2$: $(0, 1, 0)$) | `0` | **Chiral** ($e = \pm 2$) | $2_1^1$ at Layer 1 (`topology`) |
+| $6_1^{0,1}$ | $(2, 0, \mathbb{Z}_2, 0, 0)$ ($\mathbb{Q}HS^4$) | — ($Z_2$: $(2, 2, 1), (3, 4, 2)$) | `12 + 0u` | $\mathrm{SO}(4)$-amphicheiral | $9_1^{0,1}$ at Layer 3 (`E1`) |
+| $7_1^{0,-2}$ | $(2, 0, \mathbb{Z}_2, 0, 0)$ ($\mathbb{Q}HS^4$) | — ($Q_8$: $(3, 3, 1)$) | `24 + 0u` | Open (no obstruction) | $10_1^{0,-2}$ at Layer 3 (`E1`) |
+| $8_1$ | $(2, 0, \mathbb{Z}_3, 0, 0)$ ($\mathbb{Q}HS^4$) | — ($S_3$: $(1, 2, 2)$) | `6 + 0u` | $\mathrm{SO}(4)$-amphicheiral | $9_1$ at Layer 3 (`E1`) |
+| $8_1^{1,1}$ | $(4, 0, \mathbb{Z}_2, 2, 0)$ | — ($Z_2$: $(2, 6, 1)$) | `12 + 0u` | $\mathrm{SO}(4)$-amphicheiral | $10_1^{1,1}$ at **Layer 9 (`double_triple_linking`)** |
+| $8_1^{-1,-1}$ | $(2, 0, \mathbb{Z}_2, 0, 0)$ ($\mathbb{Q}HS^4$) | **$0$** ($Q_8$: $(0, 0, 1)$) | **`0 + 24u`** ($t > 0$!) | $\mathrm{SO}(4)$-amphicheiral | $10_1^{-1,-1}$ at Layer 3 (`E1`) |
+| $9_1$ | $(2, 0, \mathbb{Z}_3, 0, 0)$ ($\mathbb{Q}HS^4$) | — ($S_3$: $(1, 2, 2)$, tors $\mathbb{Z}_3$) | `6 + 0u` | Open (no obstruction) | $8_1$ at Layer 3 (`E1`) |
+| $9_1^{0,1}$ | $(2, 0, \mathbb{Z}_4, 0, 0)$ ($\mathbb{Q}HS^4$) | — ($A_4$: $(7, 12, 6)$) | `36 + 0u` | Open (no obstruction) | $10_1^{0,1}$ at Layer 3 (`E1`) |
+| $9_1^{1,-2}$ | $(4, 0, \mathbb{Z}_2, 2, 0)$ | — ($Z_2$: $(1, 5, 1)$) | `0` | Open (no obstruction) | $9_1^{0,1}$ at Layer 1 (`topology`) |
+| $10_1$ | $(2, 0, \mathbb{Z}_5, 0, 0)$ ($\mathbb{Q}HS^4$) | — ($A_4$: $(4, 9, 6)$) | `6 + 0u` | $\mathrm{SO}(4)$-amphicheiral | $10_2$ at Layer 3 (`E1`) |
+| $10_2$ | $(2, 0, \mathbb{Z}_3, 0, 0)$ ($\mathbb{Q}HS^4$) | **$2$** ($S_3$: $(1, 2, 2)$, tors $0$) | `6 + 0u` | **Oriented-chiral & non-invertible** | $10_1$ at Layer 3 (`E1`) |
+| $10_3$ | $(2, 0, 0, 0, 0)$ ($\mathbb{Z}HS^4$!) | **$7$** ($\operatorname{SL}(2, \mathbb{F}_3)$: $(1, 7, 7)$) | `6 + 0u` | $\mathrm{SO}(4)$-amphicheiral | $10_1$ at Layer 3 (`E1`) |
+| $10_1^1$ | $(4, 0, \mathbb{Z}_3, 2, 0)$ | — ($\operatorname{SL}(2, \mathbb{F}_3)$: $(4, 54, 3)$) | `6 + 0u` | $\mathrm{SO}(4)$-amphicheiral | $2_1^1$ at Layer 3 (`E1`) |
+| $10_1^{0,1}$ | $(2, 0, \mathbb{Z}_4, 0, 0)$ ($\mathbb{Q}HS^4$) | — ($S_3$: $(5, 8, 4)$) | `36 + 0u` | $\mathrm{SO}(4)$-amphicheiral | $10_2^{0,1}$ at **Layer 4 (`Sigma2`)** |
+| $10_2^{0,1}$ | $(2, 1, 0, 2, 0)$ | — ($S_3$: $(5, 10, 6)$) | `36 + 0u` | Open (no obstruction) | $10_1^{0,1}$ at **Layer 4 (`Sigma2`)** |
+| $10_1^{1,1}$ | $(4, 0, \mathbb{Z}_2, 2, 0)$ | — ($Z_2$: $(2, 6, 1)$) | `12 + 0u` | $\mathrm{SO}(4)$-amphicheiral | $8_1^{1,1}$ at **Layer 9 (`double_triple_linking`)** |
+| $10_1^{0,0,1}$ | $(0, 1, \mathbb{Z}_2, 0, 0)$ | — ($S_3$: 5 covers) | `120 + 0u` | $\mathrm{SO}(4)$-amphicheiral | $10_1^{-1,-1}$ at Layer 1 (`topology`) |
+| $10_1^{0,-2}$ | $(2, 0, \mathbb{Z}_4, 0, 0)$ ($\mathbb{Q}HS^4$) | — ($\operatorname{Dic}_{16}$: tors $\mathbb{Z}_2^2 \oplus \mathbb{Z}_4$) | `0` | Open (no obstruction) | $10_2^{0,-2}$ at Layer 3 (`E1`) |
+| $10_2^{0,-2}$ | $(2, 0, \mathbb{Z}_4, 0, 0)$ ($\mathbb{Q}HS^4$) | — ($\operatorname{Dic}_{16}$: $(3, 5, 3), (3, 7, 5)$) | `0` | $\mathrm{SO}(4)$-amphicheiral | $10_1^{0,-2}$ at Layer 3 (`E1`) |
+| $10_1^{-1,-1}$ | $(2, 0, \mathbb{Z}_4, 0, 0)$ ($\mathbb{Q}HS^4$) | **$2$** ($\operatorname{Dic}_{16}$: $(0, 2, 3)$) | `0` | $\mathrm{SO}(4)$-amphicheiral | $8_1^{-1,-1}$ at Layer 3 (`E1`) |
+| $10_1^{-2,-2}$ | $(4, 0, \mathbb{Z}_2, 2, 0)$ | **$16$** ($Q_8$: $(0, 16, 1)$) | `24 + 0u` | $\mathrm{SO}(4)$-amphicheiral | $10_1^{-1,-1}$ at Layer 1 (`topology`) |
+
+---
+
+## 4. Canonical Machine-Certified EPD Codes (`ch <= 10`)
 
 Every EPD string below is directly parseable via `MarkedDiagram.from_epd(epd)` (`X[a,b,c,d]` has `(a,c)` as the under-strand and `(b,d)` as the over-strand in CCW order; `Y` resolves `(a,d),(b,c)` in $L_+$ and `(a,b),(c,d)` in $L_-$; `Z` is opposite):
 

@@ -361,6 +361,45 @@ def _extract_tietze_peripheral_system(
     return (simp.num_generators, simp.relators, simp_periph)
 
 
+def _exact_rational_rank(rows: list[list[int]], ncols: int) -> int:
+    """Compute exact rank over Q of an integer matrix via Sylvester-Bareiss fraction-free elimination."""
+    mat = [list(r) for r in rows if any(r)]
+    m = len(mat)
+    if m == 0 or ncols == 0:
+        return 0
+    rank = 0
+    prev_piv = 1
+    for col in range(ncols):
+        piv_row = -1
+        for i in range(rank, m):
+            if mat[i][col] != 0:
+                piv_row = i
+                break
+        if piv_row == -1:
+            continue
+        if piv_row != rank:
+            mat[rank], mat[piv_row] = mat[piv_row], mat[rank]
+        row_r = mat[rank]
+        piv = row_r[col]
+        for i in range(rank + 1, m):
+            row_i = mat[i]
+            factor = row_i[col]
+            if factor == 0:
+                if piv != prev_piv:
+                    for j in range(col + 1, ncols):
+                        if row_i[j]:
+                            row_i[j] = (piv * row_i[j]) // prev_piv
+            else:
+                row_i[col] = 0
+                for j in range(col + 1, ncols):
+                    row_i[j] = (piv * row_i[j] - factor * row_r[j]) // prev_piv
+        prev_piv = piv
+        rank += 1
+        if rank == m:
+            break
+    return rank
+
+
 def _cover_homology_for_surjection(
     num_gens: int,
     relators: tuple[Word, ...],
@@ -482,7 +521,7 @@ def _cover_homology_for_surjection(
     if b1 == 0 or not periph_cycle_rows:
         rk_im = 0
     else:
-        rk_comb = sp.Matrix(rel_rows + periph_cycle_rows).rank()
+        rk_comb = _exact_rational_rank(rel_rows + periph_cycle_rows, n_vars)
         rk_im = rk_comb - rk_r
 
     b3 = (b0_bdry - 1) + b1 - rk_im
@@ -518,8 +557,8 @@ def lomonaco_pi2_invariants(
 
     for grp in _COVER_TARGET_GROUPS:
         if grp.name == "SL2F3":
-            # Condition strictly on topological invariant `orientable_count` (`rk H_1(E)`), never `free_loops`!
-            if not include_sl2f3 or orientable_count >= 4:
+            # Condition strictly on topological invariant `topo.num_components` (`|pi_0(F)|`), never `free_loops`!
+            if not include_sl2f3 or topo.num_components >= 3:
                 continue
 
         order = grp.order
@@ -1316,7 +1355,8 @@ def symmetry_profile(d: MarkedDiagram, max_bfs_states: int = 250) -> SymmetryPro
     ori_chiral_cocycle = False
     non_inv_cocycle = False
     if topo.orientability_label == "Ori" and topo.num_components >= 1:
-        for p in (3, 5):
+        primes_to_test = (3, 5) if topo.num_components <= 2 else (3,)
+        for p in primes_to_test:
             tup = mochizuki_3cocycle_invariant(d, p=p, up_to_mirror=False)
             if tup is None:
                 continue

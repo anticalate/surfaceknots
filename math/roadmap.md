@@ -21,18 +21,17 @@ Every invariant equivalence class $C \in \mathcal{C}_N$ in our JSON/CSV datasets
 | **`AMBIGUOUS_SHADOW`** | $\operatorname{Refs}_{<N}(C) \neq \emptyset$ | **Potential duplicate / exotic candidate**: $I(C)$ collides with a known reference in $\operatorname{Refs}_{<N}(C)$ (most commonly a non-collapsible diagram of a lower-$\operatorname{ch}$ surface or stabilized unknot, or potentially an algebraic-doppelgänger new surface). Retained in the residual audit log rather than silently dropped or overclaimed. |
 
 ### 1.2 Explicit Separating Witnesses (`nearest_separating_witness`)
-To answer *"why are $F$ and $F'$ definitely distinct?"* systematically across the entire catalog, we order our invariant hierarchy by conceptual and computational simplicity:
+To answer *"why are $F$ and $F'$ definitely distinct?"* systematically across the entire catalog, we order our presentation-independent invariant hierarchy into $10$ layers (`invariant_filtration_layers` in [`yoshikawa_data.py`](../code/src/surfaceknots/yoshikawa_data.py)):
 1. `topology` $(c,\; (g_i, \chi_i, \text{ori}_i, e_i)_{i=1}^c)$
 2. `H1` (abelianization $\mathbb{Z}^r \oplus \mathbb{Z}_2^s$)
-3. `E1` / `E2` (multivariable Alexander elementary ideals over $\mathbb{Z}[H_1]$)
-4. `Sigma2` (total mod-2 double branched cover $(b_1, \operatorname{Tors} H_1, b_2^+, b_2^-)$)
-5. `finite_quotients` ($|\operatorname{Hom}(\pi_1, G)|$ for $G \in \{S_3, D_8, Q_8, D_{10}, A_4, \operatorname{Dic}_{12}, \operatorname{Dic}_{16}, F_{21}, S_4, \operatorname{SL}(2, \mathbb{F}_3), A_5\}$)
-6. `pi2_covers` (Poincaré–Lefschetz cover Betti profile $(b_1, \operatorname{Tors} H_1, b_2, b_3)$ on regular finite covers $\widetilde{E}_\rho$)
+3. `E1` (multivariable Alexander elementary ideals over $\mathbb{Z}[H_1]$)
+4. `Sigma2` (total mod-2 double branched cover $(\chi, b_1, \operatorname{Tors} H_1, b_2, |\sigma|)$)
+5. `pi2_covers` (Poincaré–Lefschetz cover Betti profile $(b_1, \operatorname{Tors} H_1, b_2, b_3)$ on regular finite covers $\widetilde{E}_\rho$)
+6. `finite_quotients` ($|\operatorname{Hom}(\pi_1, G)|$ + twisted $S_3$ Alexander factors)
 7. `kei_bikei_abq` (kei, universal linear bikei over $\mathbb{Z}[s]/(s^2 - 1)$, and oriented Alexander biquandle modules)
-8. `sublinks` (individual component and 2-component sublink isotopy profiles + classical slice/ribbon obstructions)
-9. `peripheral_SL2F3` (longitudinal holonomy on $g \ge 1$ components)
-10. `double_triple_linking` (Sanderson mod-2 $\operatorname{Dlk}$ and Carter–Saito triple linking)
-11. `cocycles_and_sym_quandle` (Mochizuki $R_3, R_5$ 3-cocycles and Kamada–Oshiro $(Q_6, \rho)$ symmetric 3-cocycles)
+8. `cocycles_and_sym_quandle` (Mochizuki $R_3$ 3-cocycles and Kamada–Oshiro $(Q_6, \rho)$ symmetric quandle colorings & 3-cocycles)
+9. `double_triple_linking` (Sanderson mod-2 $\operatorname{Dlk}$ and Carter–Saito triple linking)
+10. `peripheral_SL2F3` (non-meridional longitudinal $\operatorname{SL}(2, \mathbb{F}_3)$ holonomy)
 
 For every entry $C$, `nearest_separating_witness` records its closest neighbor $C'$ in this lexicographic filtration together with the first invariant layer (and explicit values) where $I_k(C) \neq I_k(C')$.
 

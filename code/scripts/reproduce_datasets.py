@@ -306,8 +306,22 @@ def main() -> None:
     if args.ch11_enumerate:
         run_ch11_enumeration(args.data_dir, max_seconds=args.max_seconds)
     if args.ch11_export:
-        epds = json.loads((args.data_dir / "_census_ch11.json").read_text())
-        res = stratify_and_export_ch11(epds, args.data_dir, census_stats=collect_census_stats(args.data_dir))
+        census_cache = args.data_dir / "_census_ch11.json"
+        existing_json = args.data_dir / "expanded_ch11.json"
+        if census_cache.exists():
+            epds = json.loads(census_cache.read_text())
+            c_stats = collect_census_stats(args.data_dir)
+        elif existing_json.exists():
+            prev = json.loads(existing_json.read_text())
+            epds = (
+                [e["epd"] for e in prev["entries"]]
+                + [a for e in prev["entries"] for a in e.get("alternate_epds", [])]
+                + [r["epd"] for r in prev["residual_collisions"]]
+            )
+            c_stats = prev.get("census_stats") or collect_census_stats(args.data_dir)
+        else:
+            raise FileNotFoundError(f"Neither {census_cache} nor {existing_json} exists!")
+        res = stratify_and_export_ch11(epds, args.data_dir, census_stats=c_stats)
         print(
             f"Exported expanded_ch11.{{json,csv}}: "
             f"{res['certified_new_prime_invariant_classes']} certified new prime classes, "

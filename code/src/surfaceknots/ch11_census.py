@@ -21,6 +21,7 @@ from surfaceknots.unlink import certify_classical_unlink
 from surfaceknots.yoshikawa_data import (
     YOSHIKAWA_BY_LABEL,
     YOSHIKAWA_TABLE,
+    assign_nearest_separating_witnesses,
     compute_full_invariant_record,
     invariant_discrimination_key,
 )
@@ -223,7 +224,11 @@ def build_reference_catalog(max_composite_ch: int = 12) -> dict[tuple, list[str]
 def post_filter_and_merge_ch11_survivors(
     raw_epds: list[str],
 ) -> tuple[list[MarkedDiagram], dict[str, int]]:
-    """Apply 4D Tait flype simplification, composite-cut check, and cyclic-tube pruning on `ch = 11` survivors."""
+    """Apply 4D Tait flype simplification, post-flype C mountain-pass tunneling, composite-cut check,
+    and cyclic-tube pruning on `ch = 11` survivors.
+    """
+    from surfaceknots.fast_enum import tunnel_diagrams_c
+
     kept_by_key: dict[tuple, MarkedDiagram] = {}
     pruned_flype_reduce = 0
     pruned_flype_cut_or_split = 0
@@ -268,12 +273,33 @@ def post_filter_and_merge_ch11_survivors(
         if ckey not in kept_by_key:
             kept_by_key[ckey] = best
 
-    survivors = [kept_by_key[k] for k in sorted(kept_by_key)]
+    pre_tunnel_survivors = [kept_by_key[k] for k in sorted(kept_by_key)]
+    # Post-flype C mountain-pass reduction (4D flypes unlock additional <= 13-vertex mountain-pass collapses):
+    tunneled = tunnel_diagrams_c(
+        11,
+        pre_tunnel_survivors,
+        depth_plus1=384,
+        depth_plus2=256,
+        max_bfs_states=4096,
+    )
+    final_by_key: dict[tuple, MarkedDiagram] = {}
+    for td in tunneled:
+        if find_planar_connected_sum_decomposition(td) is not None or has_certified_cyclic_unknotted_tube(td):
+            pruned_cyclic_tube += 1
+            continue
+        tk = canonical_marked_key(td, up_to_mirror_and_reverse=True)
+        if tk not in final_by_key:
+            final_by_key[tk] = td
+
+    survivors = [final_by_key[k] for k in sorted(final_by_key)]
+    pruned_post_flype_c_tunnel = len(pre_tunnel_survivors) - len(tunneled)
     return survivors, {
         "input_survivors": len(raw_epds),
         "pruned_flype_reduce": pruned_flype_reduce,
         "pruned_flype_cut_or_split": pruned_flype_cut_or_split,
         "pruned_cyclic_tube": pruned_cyclic_tube,
+        "pre_post_flype_tunnel_diagrams": len(pre_tunnel_survivors),
+        "pruned_post_flype_c_tunnel": pruned_post_flype_c_tunnel,
         "post_flype_unique_diagrams": len(survivors),
     }
 
@@ -287,13 +313,23 @@ def stratify_and_export_ch11(
     and export `expanded_ch11.json` and `expanded_ch11.csv`.
     """
     from concurrent.futures import ProcessPoolExecutor
+    from surfaceknots.yoshikawa_data import export_yoshikawa_datasets
 
     out_dir.mkdir(parents=True, exist_ok=True)
+    yosh_json = out_dir / "yoshikawa_ch10.json"
+    if yosh_json.exists():
+        yosh_records: list[dict[str, object]] = json.loads(yosh_json.read_text())
+        if not yosh_records or "sigma2_euler" not in yosh_records[0]:
+            yosh_records = export_yoshikawa_datasets(out_dir)
+    else:
+        yosh_records = export_yoshikawa_datasets(out_dir)
+
     survivors, post_stats = post_filter_and_merge_ch11_survivors(survivor_epds)
     ref_catalog = build_reference_catalog(max_composite_ch=12)
 
     # Compute full invariants on every surviving `ch = 11` diagram in parallel:
     grouped_new: dict[tuple, list[dict[str, object]]] = defaultdict(list)
+    grouped_residual: dict[tuple, list[dict[str, object]]] = defaultdict(list)
     residual_collisions: list[dict[str, object]] = []
 
     surv_tasks = [(d, f"ch11_cand_{idx}", True) for idx, d in enumerate(survivors)]
@@ -301,23 +337,24 @@ def stratify_and_export_ch11(
         for rec in pool.map(_compute_record_worker, surv_tasks, chunksize=4):
             dkey = invariant_discrimination_key(rec)
             if dkey in ref_catalog:
+                rec["cell_status"] = "AMBIGUOUS_SHADOW"
                 rec["collision_matches"] = ref_catalog[dkey]
                 residual_collisions.append(rec)
+                grouped_residual[dkey].append(rec)
             else:
                 grouped_new[dkey].append(rec)
 
     # Sort certified new `ch = 11` invariant classes in Yoshikawa order:
-    # (num_components, orientability Ori < Mixed < Non, yoshikawa_genera, e1_generators, hom_counts)
     ori_rank = {"Ori": 0, "Mixed": 1, "Non": 2}
     sorted_groups = sorted(
         grouped_new.values(),
         key=lambda grp: (
             grp[0]["num_components"],
             ori_rank.get(str(grp[0]["orientability"]), 9),
-            tuple(grp[0]["yoshikawa_genera"]),
-            tuple(grp[0]["normal_euler_numbers"]),
-            tuple(grp[0]["e1_generators"]),
-            tuple(sorted(grp[0]["hom_counts"].items())),
+            tuple(grp[0]["yoshikawa_genera"]),  # type: ignore[arg-type]
+            tuple(grp[0]["normal_euler_numbers"]),  # type: ignore[arg-type]
+            tuple(grp[0]["e1_generators"]),  # type: ignore[arg-type]
+            tuple(sorted(grp[0]["hom_counts"].items())),  # type: ignore[union-attr]
         ),
     )
 
@@ -326,13 +363,12 @@ def stratify_and_export_ch11(
     certified_new_entries: list[dict[str, object]] = []
 
     for grp in sorted_groups:
-        # Pick representative with fewest `pi1_relators`, then fewest `pi1_generators`, then lexicographic `epd`:
         grp_sorted = sorted(
             grp,
-            key=lambda r: (int(r["pi1_relators"]), int(r["pi1_generators"]), str(r["epd"])),
+            key=lambda r: (int(r["pi1_relators"]), int(r["pi1_generators"]), str(r["epd"])),  # type: ignore[arg-type]
         )
         rep = dict(grp_sorted[0])
-        gen_tup = tuple(rep["yoshikawa_genera"])
+        gen_tup = tuple(int(x) for x in rep["yoshikawa_genera"])  # type: ignore[union-attr]
         genera_counters[gen_tup] += 1
         k_idx = genera_counters[gen_tup]
         if gen_tup == (0,):
@@ -340,18 +376,37 @@ def stratify_and_export_ch11(
         else:
             sup = ",".join(str(g) for g in gen_tup)
             y_label = f"11_{k_idx}^{sup}"
+        m_comps = len(grp_sorted)
         rep["label"] = y_label
-        rep["num_diagram_representatives"] = len(grp_sorted)
+        rep["cell_status"] = "EXACT_SINGLETON" if m_comps == 1 else "NEW_PACKET"
+        rep["num_move_components"] = m_comps
+        rep["move_component_ids"] = (
+            [y_label] if m_comps == 1 else [f"{y_label}.{chr(ord('a') + i)}" for i in range(m_comps)]
+        )
+        rep["move_component_epds"] = [str(r["epd"]) for r in grp_sorted]
+        rep["num_diagram_representatives"] = m_comps
         rep["alternate_epds"] = [str(r["epd"]) for r in grp_sorted[1:]]
         certified_new_entries.append(rep)
+
+    # Compute nearest separating witnesses across the full 32-entry (`ch <= 10` + `ch = 11`) prime catalog:
+    assign_nearest_separating_witnesses(
+        certified_new_entries,
+        reference_pool=yosh_records + certified_new_entries,
+    )
+
+    exact_singletons_count = sum(1 for r in certified_new_entries if r["cell_status"] == "EXACT_SINGLETON")
+    new_packets_count = sum(1 for r in certified_new_entries if r["cell_status"] == "NEW_PACKET")
 
     summary_payload = {
         "ch_index": 11,
         "census_stats": census_stats or {},
         "post_filter_stats": post_stats,
         "certified_new_prime_invariant_classes": len(certified_new_entries),
+        "exact_singletons_count": exact_singletons_count,
+        "new_packets_count": new_packets_count,
+        "ambiguous_shadow_cells_count": len(grouped_residual),
         "certified_new_prime_diagrams_total": sum(
-            int(r["num_diagram_representatives"]) for r in certified_new_entries
+            int(r["num_diagram_representatives"]) for r in certified_new_entries  # type: ignore[arg-type]
         ),
         "residual_colliding_diagrams": len(residual_collisions),
         "upper_bound_total_diagram_classes": len(certified_new_entries) + len(residual_collisions),
@@ -365,6 +420,8 @@ def stratify_and_export_ch11(
     csv_path = out_dir / "expanded_ch11.csv"
     csv_fields = [
         "label",
+        "cell_status",
+        "num_move_components",
         "ch_index_diagram",
         "num_diagram_representatives",
         "num_components",
@@ -374,6 +431,11 @@ def stratify_and_export_ch11(
         "normal_euler_numbers",
         "pi1_presentation",
         "e1_generators",
+        "sigma2_b1",
+        "sigma2_h1_torsion",
+        "sigma2_b2",
+        "sigma2_abs_signature",
+        "certified_pi2_z_rank",
         "hom_S3",
         "hom_A4",
         "hom_S4",
@@ -384,37 +446,54 @@ def stratify_and_export_ch11(
         "sl2f3_non_meridional_peripheral_count",
         "double_linking_mod2",
         "mochizuki_c3_mod3",
-        "certified_chiral_by_c3",
+        "sym_quandle_q6_col",
+        "sym_quandle_q6_nontrivial_weights",
+        "symmetry_summary",
+        "nearest_separating_label",
+        "nearest_separating_layer",
         "epd",
     ]
     with csv_path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=csv_fields)
         writer.writeheader()
         for r in certified_new_entries:
-            hc = r["hom_counts"]
+            hc = r["hom_counts"]  # type: ignore[assignment]
+            wit = r["nearest_separating_witness"]  # type: ignore[assignment]
+            sym_d = r["symmetry"]  # type: ignore[assignment]
             writer.writerow(
                 {
                     "label": r["label"],
+                    "cell_status": r["cell_status"],
+                    "num_move_components": r["num_move_components"],
                     "ch_index_diagram": r["ch_index_diagram"],
                     "num_diagram_representatives": r["num_diagram_representatives"],
                     "num_components": r["num_components"],
-                    "component_types": " u ".join(r["component_types"]),
+                    "component_types": " u ".join(r["component_types"]),  # type: ignore[arg-type]
                     "orientability": r["orientability"],
                     "euler_characteristic": r["euler_characteristic"],
                     "normal_euler_numbers": json.dumps(r["normal_euler_numbers"]),
                     "pi1_presentation": r["pi1_presentation"],
                     "e1_generators": json.dumps(r["e1_generators"]),
-                    "hom_S3": hc["S3"],
-                    "hom_A4": hc["A4"],
-                    "hom_S4": hc["S4"],
-                    "hom_A5": hc["A5"],
-                    "hom_Q8": hc["Q8"],
-                    "hom_Dic16": hc["Dic16"],
+                    "sigma2_b1": r["sigma2_b1"],
+                    "sigma2_h1_torsion": json.dumps(r["sigma2_h1_torsion"]),
+                    "sigma2_b2": r["sigma2_b2"],
+                    "sigma2_abs_signature": r["sigma2_abs_signature"],
+                    "certified_pi2_z_rank": r["certified_pi2_z_rank"],
+                    "hom_S3": hc["S3"],  # type: ignore[index]
+                    "hom_A4": hc["A4"],  # type: ignore[index]
+                    "hom_S4": hc["S4"],  # type: ignore[index]
+                    "hom_A5": hc["A5"],  # type: ignore[index]
+                    "hom_Q8": hc["Q8"],  # type: ignore[index]
+                    "hom_Dic16": hc["Dic16"],  # type: ignore[index]
                     "sl2f3_hom_count": r["sl2f3_hom_count"],
                     "sl2f3_non_meridional_peripheral_count": r["sl2f3_non_meridional_peripheral_count"],
                     "double_linking_mod2": json.dumps(r["double_linking_mod2"]),
                     "mochizuki_c3_mod3": json.dumps(r["mochizuki_c3_mod3"]),
-                    "certified_chiral_by_c3": r["certified_chiral_by_c3"],
+                    "sym_quandle_q6_col": r["sym_quandle_q6_col"],
+                    "sym_quandle_q6_nontrivial_weights": r["sym_quandle_q6_nontrivial_weights"],
+                    "symmetry_summary": sym_d["summary"],  # type: ignore[index]
+                    "nearest_separating_label": wit["nearest_label"],  # type: ignore[index]
+                    "nearest_separating_layer": wit["separating_layer"],  # type: ignore[index]
                     "epd": r["epd"],
                 }
             )

@@ -65,6 +65,20 @@ def test_expanded_ch11_dataset_integrity_and_distinctness() -> None:
     seen_ch11_keys = set()
     for rec in entries:
         assert rec["label"].startswith("11_")
+        m_comps = rec["num_move_components"]
+        assert m_comps == rec["num_diagram_representatives"]
+        if m_comps == 1:
+            assert rec["cell_status"] == "EXACT_SINGLETON"
+            assert rec["move_component_ids"] == [rec["label"]]
+        else:
+            assert rec["cell_status"] == "NEW_PACKET"
+            assert len(rec["move_component_ids"]) == m_comps
+            assert rec["move_component_ids"][0] == f"{rec['label']}.a"
+
+        wit = rec["nearest_separating_witness"]
+        assert wit["nearest_label"] != rec["label"]
+        assert 1 <= wit["separating_layer_index"] <= 10
+
         d = MarkedDiagram.from_epd(rec["epd"])
         assert d.ch_index == 11
         assert certify_classical_unlink(d.resolve(1)).is_unlink
@@ -77,9 +91,23 @@ def test_expanded_ch11_dataset_integrity_and_distinctness() -> None:
         assert dkey not in seen_ch11_keys, f"Duplicate invariant key among certified ch=11 classes on {rec['label']}!"
         seen_ch11_keys.add(dkey)
 
+    assert len(entries) == 10
+    assert payload["exact_singletons_count"] == 9
+    assert payload["new_packets_count"] == 1
+    assert payload["exact_singletons_count"] + payload["new_packets_count"] == len(entries)
+
+    by_lbl = {r["label"]: r for r in entries}
+    assert "11_1^0,0,-2" in by_lbl
+    assert by_lbl["11_1^0,0,-2"]["sym_quandle_q6_col"] == 96
+    assert by_lbl["11_2^0,-2"]["sigma2_b1"] == 1
+    assert by_lbl["11_3^0,-2"]["sigma2_b1"] == 0
+    assert by_lbl["11_3^0,-2"]["sigma2_h1_torsion"] == [4]
+
     for rc in payload["residual_collisions"]:
+        assert rc["cell_status"] == "AMBIGUOUS_SHADOW"
         assert len(rc["collision_matches"]) >= 1
         d_rc = MarkedDiagram.from_epd(rc["epd"])
         assert d_rc.ch_index == 11
         assert certify_classical_unlink(d_rc.resolve(1)).is_unlink
         assert certify_classical_unlink(d_rc.resolve(-1)).is_unlink
+
