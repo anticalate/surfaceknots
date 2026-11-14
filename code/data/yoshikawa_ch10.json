@@ -1,0 +1,2852 @@
+[
+  {
+    "label": "0_1",
+    "ch_index_diagram": 0,
+    "num_classical": 0,
+    "num_marked": 0,
+    "epd": "O[1]",
+    "num_components": 1,
+    "yoshikawa_genera": [
+      0
+    ],
+    "component_types": [
+      "S^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0
+    ],
+    "c_plus": 1,
+    "c_minus": 1,
+    "pi1_generators": 1,
+    "pi1_relators": 0,
+    "pi1_presentation": "<x1 | >",
+    "h1_free_rank": 1,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x"
+    ],
+    "e1_generators": [
+      "1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "1",
+    "e1_fingerprint_hash": "48d6bf646cc9392e",
+    "hom_counts": {
+      "S3": 6,
+      "D8": 8,
+      "Q8": 8,
+      "D10": 10,
+      "A4": 12,
+      "Dic12": 12,
+      "Dic16": 16,
+      "F21": 21,
+      "S4": 24,
+      "A5": 60
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      []
+    ],
+    "bikei_invariant_factors": [
+      2,
+      []
+    ],
+    "alexander_biquandle_t": "(((2, ()), (3, ()), (4, ()), (6, ()), (6, ())),)",
+    "alexander_biquandle_s": [
+      "1"
+    ],
+    "mochizuki_c3_mod3": [
+      "3",
+      "3"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "3",
+      "3"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 24,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      1,
+      1
+    ],
+    "sublinks": {
+      "num_components": 1,
+      "all_singletons_unknotted": null,
+      "is_brunnian": false,
+      "proper_sublinks": []
+    },
+    "description": "Unknotted 2-sphere",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "1"
+    ],
+    "corrected_reference_e1": [
+      "1"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "2_1^1",
+    "ch_index_diagram": 2,
+    "num_classical": 0,
+    "num_marked": 2,
+    "epd": "Y[1,2,3,4], Z[4,3,2,1]",
+    "num_components": 1,
+    "yoshikawa_genera": [
+      1
+    ],
+    "component_types": [
+      "T^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 0,
+    "normal_euler_numbers": [
+      0
+    ],
+    "c_plus": 1,
+    "c_minus": 1,
+    "pi1_generators": 1,
+    "pi1_relators": 0,
+    "pi1_presentation": "<x1 | >",
+    "h1_free_rank": 1,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x"
+    ],
+    "e1_generators": [
+      "1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "1",
+    "e1_fingerprint_hash": "48d6bf646cc9392e",
+    "hom_counts": {
+      "S3": 6,
+      "D8": 8,
+      "Q8": 8,
+      "D10": 10,
+      "A4": 12,
+      "Dic12": 12,
+      "Dic16": 16,
+      "F21": 21,
+      "S4": 24,
+      "A5": 60
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      []
+    ],
+    "bikei_invariant_factors": [
+      2,
+      []
+    ],
+    "alexander_biquandle_t": "(((2, ()), (3, ()), (4, ()), (6, ()), (6, ())),)",
+    "alexander_biquandle_s": [
+      "1"
+    ],
+    "mochizuki_c3_mod3": [
+      "3",
+      "3"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "3",
+      "3"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 24,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      3,
+      3
+    ],
+    "sublinks": {
+      "num_components": 1,
+      "all_singletons_unknotted": null,
+      "is_brunnian": false,
+      "proper_sublinks": []
+    },
+    "description": "Unknotted torus",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "1"
+    ],
+    "corrected_reference_e1": [
+      "1"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "2_1^-1",
+    "ch_index_diagram": 2,
+    "num_classical": 1,
+    "num_marked": 1,
+    "epd": "Y[1,2,3,4], X[4,3,2,1]",
+    "num_components": 1,
+    "yoshikawa_genera": [
+      -1
+    ],
+    "component_types": [
+      "RP^2"
+    ],
+    "orientability": "Non",
+    "euler_characteristic": 1,
+    "normal_euler_numbers": [
+      2
+    ],
+    "c_plus": 1,
+    "c_minus": 1,
+    "pi1_generators": 1,
+    "pi1_relators": 1,
+    "pi1_presentation": "<x1 | x1^-2 = 1>",
+    "h1_free_rank": 0,
+    "h1_torsion": [
+      2
+    ],
+    "alexander_variables": [
+      "x"
+    ],
+    "e1_generators": [
+      "1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "1",
+    "e1_fingerprint_hash": "b11dfc4c3dd96d52",
+    "hom_counts": {
+      "S3": 4,
+      "D8": 6,
+      "Q8": 2,
+      "D10": 6,
+      "A4": 4,
+      "Dic12": 2,
+      "Dic16": 2,
+      "F21": 1,
+      "S4": 10,
+      "A5": 16
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      []
+    ],
+    "bikei_invariant_factors": [
+      1,
+      []
+    ],
+    "alexander_biquandle_t": null,
+    "alexander_biquandle_s": null,
+    "mochizuki_c3_mod3": null,
+    "mochizuki_c3_mirror_mod3": null,
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 2,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      2,
+      2
+    ],
+    "sublinks": {
+      "num_components": 1,
+      "all_singletons_unknotted": null,
+      "is_brunnian": false,
+      "proper_sublinks": []
+    },
+    "description": "Standard projective plane P_+- (normal Euler +-2)",
+    "ribbon_status": "Pseudo-ribbon (non-ribbon)",
+    "yoshikawa_printed_e1": [
+      "1"
+    ],
+    "corrected_reference_e1": [
+      "1"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "6_1^0,1",
+    "ch_index_diagram": 6,
+    "num_classical": 4,
+    "num_marked": 2,
+    "epd": "Y[1,2,3,4], Z[4,5,6,1], X[6,7,8,9], X[9,8,10,2], X[10,11,12,3], X[11,7,5,12]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      0,
+      1
+    ],
+    "component_types": [
+      "T^2",
+      "S^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0,
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 1,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1 = 1>",
+    "h1_free_rank": 2,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "x - 1",
+      "y - 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "t - 1",
+    "e1_fingerprint_hash": "f5578c5e52a7a6da",
+    "hom_counts": {
+      "S3": 18,
+      "D8": 40,
+      "Q8": 40,
+      "D10": 40,
+      "A4": 48,
+      "Dic12": 72,
+      "Dic16": 112,
+      "F21": 105,
+      "S4": 120,
+      "A5": 300
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      [
+        2
+      ]
+    ],
+    "bikei_invariant_factors": [
+      3,
+      []
+    ],
+    "alexander_biquandle_t": "(((3, ()), (4, ()), (6, ()), (7, ()), (7, ())), ((3, ()), (4, ()), (6, ()), (7, ()), (7, ())))",
+    "alexander_biquandle_s": [
+      "s - 1"
+    ],
+    "mochizuki_c3_mod3": [
+      "3",
+      "3",
+      "3",
+      "3"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "3",
+      "3",
+      "3",
+      "3"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 168,
+    "sl2f3_non_meridional_peripheral_count": 69,
+    "sl2f3_peripheral_sample": [
+      [
+        "T^2",
+        1,
+        2
+      ]
+    ],
+    "double_linking_mod2": [
+      [
+        "T^2",
+        "S^2(e=0)",
+        0
+      ]
+    ],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      6
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": true,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "T^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "S^2"
+          ],
+          "min_ch_found": 0,
+          "certified_unknot": true
+        }
+      ]
+    },
+    "description": "Spun Hopf link (S^2 u T^2)",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "x - 1",
+      "y - 1"
+    ],
+    "corrected_reference_e1": [
+      "x - 1",
+      "y - 1"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "7_1^0,-2",
+    "ch_index_diagram": 7,
+    "num_classical": 5,
+    "num_marked": 2,
+    "epd": "Z[1,2,3,4], Y[5,6,7,8], X[6,9,10,11], X[12,13,14,2], X[5,14,13,9], X[8,7,4,3], X[12,1,11,10]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      0,
+      -2
+    ],
+    "component_types": [
+      "K^2",
+      "S^2"
+    ],
+    "orientability": "Mixed",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0,
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 1,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1^-1 = 1>",
+    "h1_free_rank": 1,
+    "h1_torsion": [
+      2
+    ],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "y - 1",
+      "x*y + 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "t + 1",
+    "e1_fingerprint_hash": "a9d4e0631a3aed99",
+    "hom_counts": {
+      "S3": 18,
+      "D8": 40,
+      "Q8": 40,
+      "D10": 40,
+      "A4": 24,
+      "Dic12": 48,
+      "Dic16": 112,
+      "F21": 21,
+      "S4": 120,
+      "A5": 300
+    },
+    "twisted_s3_delta0": [
+      "(0, (3,))"
+    ],
+    "kei_invariant_factors": [
+      1,
+      [
+        2
+      ]
+    ],
+    "bikei_invariant_factors": [
+      2,
+      [
+        2
+      ]
+    ],
+    "alexander_biquandle_t": null,
+    "alexander_biquandle_s": null,
+    "mochizuki_c3_mod3": null,
+    "mochizuki_c3_mirror_mod3": null,
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 72,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      7
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": false,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "K^2"
+          ],
+          "min_ch_found": 3,
+          "certified_unknot": false
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "S^2"
+          ],
+          "min_ch_found": 0,
+          "certified_unknot": true
+        }
+      ]
+    },
+    "description": "Simplest mixed orientable/non-orientable ribbon link (S^2 u K^2)",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "x + 1",
+      "y - 1"
+    ],
+    "corrected_reference_e1": [
+      "x + 1",
+      "y - 1"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "8_1",
+    "ch_index_diagram": 8,
+    "num_classical": 6,
+    "num_marked": 2,
+    "epd": "X[1,2,3,4], X[4,5,6,1], X[7,6,5,8], X[3,9,10,11], X[11,10,12,13], Z[7,14,15,16], Y[16,15,9,2], X[14,8,13,12]",
+    "num_components": 1,
+    "yoshikawa_genera": [
+      0
+    ],
+    "component_types": [
+      "S^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 1,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1>",
+    "h1_free_rank": 1,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x"
+    ],
+    "e1_generators": [
+      "x**2 - x + 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "t**2 - t + 1",
+    "e1_fingerprint_hash": "251c966b43e9c6c8",
+    "hom_counts": {
+      "S3": 12,
+      "D8": 8,
+      "Q8": 8,
+      "D10": 10,
+      "A4": 36,
+      "Dic12": 24,
+      "Dic16": 16,
+      "F21": 21,
+      "S4": 96,
+      "A5": 360
+    },
+    "twisted_s3_delta0": [
+      "(1, ())"
+    ],
+    "kei_invariant_factors": [
+      1,
+      [
+        3
+      ]
+    ],
+    "bikei_invariant_factors": [
+      2,
+      [
+        3
+      ]
+    ],
+    "alexander_biquandle_t": "(((2, (3,)), (3, (2, 2)), (4, (3, 3)), (8, ()), (8, ())),)",
+    "alexander_biquandle_s": [
+      "s**2 - s + 1"
+    ],
+    "mochizuki_c3_mod3": [
+      "9",
+      "9"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "9",
+      "9"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 72,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      7
+    ],
+    "sublinks": {
+      "num_components": 1,
+      "all_singletons_unknotted": null,
+      "is_brunnian": false,
+      "proper_sublinks": []
+    },
+    "description": "Spun trefoil 2-knot tau^0(3_1)",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "x**2 - x + 1"
+    ],
+    "corrected_reference_e1": [
+      "x**2 - x + 1"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "8_1^1,1",
+    "ch_index_diagram": 8,
+    "num_classical": 4,
+    "num_marked": 4,
+    "epd": "X[1,2,3,4], X[4,5,6,1], Z[6,7,8,9], Y[9,8,10,2], Z[3,11,12,13], Y[13,12,14,5], X[15,16,7,14], X[16,15,11,10]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      1,
+      1
+    ],
+    "component_types": [
+      "T^2",
+      "T^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 0,
+    "normal_euler_numbers": [
+      0,
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 1,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1 = 1>",
+    "h1_free_rank": 2,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "x - 1",
+      "y - 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "t - 1",
+    "e1_fingerprint_hash": "f5578c5e52a7a6da",
+    "hom_counts": {
+      "S3": 18,
+      "D8": 40,
+      "Q8": 40,
+      "D10": 40,
+      "A4": 48,
+      "Dic12": 72,
+      "Dic16": 112,
+      "F21": 105,
+      "S4": 120,
+      "A5": 300
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      [
+        2
+      ]
+    ],
+    "bikei_invariant_factors": [
+      3,
+      []
+    ],
+    "alexander_biquandle_t": "(((3, ()), (4, ()), (6, ()), (7, ()), (7, ())), ((3, ()), (4, ()), (6, ()), (7, ()), (7, ())))",
+    "alexander_biquandle_s": [
+      "s - 1"
+    ],
+    "mochizuki_c3_mod3": [
+      "3",
+      "3",
+      "3",
+      "3"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "3",
+      "3",
+      "3",
+      "3"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 168,
+    "sl2f3_non_meridional_peripheral_count": 122,
+    "sl2f3_peripheral_sample": [
+      [
+        "T^2",
+        1,
+        2
+      ]
+    ],
+    "double_linking_mod2": [
+      [
+        "T^2",
+        "T^2(e=0)",
+        0
+      ],
+      [
+        "T^2",
+        "T^2(e=0)",
+        0
+      ]
+    ],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      6,
+      8
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": true,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "T^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "T^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        }
+      ]
+    },
+    "description": "0-twist torus-spun Hopf link (T^2 u T^2)",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "x - 1",
+      "y - 1"
+    ],
+    "corrected_reference_e1": [
+      "x - 1",
+      "y - 1"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "8_1^-1,-1",
+    "ch_index_diagram": 8,
+    "num_classical": 6,
+    "num_marked": 2,
+    "epd": "X[1,2,3,4], X[4,5,6,1], Y[7,8,9,2], X[10,8,7,6], Y[3,11,12,13], X[13,12,14,5], X[15,16,10,14], X[16,15,11,9]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      -1,
+      -1
+    ],
+    "component_types": [
+      "RP^2",
+      "RP^2"
+    ],
+    "orientability": "Non",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      -2,
+      2
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 2,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1^-1 = 1, x2^-1 x1^-1 x2^-1 x1 = 1>",
+    "h1_free_rank": 0,
+    "h1_torsion": [
+      2,
+      2
+    ],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "2*x*y",
+      "x*y + 1",
+      "x*y + x"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "2",
+    "e1_fingerprint_hash": "8547c5222b25e92c",
+    "hom_counts": {
+      "S3": 10,
+      "D8": 28,
+      "Q8": 28,
+      "D10": 16,
+      "A4": 16,
+      "Dic12": 4,
+      "Dic16": 52,
+      "F21": 1,
+      "S4": 52,
+      "A5": 76
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      [
+        2
+      ]
+    ],
+    "bikei_invariant_factors": [
+      1,
+      [
+        4
+      ]
+    ],
+    "alexander_biquandle_t": null,
+    "alexander_biquandle_s": null,
+    "mochizuki_c3_mod3": null,
+    "mochizuki_c3_mirror_mod3": null,
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 28,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      7
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": true,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "RP^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "RP^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        }
+      ]
+    },
+    "description": "Linked P_+ u P_- with quaternion group pi_1 = Q_8 and t(F) = 2",
+    "ribbon_status": "Non-ribbon",
+    "yoshikawa_printed_e1": [
+      "x + 1",
+      "y + 1",
+      "2"
+    ],
+    "corrected_reference_e1": [
+      "x + 1",
+      "y + 1",
+      "2"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "9_1",
+    "ch_index_diagram": 9,
+    "num_classical": 7,
+    "num_marked": 2,
+    "epd": "Z[1,2,3,4], Y[4,3,5,6], X[1,7,8,9], X[7,10,11,8], X[12,13,14,15], X[13,16,9,11], X[12,5,2,16], X[17,18,10,6], X[15,14,18,17]",
+    "num_components": 1,
+    "yoshikawa_genera": [
+      0
+    ],
+    "component_types": [
+      "S^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 1,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1 = 1>",
+    "h1_free_rank": 1,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x"
+    ],
+    "e1_generators": [
+      "x - 2"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "t - 2",
+    "e1_fingerprint_hash": "8d491ccc9dab91ee",
+    "hom_counts": {
+      "S3": 12,
+      "D8": 8,
+      "Q8": 8,
+      "D10": 10,
+      "A4": 12,
+      "Dic12": 24,
+      "Dic16": 16,
+      "F21": 63,
+      "S4": 48,
+      "A5": 120
+    },
+    "twisted_s3_delta0": [
+      "(0, (3,))"
+    ],
+    "kei_invariant_factors": [
+      1,
+      [
+        3
+      ]
+    ],
+    "bikei_invariant_factors": [
+      2,
+      [
+        3
+      ]
+    ],
+    "alexander_biquandle_t": "(((2, (3,)), (3, (7,)), (4, (3, 3)), (6, (63,)), (6, (63,))),)",
+    "alexander_biquandle_s": [
+      "s - 2"
+    ],
+    "mochizuki_c3_mod3": [
+      "9",
+      "9"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "9",
+      "9"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 24,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      8
+    ],
+    "sublinks": {
+      "num_components": 1,
+      "all_singletons_unknotted": null,
+      "is_brunnian": false,
+      "proper_sublinks": []
+    },
+    "description": "1-fusion ribbon 2-knot with Baumslag-Solitar group BS(1, 2)",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "x - 2"
+    ],
+    "corrected_reference_e1": [
+      "x - 2"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "9_1^0,1",
+    "ch_index_diagram": 9,
+    "num_classical": 7,
+    "num_marked": 2,
+    "epd": "X[1,2,3,4], X[4,5,6,1], X[7,8,2,6], X[3,9,10,11], Y[11,12,13,5], Y[13,12,14,15], X[15,16,17,7], X[8,17,16,18], X[14,10,9,18]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      0,
+      1
+    ],
+    "component_types": [
+      "T^2",
+      "S^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0,
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 3,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1 = 1, x2^-1 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1^-1 x2 x1 x2 x1^-1 x2^-1 x1 x2 x1 = 1, x2^-1 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1^-1 x2 x1 x2 x1^-1 x2^-1 x1 x2 x1 x2^-1 x1 x2 x1^-1 x2^-1 x1^-1 x2 x1 = 1>",
+    "h1_free_rank": 2,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "y**2 - 2*y + 1",
+      "x*y - x - y + 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "t**2 - 2*t + 1",
+    "e1_fingerprint_hash": "7733c28595fc6b2b",
+    "hom_counts": {
+      "S3": 24,
+      "D8": 64,
+      "Q8": 64,
+      "D10": 60,
+      "A4": 72,
+      "Dic12": 96,
+      "Dic16": 192,
+      "F21": 189,
+      "S4": 240,
+      "A5": 600
+    },
+    "twisted_s3_delta0": [
+      "(0, (3, 3))"
+    ],
+    "kei_invariant_factors": [
+      1,
+      [
+        4
+      ]
+    ],
+    "bikei_invariant_factors": [
+      3,
+      [
+        2
+      ]
+    ],
+    "alexander_biquandle_t": "(((3, (2,)), (4, (3,)), (6, (2, 2)), (7, (6,)), (7, (6,))), ((3, (2,)), (4, (3,)), (6, (2, 2)), (7, (6,)), (7, (6,))))",
+    "alexander_biquandle_s": [
+      "s**2 - 2*s + 1"
+    ],
+    "mochizuki_c3_mod3": [
+      "3",
+      "3",
+      "3",
+      "3"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "3",
+      "3",
+      "3",
+      "3"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 192,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      8
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": false,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "T^2"
+          ],
+          "min_ch_found": 4,
+          "certified_unknot": false
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "S^2"
+          ],
+          "min_ch_found": 0,
+          "certified_unknot": true
+        }
+      ]
+    },
+    "description": "Ribbon S^2 u T^2 link",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "(x - 1)*(y - 1)",
+      "(y - 1)**2"
+    ],
+    "corrected_reference_e1": [
+      "(x - 1)*(y - 1)",
+      "(y - 1)**2"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "9_1^1,-2",
+    "ch_index_diagram": 9,
+    "num_classical": 5,
+    "num_marked": 4,
+    "epd": "Y[1,2,3,4], Z[4,5,6,1], X[6,7,8,9], X[9,8,10,2], X[11,12,13,3], X[12,14,5,13], Z[14,15,16,7], Y[10,17,18,11], X[18,17,16,15]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      1,
+      -2
+    ],
+    "component_types": [
+      "T^2",
+      "K^2"
+    ],
+    "orientability": "Mixed",
+    "euler_characteristic": 0,
+    "normal_euler_numbers": [
+      0,
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 2,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1 = 1, x2^-1 x1^-1 x2^-1 x1 = 1>",
+    "h1_free_rank": 1,
+    "h1_torsion": [
+      2
+    ],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "2*y",
+      "y + 1",
+      "x*y + 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "1",
+    "e1_fingerprint_hash": "ac1c66ee4e8849db",
+    "hom_counts": {
+      "S3": 12,
+      "D8": 32,
+      "Q8": 16,
+      "D10": 20,
+      "A4": 24,
+      "Dic12": 24,
+      "Dic16": 32,
+      "F21": 21,
+      "S4": 72,
+      "A5": 120
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      [
+        2
+      ]
+    ],
+    "bikei_invariant_factors": [
+      2,
+      []
+    ],
+    "alexander_biquandle_t": null,
+    "alexander_biquandle_s": null,
+    "mochizuki_c3_mod3": null,
+    "mochizuki_c3_mirror_mod3": null,
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 48,
+    "sl2f3_non_meridional_peripheral_count": 9,
+    "sl2f3_peripheral_sample": [
+      [
+        "T^2",
+        1,
+        2
+      ]
+    ],
+    "double_linking_mod2": [
+      [
+        "T^2",
+        "K^2(e=0)",
+        0
+      ]
+    ],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      6,
+      9
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": false,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "T^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "K^2"
+          ],
+          "min_ch_found": 3,
+          "certified_unknot": false
+        }
+      ]
+    },
+    "description": "Ribbon T^2 u K^2 link with abelian pi_1 = Z + Z_2",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "x + 1",
+      "y - 1"
+    ],
+    "corrected_reference_e1": [
+      "x - 1",
+      "y - 1",
+      "2"
+    ],
+    "has_yoshikawa_table_ii_erratum": true,
+    "erratum_note": "Yoshikawa Table II printed pi_1 = <x, y | yxyx^{-1} = 1> and E_1 = (x + 1, y - 1); actual group is abelian Z + Z_2 = <x, y | xy = yx, y^2 = 1> with E_1 = (x - 1, y - 1, 2)."
+  },
+  {
+    "label": "10_1",
+    "ch_index_diagram": 10,
+    "num_classical": 8,
+    "num_marked": 2,
+    "epd": "X[1,2,3,4], X[5,6,7,8], Y[5,9,4,10], X[11,12,2,13], Y[3,14,15,16], X[16,17,6,10], X[9,8,13,1], X[17,18,19,7], X[18,15,20,19], X[20,14,12,11]",
+    "num_components": 1,
+    "yoshikawa_genera": [
+      0
+    ],
+    "component_types": [
+      "S^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 1,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1^-1 x2 x1 = 1>",
+    "h1_free_rank": 1,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x"
+    ],
+    "e1_generators": [
+      "x**2 - 3*x + 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "t**2 - 3*t + 1",
+    "e1_fingerprint_hash": "d192b02c688b1add",
+    "hom_counts": {
+      "S3": 6,
+      "D8": 8,
+      "Q8": 8,
+      "D10": 30,
+      "A4": 36,
+      "Dic12": 12,
+      "Dic16": 16,
+      "F21": 21,
+      "S4": 48,
+      "A5": 300
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      [
+        5
+      ]
+    ],
+    "bikei_invariant_factors": [
+      2,
+      [
+        5
+      ]
+    ],
+    "alexander_biquandle_t": "(((2, (5,)), (3, (4, 4)), (4, (5, 5)), (6, (8, 40)), (6, (8, 40))),)",
+    "alexander_biquandle_s": [
+      "s**2 - 3*s + 1"
+    ],
+    "mochizuki_c3_mod3": [
+      "3",
+      "3"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "3",
+      "3"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 72,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      8
+    ],
+    "sublinks": {
+      "num_components": 1,
+      "all_singletons_unknotted": null,
+      "is_brunnian": false,
+      "proper_sublinks": []
+    },
+    "description": "Spun figure-eight 2-knot tau^0(4_1)",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "x**2 - 3*x + 1"
+    ],
+    "corrected_reference_e1": [
+      "x**2 - 3*x + 1"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "10_2",
+    "ch_index_diagram": 10,
+    "num_classical": 8,
+    "num_marked": 2,
+    "epd": "X[1,2,3,4], X[4,5,6,1], X[6,7,8,9], Y[9,10,11,2], Y[12,13,14,15], X[16,13,12,3], X[15,17,7,5], X[18,19,10,8], X[19,20,16,11], X[17,14,20,18]",
+    "num_components": 1,
+    "yoshikawa_genera": [
+      0
+    ],
+    "component_types": [
+      "S^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 4,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1 x2^-1 x1 = 1, x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1, x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1 x2^-1 x1^-1 x2 x1 = 1, x2^-1 x1^-1 x2 x1^-1 x2^-1 x1^-1 x2 x1 x2^-1 x1 x2 x1 = 1>",
+    "h1_free_rank": 1,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x"
+    ],
+    "e1_generators": [
+      "3",
+      "x + 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "1",
+    "e1_fingerprint_hash": "53511ab0b1702b9c",
+    "hom_counts": {
+      "S3": 12,
+      "D8": 8,
+      "Q8": 8,
+      "D10": 10,
+      "A4": 12,
+      "Dic12": 24,
+      "Dic16": 16,
+      "F21": 21,
+      "S4": 48,
+      "A5": 120
+    },
+    "twisted_s3_delta0": [
+      "(0, (3,))"
+    ],
+    "kei_invariant_factors": [
+      1,
+      [
+        3
+      ]
+    ],
+    "bikei_invariant_factors": [
+      2,
+      [
+        3
+      ]
+    ],
+    "alexander_biquandle_t": "(((2, (3,)), (3, ()), (4, (3, 3)), (6, (3,)), (6, (3,))),)",
+    "alexander_biquandle_s": [
+      "1"
+    ],
+    "mochizuki_c3_mod3": [
+      "3 + 6*u",
+      "3 + 6*u^2"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "3 + 6*u",
+      "3 + 6*u^2"
+    ],
+    "certified_chiral_by_c3": true,
+    "sl2f3_hom_count": 24,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      8
+    ],
+    "sublinks": {
+      "num_components": 1,
+      "all_singletons_unknotted": null,
+      "is_brunnian": false,
+      "proper_sublinks": []
+    },
+    "description": "2-twist-spun trefoil tau^2(3_1) (non-ribbon, chiral by Mochizuki 3-cocycle)",
+    "ribbon_status": "Non-ribbon",
+    "yoshikawa_printed_e1": [
+      "x + 1",
+      "3"
+    ],
+    "corrected_reference_e1": [
+      "x + 1",
+      "3"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "10_3",
+    "ch_index_diagram": 10,
+    "num_classical": 8,
+    "num_marked": 2,
+    "epd": "X[1,2,3,4], X[4,5,6,1], X[6,7,8,9], Y[9,10,11,2], X[12,13,14,3], Y[14,15,16,5], X[17,8,7,16], X[18,19,10,17], X[11,20,13,12], X[19,18,15,20]",
+    "num_components": 1,
+    "yoshikawa_genera": [
+      0
+    ],
+    "component_types": [
+      "S^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 4,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1, x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2 x1 = 1, x2^-1 x1^-1 x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1 x2 x1^-1 x2 x1 = 1, x2^-1 x1^-1 x2^-1 x1^-1 x2 x1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 x2 x1^-1 x2 x1 = 1>",
+    "h1_free_rank": 1,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x"
+    ],
+    "e1_generators": [
+      "2",
+      "x**2 + x + 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "1",
+    "e1_fingerprint_hash": "3958ce50bf997a39",
+    "hom_counts": {
+      "S3": 6,
+      "D8": 8,
+      "Q8": 8,
+      "D10": 10,
+      "A4": 36,
+      "Dic12": 12,
+      "Dic16": 16,
+      "F21": 21,
+      "S4": 48,
+      "A5": 180
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      []
+    ],
+    "bikei_invariant_factors": [
+      2,
+      []
+    ],
+    "alexander_biquandle_t": "(((2, ()), (3, (2, 2)), (4, ()), (6, (2, 2)), (6, (2, 2))),)",
+    "alexander_biquandle_s": [
+      "1"
+    ],
+    "mochizuki_c3_mod3": [
+      "3",
+      "3"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "3",
+      "3"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 72,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      8
+    ],
+    "sublinks": {
+      "num_components": 1,
+      "all_singletons_unknotted": null,
+      "is_brunnian": false,
+      "proper_sublinks": []
+    },
+    "description": "3-twist-spun trefoil tau^3(3_1) (non-ribbon, commutator subgroup Q_8)",
+    "ribbon_status": "Non-ribbon",
+    "yoshikawa_printed_e1": [
+      "x**2 + x + 1",
+      "2"
+    ],
+    "corrected_reference_e1": [
+      "x**2 + x + 1",
+      "2"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "10_1^1",
+    "ch_index_diagram": 10,
+    "num_classical": 6,
+    "num_marked": 4,
+    "epd": "Z[1,2,3,4], Y[4,5,6,1], X[6,7,8,9], X[9,10,11,2], X[12,13,14,3], X[15,16,5,14], Z[16,17,18,7], X[18,19,10,8], Y[11,19,20,12], X[13,20,17,15]",
+    "num_components": 1,
+    "yoshikawa_genera": [
+      1
+    ],
+    "component_types": [
+      "T^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 0,
+    "normal_euler_numbers": [
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 1,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1>",
+    "h1_free_rank": 1,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x"
+    ],
+    "e1_generators": [
+      "x**2 - x + 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "t**2 - t + 1",
+    "e1_fingerprint_hash": "251c966b43e9c6c8",
+    "hom_counts": {
+      "S3": 12,
+      "D8": 8,
+      "Q8": 8,
+      "D10": 10,
+      "A4": 36,
+      "Dic12": 24,
+      "Dic16": 16,
+      "F21": 21,
+      "S4": 96,
+      "A5": 360
+    },
+    "twisted_s3_delta0": [
+      "(1, ())"
+    ],
+    "kei_invariant_factors": [
+      1,
+      [
+        3
+      ]
+    ],
+    "bikei_invariant_factors": [
+      2,
+      [
+        3
+      ]
+    ],
+    "alexander_biquandle_t": "(((2, (3,)), (3, (2, 2)), (4, (3, 3)), (8, ()), (8, ())),)",
+    "alexander_biquandle_s": [
+      "s**2 - s + 1"
+    ],
+    "mochizuki_c3_mod3": [
+      "9",
+      "9"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "9",
+      "9"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 72,
+    "sl2f3_non_meridional_peripheral_count": 24,
+    "sl2f3_peripheral_sample": [
+      [
+        "T^2",
+        3,
+        6
+      ]
+    ],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      9
+    ],
+    "sublinks": {
+      "num_components": 1,
+      "all_singletons_unknotted": null,
+      "is_brunnian": false,
+      "proper_sublinks": []
+    },
+    "description": "Symmetric-spun / tubed trefoil torus Tube(3_1)",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "x**2 - x + 1"
+    ],
+    "corrected_reference_e1": [
+      "x**2 - x + 1"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "10_1^0,1",
+    "ch_index_diagram": 10,
+    "num_classical": 8,
+    "num_marked": 2,
+    "epd": "X[1,2,3,4], X[4,5,6,1], X[7,6,5,8], X[9,3,2,10], X[9,11,12,13], X[13,12,14,15], X[15,14,16,17], Z[7,18,19,20], Y[20,19,11,10], X[18,8,17,16]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      0,
+      1
+    ],
+    "component_types": [
+      "T^2",
+      "S^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0,
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 1,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1 x2^-1 x1 = 1>",
+    "h1_free_rank": 2,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "x**2 - y**2",
+      "x*y - x + y**2 - y"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "2*t - 2",
+    "e1_fingerprint_hash": "3f51b7ba8ceeef1f",
+    "hom_counts": {
+      "S3": 30,
+      "D8": 64,
+      "Q8": 64,
+      "D10": 80,
+      "A4": 72,
+      "Dic12": 120,
+      "Dic16": 224,
+      "F21": 105,
+      "S4": 312,
+      "A5": 1140
+    },
+    "twisted_s3_delta0": [
+      "(1, (3,))",
+      "(1, (3,))"
+    ],
+    "kei_invariant_factors": [
+      1,
+      [
+        4
+      ]
+    ],
+    "bikei_invariant_factors": [
+      3,
+      [
+        2
+      ]
+    ],
+    "alexander_biquandle_t": "(((3, (2,)), (4, ()), (6, (2, 2)), (7, (2,)), (7, (2,))), ((3, (2,)), (4, (2, 2)), (6, (2, 2)), (7, (2, 2, 2, 2, 2)), (7, (2, 2, 2, 2, 2))))",
+    "alexander_biquandle_s": [
+      "2*s - 2",
+      "s**3 - s**2 + s - 1"
+    ],
+    "mochizuki_c3_mod3": [
+      "3",
+      "3",
+      "3",
+      "3"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "3",
+      "3",
+      "3",
+      "3"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 288,
+    "sl2f3_non_meridional_peripheral_count": 86,
+    "sl2f3_peripheral_sample": [
+      [
+        "T^2",
+        1,
+        2
+      ]
+    ],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      8
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": true,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "T^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "S^2"
+          ],
+          "min_ch_found": 0,
+          "certified_unknot": true
+        }
+      ]
+    },
+    "description": "Ribbon S^2 u T^2 link",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "(x - 1)*(x + 1)",
+      "(y - 1)*(x + 1)"
+    ],
+    "corrected_reference_e1": [
+      "(x - 1)*(x + y)",
+      "(y - 1)*(x + y)"
+    ],
+    "has_yoshikawa_table_ii_erratum": true,
+    "erratum_note": "Yoshikawa Table II printed E_1 = (x - 1, y - 1)(x + 1); Fox calculus on <x, y | y^{-1}x^{-1}yx^{-1}yxy^{-1}x = 1> gives E_1 = (x - 1, y - 1)(x + y)."
+  },
+  {
+    "label": "10_2^0,1",
+    "ch_index_diagram": 10,
+    "num_classical": 8,
+    "num_marked": 2,
+    "epd": "X[1,2,3,4], X[4,5,6,1], X[6,7,8,9], X[9,10,11,2], X[12,13,10,14], X[15,16,5,17], X[18,8,7,16], Y[18,15,19,14], Z[13,20,3,11], X[12,19,17,20]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      0,
+      1
+    ],
+    "component_types": [
+      "T^2",
+      "S^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0,
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 1,
+    "pi1_presentation": "<x1, x2 | x2^-2 x1^-1 x2^2 x1 = 1>",
+    "h1_free_rank": 2,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "x**2 - 1",
+      "x*y - x + y - 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "t**2 - 1",
+    "e1_fingerprint_hash": "3f51b7ba8ceeef1f",
+    "hom_counts": {
+      "S3": 30,
+      "D8": 64,
+      "Q8": 64,
+      "D10": 80,
+      "A4": 72,
+      "Dic12": 120,
+      "Dic16": 224,
+      "F21": 105,
+      "S4": 312,
+      "A5": 1140
+    },
+    "twisted_s3_delta0": [
+      "(1, (3,))",
+      "(1, (3,))"
+    ],
+    "kei_invariant_factors": [
+      2,
+      []
+    ],
+    "bikei_invariant_factors": [
+      4,
+      []
+    ],
+    "alexander_biquandle_t": "(((4, ()), (4, ()), (8, ()), (8, ()), (8, ())), ((4, ()), (4, ()), (8, ()), (8, ()), (8, ())))",
+    "alexander_biquandle_s": [
+      "s**2 - 1"
+    ],
+    "mochizuki_c3_mod3": [
+      "9",
+      "9",
+      "9",
+      "9"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "9",
+      "9",
+      "9",
+      "9"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 288,
+    "sl2f3_non_meridional_peripheral_count": 86,
+    "sl2f3_peripheral_sample": [
+      [
+        "T^2",
+        1,
+        2
+      ]
+    ],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      8
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": true,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "T^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "S^2"
+          ],
+          "min_ch_found": 0,
+          "certified_unknot": true
+        }
+      ]
+    },
+    "description": "Ribbon S^2 u T^2 link with pi_1 = <x, y | x^2 y x^{-2} y^{-1} = 1>",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "(x - 1)*(x + 1)",
+      "(y - 1)*(x + 1)"
+    ],
+    "corrected_reference_e1": [
+      "(x - 1)*(x + 1)",
+      "(y - 1)*(x + 1)"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "10_1^1,1",
+    "ch_index_diagram": 10,
+    "num_classical": 6,
+    "num_marked": 4,
+    "epd": "X[1,2,3,4], X[4,5,6,7], Y[7,8,9,1], X[10,11,2,9], Z[3,11,12,5], Z[6,13,14,15], X[15,16,17,8], Y[17,18,19,10], X[19,20,13,12], X[20,18,16,14]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      1,
+      1
+    ],
+    "component_types": [
+      "T^2",
+      "T^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 0,
+    "normal_euler_numbers": [
+      0,
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 2,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1 = 1, x2^-1 x1^-2 x2 x1^2 = 1>",
+    "h1_free_rank": 2,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "x - 1",
+      "y - 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "t - 1",
+    "e1_fingerprint_hash": "f5578c5e52a7a6da",
+    "hom_counts": {
+      "S3": 18,
+      "D8": 40,
+      "Q8": 40,
+      "D10": 40,
+      "A4": 48,
+      "Dic12": 72,
+      "Dic16": 112,
+      "F21": 105,
+      "S4": 120,
+      "A5": 300
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      [
+        2
+      ]
+    ],
+    "bikei_invariant_factors": [
+      3,
+      []
+    ],
+    "alexander_biquandle_t": "(((3, ()), (4, ()), (6, ()), (7, ()), (7, ())), ((3, ()), (4, ()), (6, ()), (7, ()), (7, ())))",
+    "alexander_biquandle_s": [
+      "s - 1"
+    ],
+    "mochizuki_c3_mod3": [
+      "3",
+      "3",
+      "3",
+      "3"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "3",
+      "3",
+      "3",
+      "3"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 168,
+    "sl2f3_non_meridional_peripheral_count": 122,
+    "sl2f3_peripheral_sample": [
+      [
+        "T^2",
+        1,
+        2
+      ]
+    ],
+    "double_linking_mod2": [
+      [
+        "T^2",
+        "T^2(e=0)",
+        1
+      ],
+      [
+        "T^2",
+        "T^2(e=0)",
+        1
+      ]
+    ],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      6,
+      9
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": true,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "T^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "T^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        }
+      ]
+    },
+    "description": "1-twist-spun Hopf link (T^2 u T^2, Sanderson Dlk = (1, 1))",
+    "ribbon_status": "Pseudo-ribbon",
+    "yoshikawa_printed_e1": [
+      "x - 1",
+      "y - 1"
+    ],
+    "corrected_reference_e1": [
+      "x - 1",
+      "y - 1"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "10_1^0,0,1",
+    "ch_index_diagram": 10,
+    "num_classical": 8,
+    "num_marked": 2,
+    "epd": "Z[1,2,3,4], Y[5,6,2,1], X[7,8,9,10], X[11,7,10,6], X[11,5,12,13], X[14,8,13,12], X[9,15,16,17], X[17,16,18,3], X[18,19,20,4], X[19,15,14,20]",
+    "num_components": 3,
+    "yoshikawa_genera": [
+      0,
+      0,
+      1
+    ],
+    "component_types": [
+      "T^2",
+      "S^2",
+      "S^2"
+    ],
+    "orientability": "Ori",
+    "euler_characteristic": 4,
+    "normal_euler_numbers": [
+      0,
+      0,
+      0
+    ],
+    "c_plus": 3,
+    "c_minus": 3,
+    "pi1_generators": 3,
+    "pi1_relators": 1,
+    "pi1_presentation": "<x1, x2, x3 | x3^-1 x2^-1 x1^-1 x2 x3 x1 = 1>",
+    "h1_free_rank": 3,
+    "h1_torsion": [],
+    "alexander_variables": [
+      "x",
+      "y",
+      "z"
+    ],
+    "e1_generators": [
+      "0"
+    ],
+    "e2_generators": [
+      "z - 1",
+      "x*y - 1"
+    ],
+    "single_var_alex": "0",
+    "e1_fingerprint_hash": "273672869262e4ab",
+    "hom_counts": {
+      "S3": 108,
+      "D8": 320,
+      "Q8": 320,
+      "D10": 400,
+      "A4": 576,
+      "Dic12": 864,
+      "Dic16": 1792,
+      "F21": 2205,
+      "S4": 2880,
+      "A5": 18000
+    },
+    "twisted_s3_delta0": [
+      "(2, (3,))",
+      "(2, (3,))",
+      "(2, (3,))",
+      "(2, (3,))",
+      "(3, ())",
+      "(3, ())",
+      "(3, ())",
+      "(3, ())",
+      "(3, ())",
+      "(3, ())"
+    ],
+    "kei_invariant_factors": [
+      2,
+      [
+        2
+      ]
+    ],
+    "bikei_invariant_factors": [
+      5,
+      []
+    ],
+    "alexander_biquandle_t": "(((5, ()), (7, ()), (10, ()), (13, ()), (13, ())), ((5, ()), (7, ()), (10, ()), (13, ()), (13, ())), ((5, ()), (7, ()), (10, ()), (13, ()), (13, ())), ((5, ()), (7, ()), (10, ()), (13, ()), (13, ())))",
+    "alexander_biquandle_s": [
+      "0"
+    ],
+    "mochizuki_c3_mod3": [
+      "9",
+      "9",
+      "9",
+      "9",
+      "9",
+      "9",
+      "9",
+      "9"
+    ],
+    "mochizuki_c3_mirror_mod3": [
+      "9",
+      "9",
+      "9",
+      "9",
+      "9",
+      "9",
+      "9",
+      "9"
+    ],
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 4032,
+    "sl2f3_non_meridional_peripheral_count": 1656,
+    "sl2f3_peripheral_sample": [
+      [
+        "T^2",
+        1,
+        2
+      ]
+    ],
+    "double_linking_mod2": [
+      [
+        "T^2",
+        "S^2(e=0)",
+        0
+      ],
+      [
+        "T^2",
+        "S^2(e=0)",
+        0
+      ]
+    ],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      5,
+      9
+    ],
+    "sublinks": {
+      "num_components": 3,
+      "all_singletons_unknotted": true,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "T^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "S^2"
+          ],
+          "min_ch_found": 0,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            2
+          ],
+          "types": [
+            "S^2"
+          ],
+          "min_ch_found": 0,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            0,
+            1
+          ],
+          "types": [
+            "T^2",
+            "S^2"
+          ],
+          "min_ch_found": 6,
+          "certified_split": false,
+          "certified_composite": false,
+          "certified_trivial_unlink": false
+        },
+        {
+          "components": [
+            0,
+            2
+          ],
+          "types": [
+            "T^2",
+            "S^2"
+          ],
+          "min_ch_found": 6,
+          "certified_split": false,
+          "certified_composite": false,
+          "certified_trivial_unlink": false
+        },
+        {
+          "components": [
+            1,
+            2
+          ],
+          "types": [
+            "S^2",
+            "S^2"
+          ],
+          "min_ch_found": 0,
+          "certified_split": true,
+          "certified_composite": false,
+          "certified_trivial_unlink": true
+        }
+      ]
+    },
+    "description": "3-component S^2 u S^2 u T^2 ribbon link (two S^2s each linked as 6_1^{0,1} with T^2)",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "0"
+    ],
+    "corrected_reference_e1": [
+      "0"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "10_1^0,-2",
+    "ch_index_diagram": 10,
+    "num_classical": 8,
+    "num_marked": 2,
+    "epd": "X[1,2,3,4], X[4,5,6,1], X[7,8,2,9], X[8,10,11,3], X[10,12,5,11], X[13,14,15,12], X[16,17,18,19], Y[18,17,6,15], Z[20,9,16,19], X[7,20,14,13]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      0,
+      -2
+    ],
+    "component_types": [
+      "S^2",
+      "K^2"
+    ],
+    "orientability": "Mixed",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0,
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 1,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1 = 1>",
+    "h1_free_rank": 1,
+    "h1_torsion": [
+      2
+    ],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "2*y - 2",
+      "x*y - x - 2"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "2",
+    "e1_fingerprint_hash": "7ee04fb35c085ca2",
+    "hom_counts": {
+      "S3": 12,
+      "D8": 48,
+      "Q8": 16,
+      "D10": 20,
+      "A4": 48,
+      "Dic12": 24,
+      "Dic16": 96,
+      "F21": 21,
+      "S4": 144,
+      "A5": 240
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      [
+        4
+      ]
+    ],
+    "bikei_invariant_factors": [
+      2,
+      [
+        4
+      ]
+    ],
+    "alexander_biquandle_t": null,
+    "alexander_biquandle_s": null,
+    "mochizuki_c3_mod3": null,
+    "mochizuki_c3_mirror_mod3": null,
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 144,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      8
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": false,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "S^2"
+          ],
+          "min_ch_found": 0,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "K^2"
+          ],
+          "min_ch_found": 5,
+          "certified_unknot": false
+        }
+      ]
+    },
+    "description": "Ribbon S^2 u K^2 link",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "2*x + y - 1",
+      "4"
+    ],
+    "corrected_reference_e1": [
+      "2*x + y - 1",
+      "4"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "10_2^0,-2",
+    "ch_index_diagram": 10,
+    "num_classical": 8,
+    "num_marked": 2,
+    "epd": "X[1,2,3,4], X[4,5,6,7], X[7,8,9,1], Y[9,10,11,2], X[11,12,5,3], Y[6,13,14,15], X[15,16,17,8], X[18,19,10,17], X[19,20,13,12], X[20,18,16,14]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      0,
+      -2
+    ],
+    "component_types": [
+      "S^2",
+      "K^2"
+    ],
+    "orientability": "Mixed",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      0,
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 4,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 = 1, x2^-1 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1 = 1, x2^-1 x1^-1 x2^-1 x1 x2^-1 x1 x2 x1^-1 x2 x1 x2^-1 x1^-1 x2 x1^-1 x2 x1 = 1, x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2^-1 x1 x2 x1^-1 x2 x1 = 1>",
+    "h1_free_rank": 1,
+    "h1_torsion": [
+      2
+    ],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "4*y",
+      "2*y + 2",
+      "3*x*y + x + 2*y",
+      "x*y + x + y + 1"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "2",
+    "e1_fingerprint_hash": "a995caf938cc44d4",
+    "hom_counts": {
+      "S3": 12,
+      "D8": 48,
+      "Q8": 16,
+      "D10": 20,
+      "A4": 48,
+      "Dic12": 24,
+      "Dic16": 96,
+      "F21": 21,
+      "S4": 144,
+      "A5": 240
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      [
+        4
+      ]
+    ],
+    "bikei_invariant_factors": [
+      2,
+      [
+        4
+      ]
+    ],
+    "alexander_biquandle_t": null,
+    "alexander_biquandle_s": null,
+    "mochizuki_c3_mod3": null,
+    "mochizuki_c3_mirror_mod3": null,
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 144,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      8
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": true,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "S^2"
+          ],
+          "min_ch_found": 0,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "K^2"
+          ],
+          "min_ch_found": 4,
+          "certified_unknot": true
+        }
+      ]
+    },
+    "description": "S^2 u K^2 surface-link (non-ribbon candidate)",
+    "ribbon_status": "Unknown / Non-ribbon candidate",
+    "yoshikawa_printed_e1": [
+      "2*x + y - 1",
+      "4"
+    ],
+    "corrected_reference_e1": [
+      "2*x + y - 1",
+      "(x + 1)*(y + 1)",
+      "4"
+    ],
+    "has_yoshikawa_table_ii_erratum": true,
+    "erratum_note": "Yoshikawa Table II printed E_1 = (2x + y - 1, 4), omitting the generator (x + 1)(y + 1); integral HNF over Z[x^{+-1}, y]/(y^2 - 1) proves E_1 = (2x + y - 1, (x + 1)(y + 1), 4)."
+  },
+  {
+    "label": "10_1^-1,-1",
+    "ch_index_diagram": 10,
+    "num_classical": 8,
+    "num_marked": 2,
+    "epd": "X[1,2,3,4], X[4,5,6,7], Y[7,8,9,1], X[10,11,2,9], X[11,12,5,3], Z[6,13,14,15], X[15,16,17,8], X[18,19,10,17], X[19,20,13,12], X[20,18,16,14]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      -1,
+      -1
+    ],
+    "component_types": [
+      "RP^2",
+      "RP^2"
+    ],
+    "orientability": "Non",
+    "euler_characteristic": 2,
+    "normal_euler_numbers": [
+      -2,
+      2
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 4,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1^-1 x2^-1 x1 = 1, x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 = 1, x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1 = 1, x2^-1 x1^-1 x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1^-1 x2 x1 x2^-1 x1 x2 x1 = 1>",
+    "h1_free_rank": 0,
+    "h1_torsion": [
+      2,
+      2
+    ],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "4*x*y",
+      "x*y + x",
+      "x*y + y"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "2",
+    "e1_fingerprint_hash": "be81245a750af1d3",
+    "hom_counts": {
+      "S3": 10,
+      "D8": 36,
+      "Q8": 4,
+      "D10": 16,
+      "A4": 16,
+      "Dic12": 4,
+      "Dic16": 36,
+      "F21": 1,
+      "S4": 76,
+      "A5": 76
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      [
+        4
+      ]
+    ],
+    "bikei_invariant_factors": [
+      1,
+      [
+        8
+      ]
+    ],
+    "alexander_biquandle_t": null,
+    "alexander_biquandle_s": null,
+    "mochizuki_c3_mod3": null,
+    "mochizuki_c3_mirror_mod3": null,
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 4,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      4,
+      8
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": true,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "RP^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "RP^2"
+          ],
+          "min_ch_found": 2,
+          "certified_unknot": true
+        }
+      ]
+    },
+    "description": "Non-orientable RP^2 u RP^2 link with dicyclic group Dic_16 of order 16",
+    "ribbon_status": "Non-ribbon",
+    "yoshikawa_printed_e1": [
+      "x + 1",
+      "y + 1",
+      "4"
+    ],
+    "corrected_reference_e1": [
+      "x + 1",
+      "y + 1",
+      "4"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  },
+  {
+    "label": "10_1^-2,-2",
+    "ch_index_diagram": 10,
+    "num_classical": 6,
+    "num_marked": 4,
+    "epd": "Z[1,2,3,4], Y[4,5,6,1], X[6,7,8,9], X[9,8,10,11], X[12,3,2,11], X[13,14,15,12], X[14,16,5,15], Z[16,17,18,7], Y[10,19,20,13], X[20,19,18,17]",
+    "num_components": 2,
+    "yoshikawa_genera": [
+      -2,
+      -2
+    ],
+    "component_types": [
+      "K^2",
+      "K^2"
+    ],
+    "orientability": "Non",
+    "euler_characteristic": 0,
+    "normal_euler_numbers": [
+      0,
+      0
+    ],
+    "c_plus": 2,
+    "c_minus": 2,
+    "pi1_generators": 2,
+    "pi1_relators": 2,
+    "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1^-1 = 1, x2^-1 x1^-1 x2^-1 x1 = 1>",
+    "h1_free_rank": 0,
+    "h1_torsion": [
+      2,
+      2
+    ],
+    "alexander_variables": [
+      "x",
+      "y"
+    ],
+    "e1_generators": [
+      "2*x*y",
+      "x*y + 1",
+      "x*y + x"
+    ],
+    "e2_generators": [
+      "1"
+    ],
+    "single_var_alex": "2",
+    "e1_fingerprint_hash": "8547c5222b25e92c",
+    "hom_counts": {
+      "S3": 10,
+      "D8": 28,
+      "Q8": 28,
+      "D10": 16,
+      "A4": 16,
+      "Dic12": 4,
+      "Dic16": 52,
+      "F21": 1,
+      "S4": 52,
+      "A5": 76
+    },
+    "twisted_s3_delta0": [],
+    "kei_invariant_factors": [
+      1,
+      [
+        2
+      ]
+    ],
+    "bikei_invariant_factors": [
+      1,
+      [
+        4
+      ]
+    ],
+    "alexander_biquandle_t": null,
+    "alexander_biquandle_s": null,
+    "mochizuki_c3_mod3": null,
+    "mochizuki_c3_mirror_mod3": null,
+    "certified_chiral_by_c3": false,
+    "sl2f3_hom_count": 28,
+    "sl2f3_non_meridional_peripheral_count": 0,
+    "sl2f3_peripheral_sample": [],
+    "double_linking_mod2": [],
+    "triple_linking_mod2": [],
+    "bridge_bounds": [
+      6,
+      9
+    ],
+    "sublinks": {
+      "num_components": 2,
+      "all_singletons_unknotted": false,
+      "is_brunnian": false,
+      "proper_sublinks": [
+        {
+          "components": [
+            0
+          ],
+          "types": [
+            "K^2"
+          ],
+          "min_ch_found": 3,
+          "certified_unknot": false
+        },
+        {
+          "components": [
+            1
+          ],
+          "types": [
+            "K^2"
+          ],
+          "min_ch_found": 3,
+          "certified_unknot": false
+        }
+      ]
+    },
+    "description": "Ribbon link of two Klein bottles K^2 u K^2 with pi_1 = Q_8",
+    "ribbon_status": "Ribbon",
+    "yoshikawa_printed_e1": [
+      "x + 1",
+      "y + 1",
+      "2"
+    ],
+    "corrected_reference_e1": [
+      "x + 1",
+      "y + 1",
+      "2"
+    ],
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": ""
+  }
+]

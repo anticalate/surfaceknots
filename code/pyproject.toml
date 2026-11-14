@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=66.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "surfaceknots"
+version = "0.2.0"
+description = "Enumeration, move calculi, and invariants for knotted surfaces and surface-links in R^4"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "sympy>=1.12",
+    "networkx>=3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
