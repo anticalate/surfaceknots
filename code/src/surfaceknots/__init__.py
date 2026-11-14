@@ -75,13 +75,22 @@ from surfaceknots.yoshikawa_data import (
     export_yoshikawa_datasets,
     invariant_discrimination_key,
 )
+from surfaceknots.drawing import (
+    DiagramLayout,
+    compute_diagram_layout,
+    export_canonical_gallery,
+    label_to_stem,
+    render_svg,
+    render_tikz,
+)
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 __all__ = [
     "ClassicalLinkDiagram",
     "ComponentTopology",
     "CoverHomologyResult",
+    "DiagramLayout",
     "DoubleBranchedCoverResult",
     "MarkedDiagram",
     "PlanarShadow",
@@ -101,6 +110,7 @@ __all__ = [
     "cascade_tunnel_diagrams_c",
     "certify_classical_unlink",
     "check_e1_ideal_against_reference",
+    "compute_diagram_layout",
     "compute_full_invariant_record",
     "connected_diagram_components",
     "disjoint_union",
@@ -110,6 +120,7 @@ __all__ = [
     "enumerate_prime_ch_census",
     "estimate_bridge_bounds_from_marked",
     "exact_zh1_ideal_equals",
+    "export_canonical_gallery",
     "export_yoshikawa_datasets",
     "find_planar_connected_sum_decomposition",
     "find_unlink_movie",
@@ -119,6 +130,7 @@ __all__ = [
     "greedy_yoshikawa_reduce",
     "has_certified_cyclic_unknotted_tube",
     "invariant_discrimination_key",
+    "label_to_stem",
     "list_4d_tait_flypes",
     "list_level_yoshikawa_neighbors",
     "list_omega1_6_stabilizations",
@@ -129,6 +141,8 @@ __all__ = [
     "planar_connected_sum",
     "post_filter_and_merge_ch11_survivors",
     "quadrangulation_to_shadow",
+    "render_svg",
+    "render_tikz",
     "simplify_and_explore_yoshikawa",
     "standard_rp2_triplane",
     "standard_torus_triplane",

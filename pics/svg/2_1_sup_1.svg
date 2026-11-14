@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 426" width="380" height="426" role="img" aria-label="2_1^1">
+  <rect x="1" y="1" width="378" height="424" rx="12" fill="#FAFAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+  <text x="18" y="24" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0F172A">2_1^1</text>
+  <text x="18" y="41" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#475569">ch=2 | T^2 | EXACT_SINGLETON</text>
+  <path d="M 75.40 236.00 C 63.27 220.66, 99.95 76.00, 192.33 76.00" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 309.26 236.00 C 321.39 220.66, 284.71 76.00, 192.33 76.00" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 75.40 236.00 C 63.27 251.34, 99.95 396.00, 192.33 396.00" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 309.26 236.00 C 321.39 251.34, 284.71 396.00, 192.33 396.00" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 75.40 236.00 C 88.46 249.06, 129.55 240.38, 192.33 240.38" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 309.26 236.00 C 296.20 249.06, 255.11 240.38, 192.33 240.38" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 75.40 236.00 C 88.46 222.94, 129.55 231.62, 192.33 231.62" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 309.26 236.00 C 296.20 222.94, 255.11 231.62, 192.33 231.62" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <line x1="58.01" y1="236.00" x2="92.78" y2="236.00" stroke="#FAFAFC" stroke-width="8.53" stroke-linecap="round"/>
+  <line x1="58.01" y1="236.00" x2="92.78" y2="236.00" stroke="#0F172A" stroke-width="5.52" stroke-linecap="round"/>
+  <circle cx="75.40" cy="236.00" r="2.41" fill="#0F172A"/>
+  <line x1="321.99" y1="224.15" x2="296.54" y2="247.85" stroke="#FAFAFC" stroke-width="8.53" stroke-linecap="round"/>
+  <line x1="321.99" y1="224.15" x2="296.54" y2="247.85" stroke="#0F172A" stroke-width="5.52" stroke-linecap="round"/>
+  <circle cx="309.26" cy="236.00" r="2.41" fill="#0F172A"/>
+</svg>

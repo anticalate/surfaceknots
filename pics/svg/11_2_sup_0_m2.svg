@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 426" width="380" height="426" role="img" aria-label="11_2^0,-2">
+  <rect x="1" y="1" width="378" height="424" rx="12" fill="#FAFAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+  <text x="18" y="24" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0F172A">11_2^0,-2</text>
+  <text x="18" y="41" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#475569">ch=11 | K^2 u S^2 | EXACT_SINGLETON</text>
+  <circle cx="348.0" cy="20" r="4.5" fill="#1E3A8A"/>
+  <circle cx="362.0" cy="20" r="4.5" fill="#C2410C"/>
+  <path d="M 66.54 245.61 C 76.76 255.82, 88.30 264.65, 99.59 282.79" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 116.80 133.93 C 108.83 149.59, 111.30 170.83, 100.52 188.37" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 47.31 226.39 C 36.48 215.58, 38.18 180.43, 52.28 156.00" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 110.58 358.96 C 95.61 366.82, 66.39 340.43, 52.28 316.00" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 254.89 361.77 C 251.61 372.77, 219.06 396.00, 190.85 396.00" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 137.19 345.00 C 151.32 337.58, 142.67 308.95, 150.78 297.19" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 171.61 275.51 C 165.83 277.23, 158.90 285.44, 150.78 297.19" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 204.37 296.48 C 200.32 298.32, 195.72 298.74, 191.24 296.11" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 181.89 272.44 C 187.35 270.80, 193.51 273.59, 198.01 276.60" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 191.20 213.33 C 185.92 221.65, 180.86 230.95, 177.74 241.22" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 200.58 198.53 C 205.86 190.21, 217.89 179.35, 227.38 166.42" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 246.66 125.96 C 234.81 132.27, 236.87 153.49, 227.38 166.42" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 130.97 106.11 C 138.94 90.46, 162.63 76.00, 190.85 76.00" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 260.72 342.19 C 263.82 331.80, 257.50 320.07, 255.05 308.86" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 330.43 245.00 C 336.79 255.12, 343.52 291.57, 329.41 316.00" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 211.99 293.02 C 216.28 291.08, 219.51 286.33, 224.45 284.06" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 319.11 227.00 C 312.74 216.88, 297.15 199.20, 285.56 179.03" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 268.96 114.08 C 281.50 107.40, 315.30 131.57, 329.41 156.00" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="butt"/>
+  <path d="M 123.88 351.98 C 116.03 337.01, 110.88 300.93, 99.59 282.79" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 56.92 236.00 C 67.63 225.29, 89.75 205.90, 100.52 188.37" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 123.88 120.02 C 108.23 112.05, 66.39 131.57, 52.28 156.00" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 56.92 236.00 C 46.12 246.82, 38.18 291.57, 52.28 316.00" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 123.88 351.98 C 131.74 366.95, 162.63 396.00, 190.85 396.00" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 176.75 273.97 C 178.48 279.75, 186.76 293.49, 191.24 296.11" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 208.18 294.75 C 206.24 290.47, 202.50 279.61, 198.01 276.60" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 176.75 273.97 C 175.02 268.19, 174.63 251.49, 177.74 241.22" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 195.89 205.93 C 187.57 200.65, 167.94 189.40, 156.71 176.59" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 123.88 120.02 C 138.67 127.55, 145.48 163.77, 156.71 176.59" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 195.89 205.93 C 203.75 210.92, 219.98 218.93, 228.21 224.89" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 249.47 246.41 C 246.85 241.66, 236.44 230.84, 228.21 224.89" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 257.81 120.02 C 251.13 107.48, 219.06 76.00, 190.85 76.00" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 242.71 278.81 C 244.60 282.85, 252.60 297.64, 255.05 308.86" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 257.81 351.98 C 247.13 348.80, 231.55 332.39, 224.07 323.60" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 208.18 294.75 C 210.13 299.04, 216.59 314.81, 224.07 323.60" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 257.81 351.98 C 268.82 355.26, 315.30 340.43, 329.41 316.00" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 242.71 278.81 C 238.67 280.69, 229.40 281.79, 224.45 284.06" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 242.71 278.81 C 246.53 277.03, 253.23 272.27, 254.33 267.63" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 249.47 246.41 C 252.08 251.16, 255.42 262.98, 254.33 267.63" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 242.71 278.81 C 240.83 274.76, 235.73 265.46, 236.76 260.69" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 249.47 246.41 C 244.98 248.88, 237.80 255.92, 236.76 260.69" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 249.47 246.41 C 254.21 243.80, 268.14 240.90, 279.87 239.46" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 324.77 236.00 C 315.21 242.01, 291.61 238.02, 279.87 239.46" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 257.81 120.02 C 264.49 132.56, 273.97 158.86, 285.56 179.03" fill="none" stroke="#C2410C" stroke-width="3.34" stroke-linecap="round"/>
+  <path d="M 324.77 236.00 C 334.89 229.63, 343.52 180.43, 329.41 156.00" fill="none" stroke="#1E3A8A" stroke-width="3.34" stroke-linecap="round"/>
+  <line x1="244.38" y1="275.21" x2="241.05" y2="282.40" stroke="#FAFAFC" stroke-width="8.53" stroke-linecap="round"/>
+  <line x1="244.38" y1="275.21" x2="241.05" y2="282.40" stroke="#0F172A" stroke-width="5.52" stroke-linecap="round"/>
+  <circle cx="242.71" cy="278.81" r="2.41" fill="#0F172A"/>
+  <line x1="245.17" y1="244.23" x2="253.76" y2="248.59" stroke="#FAFAFC" stroke-width="8.53" stroke-linecap="round"/>
+  <line x1="245.17" y1="244.23" x2="253.76" y2="248.59" stroke="#0F172A" stroke-width="5.52" stroke-linecap="round"/>
+  <circle cx="249.47" cy="246.41" r="2.41" fill="#0F172A"/>
+</svg>

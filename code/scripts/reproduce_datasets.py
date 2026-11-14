@@ -292,11 +292,13 @@ def collect_census_stats(data_dir: Path) -> dict[str, object]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Regenerate surfaceknots census datasets.")
+    parser = argparse.ArgumentParser(description="Regenerate surfaceknots census datasets and diagram gallery.")
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR)
+    parser.add_argument("--pics-dir", type=Path, default=DEFAULT_DATA_DIR.parents[1] / "pics")
     parser.add_argument("--yoshikawa", action="store_true", help="Export yoshikawa_ch10.{json,csv}")
     parser.add_argument("--ch11-enumerate", action="store_true", help="Run checkpointed ch=11 enumeration/tunneling")
     parser.add_argument("--ch11-export", action="store_true", help="Stratify & export expanded_ch11.{json,csv}")
+    parser.add_argument("--gallery", action="store_true", help="Render SVG & TikZ gallery into pics/{svg,tikz}")
     parser.add_argument("--max-seconds", type=float, default=3600.0)
     args = parser.parse_args()
 
@@ -327,6 +329,11 @@ def main() -> None:
             f"{res['certified_new_prime_invariant_classes']} certified new prime classes, "
             f"{res['residual_colliding_diagrams']} residual collisions."
         )
+    if args.gallery:
+        from surfaceknots.drawing import export_canonical_gallery
+
+        manifest = export_canonical_gallery(args.data_dir, args.pics_dir)
+        print(f"Exported {len(manifest)} SVG + TikZ diagram pairs to {args.pics_dir}")
 
 
 if __name__ == "__main__":

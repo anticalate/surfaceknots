@@ -1,0 +1,40 @@
+\documentclass[tikz,border=6pt]{standalone}
+\usepackage{xcolor}
+\begin{document}
+% Canonical ch-diagram for 6_1^0,1
+\begin{tikzpicture}[line join=round]
+  \definecolor{skcomp0}{RGB}{30,58,138}
+  \definecolor{skcomp1}{RGB}{194,65,12}
+  \definecolor{skmark}{RGB}{15,23,42}
+  \draw[skcomp0, line width=1.15pt, line cap=butt] (0.2962,0.4921) .. controls (0.2962,0.6364) and (0.1742,0.9159) .. (0.1274,1.2361);
+  \draw[skcomp0, line width=1.15pt, line cap=butt] (2.4623,0.2811) .. controls (2.6347,0.5226) and (2.6325,1.5869) .. (2.0759,2.1435);
+  \draw[skcomp0, line width=1.15pt, line cap=butt] (2.1558,-0.1483) .. controls (1.9833,-0.3898) and (1.5536,-0.6064) .. (1.1126,-1.0473);
+  \draw[skcomp1, line width=1.15pt, line cap=butt] (0.1521,-2.4585) .. controls (0.3246,-2.7000) and (1.5194,-2.5672) .. (2.0759,-2.0107);
+  \draw[skcomp1, line width=1.15pt, line cap=butt] (-0.1544,-2.0291) .. controls (-0.3173,-1.8010) and (-0.0828,-1.4235) .. (-0.1297,-1.1033);
+  \draw[skcomp1, line width=1.15pt, line cap=butt] (-0.2985,-0.3593) .. controls (-0.2985,-0.5036) and (-0.1765,-0.7831) .. (-0.1297,-1.1033);
+  \draw[skcomp0, line width=1.15pt, line cap=butt] (0.2962,0.2355) .. controls (0.2962,0.0992) and (0.2764,-0.0367) .. (0.1891,-0.1239);
+  \draw[skcomp1, line width=1.15pt, line cap=butt] (-0.2985,-0.1027) .. controls (-0.2985,0.0336) and (-0.2786,0.1695) .. (-0.1914,0.2567);
+  \draw[skcomp0, line width=1.15pt, line cap=round] (-2.3113,0.0664) .. controls (-2.5528,0.2388) and (-2.6347,1.5869) .. (-2.0782,2.1435);
+  \draw[skcomp0, line width=1.15pt, line cap=round] (-0.0011,2.3766) .. controls (-0.1736,2.6181) and (-1.5217,2.7000) .. (-2.0782,2.1435);
+  \draw[skcomp0, line width=1.15pt, line cap=round] (-2.3113,0.0664) .. controls (-2.4838,-0.1751) and (-2.6347,-1.4541) .. (-2.0782,-2.0107);
+  \draw[skcomp0, line width=1.15pt, line cap=round] (-0.0011,-2.2438) .. controls (-0.2427,-2.4162) and (-1.5217,-2.5672) .. (-2.0782,-2.0107);
+  \draw[skcomp0, line width=1.15pt, line cap=round] (-2.3113,0.0664) .. controls (-2.0832,-0.0965) and (-1.4910,-0.0153) .. (-1.1708,-0.0621);
+  \draw[skcomp0, line width=1.15pt, line cap=round] (-0.2985,-0.2310) .. controls (-0.4429,-0.2310) and (-0.8506,-0.1090) .. (-1.1708,-0.0621);
+  \draw[skcomp0, line width=1.15pt, line cap=round] (-2.3113,0.0664) .. controls (-2.1389,0.3079) and (-1.5559,0.7392) .. (-1.1149,1.1801);
+  \draw[skcomp0, line width=1.15pt, line cap=round] (-0.0011,2.3766) .. controls (-0.2427,2.2041) and (-0.6739,1.6211) .. (-1.1149,1.1801);
+  \draw[skcomp0, line width=1.15pt, line cap=round] (-0.0011,2.3766) .. controls (0.1617,2.1485) and (0.0805,1.5563) .. (0.1274,1.2361);
+  \draw[skcomp0, line width=1.15pt, line cap=round] (-0.0011,2.3766) .. controls (0.2404,2.5490) and (1.5194,2.7000) .. (2.0759,2.1435);
+  \draw[skcomp1, line width=1.15pt, line cap=round] (2.3090,0.0664) .. controls (2.0809,0.2293) and (1.4887,0.1481) .. (1.1685,0.1949);
+  \draw[skcomp1, line width=1.15pt, line cap=round] (0.2962,0.3638) .. controls (0.4406,0.3638) and (0.8484,0.2418) .. (1.1685,0.1949);
+  \draw[skcomp0, line width=1.15pt, line cap=round] (-0.0011,-2.2438) .. controls (0.2404,-2.0713) and (0.6716,-1.4883) .. (1.1126,-1.0473);
+  \draw[skcomp1, line width=1.15pt, line cap=round] (2.3090,0.0664) .. controls (2.5506,-0.1060) and (2.6325,-1.4541) .. (2.0759,-2.0107);
+  \draw[skcomp0, line width=1.15pt, line cap=round] (-0.2985,-0.2310) .. controls (-0.1622,-0.2310) and (0.1019,-0.2111) .. (0.1891,-0.1239);
+  \draw[skcomp1, line width=1.15pt, line cap=round] (0.2962,0.3638) .. controls (0.1599,0.3638) and (-0.1042,0.3439) .. (-0.1914,0.2567);
+  \draw[white, line width=2.8pt, line cap=round] (-2.0475,0.0664) -- (-2.5751,0.0664);
+  \draw[skmark, line width=1.85pt, line cap=round] (-2.0475,0.0664) -- (-2.5751,0.0664);
+  \fill[skmark] (-2.3113,0.0664) circle (1.2pt);
+  \draw[white, line width=2.8pt, line cap=round] (-0.2141,2.5322) -- (0.2119,2.2210);
+  \draw[skmark, line width=1.85pt, line cap=round] (-0.2141,2.5322) -- (0.2119,2.2210);
+  \fill[skmark] (-0.0011,2.3766) circle (1.2pt);
+\end{tikzpicture}
+\end{document}
