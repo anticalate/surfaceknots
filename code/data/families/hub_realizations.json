@@ -31,7 +31,7 @@
       "spoke": "Spoke 2: 1-Fusion Ribbon 2-Knots",
       "subfamily": "ribbon_1fusion",
       "match_mode": "INVARIANT_MATCH",
-      "compiled_ch": 18,
+      "compiled_ch": 17,
       "raw_ch": 18
     }
   ],
@@ -79,7 +79,7 @@
       "spoke": "Spoke 2: 1-Fusion Ribbon 2-Knots",
       "subfamily": "ribbon_1fusion",
       "match_mode": "INVARIANT_MATCH",
-      "compiled_ch": 18,
+      "compiled_ch": 17,
       "raw_ch": 18
     }
   ],
@@ -89,7 +89,7 @@
       "spoke": "Spoke 2: 1-Fusion Ribbon 2-Knots",
       "subfamily": "ribbon_1fusion",
       "match_mode": "INVARIANT_MATCH",
-      "compiled_ch": 18,
+      "compiled_ch": 17,
       "raw_ch": 18
     }
   ],
@@ -174,8 +174,8 @@
       "family_id": "R(b*a^-1)",
       "spoke": "Spoke 2: 1-Fusion Ribbon 2-Knots",
       "subfamily": "ribbon_1fusion",
-      "match_mode": "INVARIANT_MATCH",
-      "compiled_ch": 10,
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 9,
       "raw_ch": 10
     }
   ],

@@ -55,11 +55,22 @@ class GroupPresentation:
     component_meridians: tuple[Word, ...]
 
     def to_human_string(self) -> str:
+        for seq_name, seq in (
+            ("relator", self.relators),
+            ("component_meridian", self.component_meridians),
+        ):
+            for w_chk in seq:
+                for lit in w_chk:
+                    if lit == 0 or abs(lit) > self.num_generators:
+                        raise ValueError(
+                            f"Invalid generator literal {lit} in {seq_name} for num_generators={self.num_generators}"
+                        )
         if self.num_generators == 0:
             return "< | >"
         names = [f"x{i+1}" for i in range(self.num_generators)]
 
         def fmt_word(w: Word) -> str:
+            w = reduce_word(w)
             if not w:
                 return "1"
             out = []
@@ -501,11 +512,11 @@ STANDARD_TEST_GROUPS: tuple[FiniteGroup, ...] = (
 )
 
 
-_CONJ_CLASSES_CACHE: dict[str, list[tuple[int, int]]] = {}
+_CONJ_CLASSES_CACHE: dict[FiniteGroup, list[tuple[int, int]]] = {}
 
 
 def _get_conjugacy_classes(group: FiniteGroup) -> list[tuple[int, int]]:
-    cached = _CONJ_CLASSES_CACHE.get(group.name)
+    cached = _CONJ_CLASSES_CACHE.get(group)
     if cached is not None:
         return cached
     order = group.order
@@ -522,7 +533,7 @@ def _get_conjugacy_classes(group: FiniteGroup) -> list[tuple[int, int]]:
             cls.add(c)
             seen[c] = True
         classes.append((x, len(cls)))
-    _CONJ_CLASSES_CACHE[group.name] = classes
+    _CONJ_CLASSES_CACHE[group] = classes
     return classes
 
 
@@ -576,95 +587,152 @@ def count_homomorphisms(pres: GroupPresentation, group: FiniteGroup) -> int:
                     comp_vis[w] = True
                     q.append(w)
 
-        # Greedy variable ordering: pick next variable completing the most relators (then highest degree):
-        k = len(comp_vars)
-        placed: set[int] = set()
-        ordered_vars: list[int] = []
-        rem_vars = set(comp_vars)
+        # Choose root variable `v0` maximizing degree in relator hypergraph (cut-vertex on connected sums!):
         c_rels = [non_empty_rels[ri] for ri in sorted(comp_rel_ids)]
         c_vsets = [rel_var_sets[ri] for ri in sorted(comp_rel_ids)]
-        while rem_vars:
-            best_v = max(
-                rem_vars,
-                key=lambda cand_v: (
-                    sum(1 for vs in c_vsets if cand_v in vs and vs.issubset(placed | {cand_v})),
-                    sum(1 for vs in c_vsets if cand_v in vs and bool(vs & placed)),
-                    len(gen_rels[cand_v]),
-                    -cand_v,
-                ),
-            )
-            ordered_vars.append(best_v)
-            placed.add(best_v)
-            rem_vars.remove(best_v)
+        v0 = max(
+            comp_vars,
+            key=lambda cand_v: (
+                sum(1 for vs in c_vsets if cand_v in vs and len(vs) == 1),
+                len(adj[cand_v]),
+                len(gen_rels[cand_v]),
+                -cand_v,
+            ),
+        )
 
-        old_to_new = {ov: ni for ni, ov in enumerate(ordered_vars)}
-        mapped_rels: list[Word] = [
-            tuple((old_to_new[lit - 1] + 1) if lit > 0 else -(old_to_new[-lit - 1] + 1) for lit in r)
-            for r in c_rels
+        # Partition `comp_vars \ {v0}` into independent blocks in the relator hypergraph without `v0`:
+        rem_all = set(comp_vars) - {v0}
+        blocks_raw: list[set[int]] = []
+        vis_rem: set[int] = set()
+        for rv in sorted(rem_all):
+            if rv in vis_rem:
+                continue
+            blk: set[int] = set()
+            qb = [rv]
+            vis_rem.add(rv)
+            while qb:
+                u_b = qb.pop()
+                blk.add(u_b)
+                for w_b in adj[u_b]:
+                    if w_b != v0 and w_b in rem_all and w_b not in vis_rem:
+                        vis_rem.add(w_b)
+                        qb.append(w_b)
+            blocks_raw.append(blk)
+
+        # Root-only relators (involving only `v0`):
+        root_only_rels: list[Word] = [
+            tuple(1 if lit > 0 else -1 for lit in r)
+            for r, vs in zip(c_rels, c_vsets)
+            if vs == {v0}
         ]
 
-        rels_by_max_gen: list[list[Word]] = [[] for _ in range(k)]
-        unique_solve: list[tuple[Word, int, bool] | None] = [None] * k
-        for r in mapped_rels:
-            max_idx = max(abs(lit) - 1 for lit in r)
-            rels_by_max_gen[max_idx].append(r)
+        # Precompile each independent block `{v0} U blk`:
+        compiled_blocks = []
+        for blk in blocks_raw:
+            placed_b: set[int] = {v0}
+            ord_b: list[int] = [v0]
+            rem_b = set(blk)
+            b_rels_raw = [r for r, vs in zip(c_rels, c_vsets) if bool(vs & blk)]
+            b_vsets = [vs for vs in c_vsets if bool(vs & blk)]
+            while rem_b:
+                best_v = max(
+                    rem_b,
+                    key=lambda cand_v: (
+                        sum(1 for vs in b_vsets if cand_v in vs and vs.issubset(placed_b | {cand_v})),
+                        sum(1 for vs in b_vsets if cand_v in vs and bool(vs & placed_b)),
+                        len(gen_rels[cand_v]),
+                        -cand_v,
+                    ),
+                )
+                ord_b.append(best_v)
+                placed_b.add(best_v)
+                rem_b.remove(best_v)
 
-        for idx in range(k):
-            for r in rels_by_max_gen[idx]:
-                positions = [p for p, lit in enumerate(r) if abs(lit) - 1 == idx]
-                if len(positions) == 1:
-                    pos = positions[0]
-                    unique_solve[idx] = (r, pos, r[pos] > 0)
+            o2n = {ov: ni for ni, ov in enumerate(ord_b)}
+            kb = len(ord_b)
+            m_rels_b: list[Word] = [
+                tuple((o2n[lit - 1] + 1) if lit > 0 else -(o2n[-lit - 1] + 1) for lit in r)
+                for r in b_rels_raw
+            ]
+            rels_by_max_b: list[list[Word]] = [[] for _ in range(kb)]
+            u_solve_b: list[tuple[Word, int, bool] | None] = [None] * kb
+            for r in m_rels_b:
+                mx_i = max(abs(lit) - 1 for lit in r)
+                rels_by_max_b[mx_i].append(r)
+            for idx in range(1, kb):
+                for r in rels_by_max_b[idx]:
+                    positions = [p for p, lit in enumerate(r) if abs(lit) - 1 == idx]
+                    if len(positions) == 1:
+                        pos = positions[0]
+                        u_solve_b[idx] = (r, pos, r[pos] > 0)
+                        break
+            compiled_blocks.append((kb, rels_by_max_b, u_solve_b))
+
+        def _solve_block(
+            kb: int,
+            rels_by_max_b: list[list[Word]],
+            u_solve_b: list[tuple[Word, int, bool] | None],
+            val0: int,
+        ) -> int:
+            assign_b = [0] * kb
+            assign_b[0] = val0
+
+            def _check_b(idx: int) -> bool:
+                for r in rels_by_max_b[idx]:
+                    acc = 0
+                    for lit in r:
+                        gv = assign_b[lit - 1] if lit > 0 else inv[assign_b[-lit - 1]]
+                        acc = mul[acc][gv]
+                    if acc != 0:
+                        return False
+                return True
+
+            def _bt(idx: int) -> int:
+                if idx == kb:
+                    return 1
+                u_info = u_solve_b[idx]
+                if u_info is not None:
+                    r_u, pos, is_pos = u_info
+                    pref = 0
+                    for lit in r_u[:pos]:
+                        pref = mul[pref][assign_b[lit - 1] if lit > 0 else inv[assign_b[-lit - 1]]]
+                    suff = 0
+                    for lit in r_u[pos + 1 :]:
+                        suff = mul[suff][assign_b[lit - 1] if lit > 0 else inv[assign_b[-lit - 1]]]
+                    val_lit = mul[inv[pref]][inv[suff]]
+                    assign_b[idx] = val_lit if is_pos else inv[val_lit]
+                    return _bt(idx + 1) if _check_b(idx) else 0
+                tot = 0
+                for val in range(order):
+                    assign_b[idx] = val
+                    if _check_b(idx):
+                        tot += _bt(idx + 1)
+                return tot
+
+            return _bt(1)
+
+        comp_cnt = 0
+        for rep_val, cls_sz in conj_classes:
+            ok_root = True
+            for r0 in root_only_rels:
+                acc0 = 0
+                for lit in r0:
+                    acc0 = mul[acc0][rep_val if lit > 0 else inv[rep_val]]
+                if acc0 != 0:
+                    ok_root = False
                     break
+            if not ok_root:
+                continue
+            prod_blocks = 1
+            for kb, rels_by_max_b, u_solve_b in compiled_blocks:
+                bc = _solve_block(kb, rels_by_max_b, u_solve_b, rep_val)
+                if bc == 0:
+                    prod_blocks = 0
+                    break
+                prod_blocks *= bc
+            if prod_blocks:
+                comp_cnt += cls_sz * prod_blocks
 
-        assign = [0] * k
-
-        def _check_rels(idx: int) -> bool:
-            for r in rels_by_max_gen[idx]:
-                acc = 0
-                for lit in r:
-                    gv = assign[lit - 1] if lit > 0 else inv[assign[-lit - 1]]
-                    acc = mul[acc][gv]
-                if acc != 0:
-                    return False
-            return True
-
-        def backtrack(idx: int) -> int:
-            if idx == k:
-                return 1
-            u_info = unique_solve[idx]
-            if u_info is not None:
-                r_u, pos, is_pos = u_info
-                pref = 0
-                for lit in r_u[:pos]:
-                    pref = mul[pref][assign[lit - 1] if lit > 0 else inv[assign[-lit - 1]]]
-                suff = 0
-                for lit in r_u[pos + 1 :]:
-                    suff = mul[suff][assign[lit - 1] if lit > 0 else inv[assign[-lit - 1]]]
-                val_lit = mul[inv[pref]][inv[suff]]
-                assign[idx] = val_lit if is_pos else inv[val_lit]
-                if _check_rels(idx):
-                    return backtrack(idx + 1)
-                return 0
-
-            if idx == 0:
-                tot0 = 0
-                for rep_val, cls_sz in conj_classes:
-                    assign[0] = rep_val
-                    if _check_rels(0):
-                        sub = backtrack(1)
-                        if sub:
-                            tot0 += cls_sz * sub
-                return tot0
-
-            tot = 0
-            for val in range(order):
-                assign[idx] = val
-                if _check_rels(idx):
-                    tot += backtrack(idx + 1)
-            return tot
-
-        comp_cnt = backtrack(0)
         if comp_cnt == 0:
             return 0
         grand_total *= comp_cnt

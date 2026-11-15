@@ -237,14 +237,45 @@ class MarkedDiagram:
         """
         if isinstance(epd, str):
             s = epd.strip()
-            if not s or s == "O[1]" or s == "0_1":
+            if not s or s == "0_1":
                 return cls.unknot_sphere()
-            matches = re.findall(r"([XYZ])\s*\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]", s)
-            if not matches:
-                raise ValueError(f"Could not parse EPD string: {epd!r}")
-            items = [(m[0], int(m[1]), int(m[2]), int(m[3]), int(m[4])) for m in matches]
+            if s == "EMPTY":
+                return cls(num_vertices=0, opp=(), vtype=(), free_loops=0)
+            token_re = re.compile(
+                r"([XYZ])\s*\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]|O\s*\[\s*(\d+)\s*\]"
+            )
+            items = []
+            free_loops = 0
+            pos = 0
+            n_str = len(s)
+            while pos < n_str:
+                while pos < n_str and s[pos] in " \t\r\n,;":
+                    pos += 1
+                if pos >= n_str:
+                    break
+                m = token_re.match(s, pos)
+                if m is None:
+                    raise ValueError(f"Malformed token at position {pos} in EPD string: {epd!r}")
+                if m.group(1) is not None:
+                    items.append(
+                        (
+                            m.group(1),
+                            int(m.group(2)),
+                            int(m.group(3)),
+                            int(m.group(4)),
+                            int(m.group(5)),
+                        )
+                    )
+                else:
+                    free_loops += 1
+                pos = m.end()
+            if not items:
+                if free_loops <= 0:
+                    raise ValueError(f"Could not parse EPD string: {epd!r}")
+                return cls(num_vertices=0, opp=(), vtype=(), free_loops=free_loops)
         else:
             items = [(t, int(a), int(b), int(c), int(d)) for (t, a, b, c, d) in epd]
+            free_loops = 0
             if not items:
                 return cls.unknot_sphere()
 
@@ -258,8 +289,8 @@ class MarkedDiagram:
                 vtypes.append(kind)  # type: ignore[arg-type]
             else:
                 raise ValueError(f"Unknown EPD vertex kind {kind!r}")
-            for s, lbl in enumerate((a, b, c, d)):
-                edge_occ.setdefault(lbl, []).append(4 * v + s)
+            for s_slot, lbl in enumerate((a, b, c, d)):
+                edge_occ.setdefault(lbl, []).append(4 * v + s_slot)
 
         opp = [0] * (4 * n)
         for lbl, darts in edge_occ.items():
@@ -268,12 +299,54 @@ class MarkedDiagram:
             d1, d2 = darts
             opp[d1] = d2
             opp[d2] = d1
-        return cls(num_vertices=n, opp=tuple(opp), vtype=tuple(vtypes), free_loops=0)
+
+        # Verify planar genus-0 ribbon embedding on each connected graph component (F_c - V_c == 2):
+        vis_v = [False] * n
+        comp_of_v = [-1] * n
+        num_gcomps = 0
+        comp_sizes: list[int] = []
+        for sv in range(n):
+            if not vis_v[sv]:
+                cid = num_gcomps
+                num_gcomps += 1
+                vis_v[sv] = True
+                comp_of_v[sv] = cid
+                stk = [sv]
+                cnt = 0
+                while stk:
+                    u = stk.pop()
+                    cnt += 1
+                    for sl in range(4):
+                        w = opp[4 * u + sl] >> 2
+                        if not vis_v[w]:
+                            vis_v[w] = True
+                            comp_of_v[w] = cid
+                            stk.append(w)
+                comp_sizes.append(cnt)
+        face_vis = [False] * (4 * n)
+        comp_faces = [0] * num_gcomps
+        for hd in range(4 * n):
+            if not face_vis[hd]:
+                comp_faces[comp_of_v[hd >> 2]] += 1
+                cur = hd
+                while not face_vis[cur]:
+                    face_vis[cur] = True
+                    od = opp[cur]
+                    cur = ((od >> 2) << 2) | (((od & 3) - 1) & 3)
+        for cid in range(num_gcomps):
+            if comp_faces[cid] != comp_sizes[cid] + 2:
+                raise ValueError(
+                    f"Non-planar 4-valent EPD component (V={comp_sizes[cid]}, F={comp_faces[cid]})"
+                )
+
+        return cls(num_vertices=n, opp=tuple(opp), vtype=tuple(vtypes), free_loops=free_loops)
 
     def to_epd(self) -> str:
         """Serialize to standard EPD string `X[a,b,c,d], Y[...], Z[...]`."""
         if self.num_vertices == 0:
-            return "O[1]" * self.free_loops if self.free_loops > 0 else ""
+            if self.free_loops == 0:
+                return "EMPTY"
+            return ", ".join(f"O[{i}]" for i in range(1, self.free_loops + 1))
         n = self.num_vertices
         dart_label = [0] * (4 * n)
         nxt = 1
@@ -294,8 +367,8 @@ class MarkedDiagram:
                 parts.append(f"X[{b},{c},{d},{a}]")
             else:
                 parts.append(f"{vt}[{a},{b},{c},{d}]")
-        for _ in range(self.free_loops):
-            parts.append("O[1]")
+        for i in range(self.free_loops):
+            parts.append(f"O[{nxt + i}]")
         return ", ".join(parts)
 
     def mirror_3d(self) -> MarkedDiagram:
@@ -453,8 +526,12 @@ class MarkedDiagram:
     def surface_topology(self) -> SurfaceTopology:
         """Compute per-component homeomorphism type, orientability, chi, and normal Euler e(F_i).
 
-        Valid on any admissible ch-diagram (and topologically well-defined as the capped cobordism
-        between `L_-(D)` and `L_+(D)` on any marked diagram).
+        Intrinsic topological invariants (`orientable`, `euler_characteristic`, `genus_symbol`)
+        are defined on the abstract saddle cobordism between `L_-(D)` and `L_+(D)` for any marked
+        diagram `D`. By contrast, `normal_euler` (`e(F_i) = w(L_-(D)|_{F_i}) - w(L_+(D)|_{F_i})`)
+        requires vanishing pairwise linking numbers in `L_+(D)` and `L_-(D)` (in particular,
+        admissible ch-diagrams whose resolutions bound embedded caps in 4-space) and uses the
+        time-first 4-space orientation `R_t x R^3_{x,y,z}` (`dt ^ dx ^ dy ^ dz`).
         """
         n = self.num_vertices
         dart_scomp, total_scomps = self._dart_surface_components()

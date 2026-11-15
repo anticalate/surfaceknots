@@ -17,6 +17,12 @@
     "normal_euler_numbers": [
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        0,
+        0
+      ]
+    ],
     "c_plus": 1,
     "c_minus": 1,
     "pi1_generators": 1,
@@ -34,7 +40,7 @@
       "1"
     ],
     "single_var_alex": "1",
-    "e1_fingerprint_hash": "48d6bf646cc9392e",
+    "e1_fingerprint_hash": "682ba55477ad2470",
     "hom_counts": {
       "S3": 6,
       "D8": 8,
@@ -67,6 +73,22 @@
     "mochizuki_c3_mirror_mod3": [
       "3",
       "3"
+    ],
+    "mochizuki_c5_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 24,
@@ -114,12 +136,15 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": true,
+      "constructive_minus_amphicheiral": true,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       1,
       1
     ],
+    "sublink_invariant_profile": [],
     "sublinks": {
       "num_components": 1,
       "all_singletons_unknotted": null,
@@ -175,6 +200,12 @@
     "normal_euler_numbers": [
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        1,
+        0
+      ]
+    ],
     "c_plus": 1,
     "c_minus": 1,
     "pi1_generators": 1,
@@ -192,7 +223,7 @@
       "1"
     ],
     "single_var_alex": "1",
-    "e1_fingerprint_hash": "48d6bf646cc9392e",
+    "e1_fingerprint_hash": "682ba55477ad2470",
     "hom_counts": {
       "S3": 6,
       "D8": 8,
@@ -225,6 +256,22 @@
     "mochizuki_c3_mirror_mod3": [
       "3",
       "3"
+    ],
+    "mochizuki_c5_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 24,
@@ -272,12 +319,15 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": true,
+      "constructive_minus_amphicheiral": true,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       3,
       3
     ],
+    "sublink_invariant_profile": [],
     "sublinks": {
       "num_components": 1,
       "all_singletons_unknotted": null,
@@ -333,6 +383,12 @@
     "normal_euler_numbers": [
       2
     ],
+    "component_genus_euler_pairs": [
+      [
+        -1,
+        2
+      ]
+    ],
     "c_plus": 1,
     "c_minus": 1,
     "pi1_generators": 1,
@@ -352,7 +408,7 @@
       "1"
     ],
     "single_var_alex": "1",
-    "e1_fingerprint_hash": "b11dfc4c3dd96d52",
+    "e1_fingerprint_hash": "36c38d95c43357f2",
     "hom_counts": {
       "S3": 4,
       "D8": 6,
@@ -378,6 +434,10 @@
     "alexander_biquandle_s": null,
     "mochizuki_c3_mod3": null,
     "mochizuki_c3_mirror_mod3": null,
+    "mochizuki_c5_mod5": null,
+    "mochizuki_c5_mirror_mod5": null,
+    "mochizuki_c7_mod7": null,
+    "mochizuki_c7_mirror_mod7": null,
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 2,
     "sl2f3_non_meridional_peripheral_count": 0,
@@ -416,12 +476,15 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": false,
+      "constructive_plus_amphicheiral": false,
+      "constructive_minus_amphicheiral": false,
       "summary": "Chiral (normal Euler e != -e)"
     },
     "bridge_bounds": [
       2,
       2
     ],
+    "sublink_invariant_profile": [],
     "sublinks": {
       "num_components": 1,
       "all_singletons_unknotted": null,
@@ -458,7 +521,10 @@
         "orientability": "Non",
         "chi": 1,
         "normal_euler": [
-          2
+          [
+            -1,
+            -2
+          ]
         ]
       },
       "other_value": {
@@ -468,7 +534,10 @@
         "orientability": "Ori",
         "chi": 0,
         "normal_euler": [
-          0
+          [
+            1,
+            0
+          ]
         ]
       }
     }
@@ -494,6 +563,16 @@
       0,
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -513,7 +592,7 @@
       "1"
     ],
     "single_var_alex": "t - 1",
-    "e1_fingerprint_hash": "f5578c5e52a7a6da",
+    "e1_fingerprint_hash": "9eeafbaf0f37103d",
     "hom_counts": {
       "S3": 18,
       "D8": 40,
@@ -552,6 +631,30 @@
       "3",
       "3",
       "3"
+    ],
+    "mochizuki_c5_mod5": [
+      "5",
+      "5",
+      "5",
+      "5"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "5",
+      "5",
+      "5",
+      "5"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7",
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7",
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 168,
@@ -625,11 +728,111 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": true,
+      "constructive_minus_amphicheiral": true,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       6
+    ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "S^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ],
+        [
+          "T^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ]
+      ]
     ],
     "sublinks": {
       "num_components": 2,
@@ -714,6 +917,16 @@
       0,
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        -2,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -735,7 +948,7 @@
       "1"
     ],
     "single_var_alex": "t + 1",
-    "e1_fingerprint_hash": "a9d4e0631a3aed99",
+    "e1_fingerprint_hash": "c42c9dda2d8abc0f",
     "hom_counts": {
       "S3": 18,
       "D8": 40,
@@ -767,6 +980,10 @@
     "alexander_biquandle_s": null,
     "mochizuki_c3_mod3": null,
     "mochizuki_c3_mirror_mod3": null,
+    "mochizuki_c5_mod5": null,
+    "mochizuki_c5_mirror_mod5": null,
+    "mochizuki_c7_mod7": null,
+    "mochizuki_c7_mirror_mod7": null,
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 72,
     "sl2f3_non_meridional_peripheral_count": 0,
@@ -856,16 +1073,116 @@
       "chiral_by_normal_euler": false,
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
-      "constructive_so4_amphicheiral": false,
-      "summary": "Symmetry open / no obstruction detected"
+      "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": false,
+      "constructive_minus_amphicheiral": false,
+      "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       7
     ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "K^2",
+          0,
+          [
+            [
+              "A4",
+              4
+            ],
+            [
+              "A5",
+              16
+            ],
+            [
+              "D10",
+              6
+            ],
+            [
+              "D8",
+              6
+            ],
+            [
+              "Dic12",
+              2
+            ],
+            [
+              "Dic16",
+              2
+            ],
+            [
+              "F21",
+              1
+            ],
+            [
+              "Q8",
+              2
+            ],
+            [
+              "S3",
+              4
+            ],
+            [
+              "S4",
+              10
+            ]
+          ],
+          "36c38d95c43357f2"
+        ],
+        [
+          "S^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ]
+      ]
+    ],
     "sublinks": {
       "num_components": 2,
-      "all_singletons_unknotted": false,
+      "all_singletons_unknotted": true,
       "is_brunnian": false,
       "proper_sublinks": [
         {
@@ -876,7 +1193,7 @@
             "K^2"
           ],
           "min_ch_found": 3,
-          "certified_unknot": false
+          "certified_unknot": true
         },
         {
           "components": [
@@ -943,6 +1260,12 @@
     "normal_euler_numbers": [
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        0,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -960,7 +1283,7 @@
       "1"
     ],
     "single_var_alex": "t**2 - t + 1",
-    "e1_fingerprint_hash": "251c966b43e9c6c8",
+    "e1_fingerprint_hash": "95c24ce732de42c9",
     "hom_counts": {
       "S3": 12,
       "D8": 8,
@@ -999,6 +1322,22 @@
     "mochizuki_c3_mirror_mod3": [
       "9",
       "9"
+    ],
+    "mochizuki_c5_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 72,
@@ -1083,12 +1422,15 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": true,
+      "constructive_minus_amphicheiral": true,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       7
     ],
+    "sublink_invariant_profile": [],
     "sublinks": {
       "num_components": 1,
       "all_singletons_unknotted": null,
@@ -1147,6 +1489,16 @@
       0,
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -1166,7 +1518,7 @@
       "1"
     ],
     "single_var_alex": "t - 1",
-    "e1_fingerprint_hash": "f5578c5e52a7a6da",
+    "e1_fingerprint_hash": "9eeafbaf0f37103d",
     "hom_counts": {
       "S3": 18,
       "D8": 40,
@@ -1205,6 +1557,30 @@
       "3",
       "3",
       "3"
+    ],
+    "mochizuki_c5_mod5": [
+      "5",
+      "5",
+      "5",
+      "5"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "5",
+      "5",
+      "5",
+      "5"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7",
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7",
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 168,
@@ -1271,11 +1647,111 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": true,
+      "constructive_minus_amphicheiral": true,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       6,
       8
+    ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "T^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ],
+        [
+          "T^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ]
+      ]
     ],
     "sublinks": {
       "num_components": 2,
@@ -1382,6 +1858,16 @@
       -2,
       2
     ],
+    "component_genus_euler_pairs": [
+      [
+        -1,
+        2
+      ],
+      [
+        -1,
+        -2
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -1405,7 +1891,7 @@
       "1"
     ],
     "single_var_alex": "2",
-    "e1_fingerprint_hash": "8547c5222b25e92c",
+    "e1_fingerprint_hash": "203bd2bab4653f4b",
     "hom_counts": {
       "S3": 10,
       "D8": 28,
@@ -1435,6 +1921,10 @@
     "alexander_biquandle_s": null,
     "mochizuki_c3_mod3": null,
     "mochizuki_c3_mirror_mod3": null,
+    "mochizuki_c5_mod5": null,
+    "mochizuki_c5_mirror_mod5": null,
+    "mochizuki_c7_mod7": null,
+    "mochizuki_c7_mirror_mod7": null,
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 28,
     "sl2f3_non_meridional_peripheral_count": 0,
@@ -1485,11 +1975,111 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": false,
+      "constructive_minus_amphicheiral": false,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       7
+    ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "RP^2",
+          2,
+          [
+            [
+              "A4",
+              4
+            ],
+            [
+              "A5",
+              16
+            ],
+            [
+              "D10",
+              6
+            ],
+            [
+              "D8",
+              6
+            ],
+            [
+              "Dic12",
+              2
+            ],
+            [
+              "Dic16",
+              2
+            ],
+            [
+              "F21",
+              1
+            ],
+            [
+              "Q8",
+              2
+            ],
+            [
+              "S3",
+              4
+            ],
+            [
+              "S4",
+              10
+            ]
+          ],
+          "36c38d95c43357f2"
+        ],
+        [
+          "RP^2",
+          2,
+          [
+            [
+              "A4",
+              4
+            ],
+            [
+              "A5",
+              16
+            ],
+            [
+              "D10",
+              6
+            ],
+            [
+              "D8",
+              6
+            ],
+            [
+              "Dic12",
+              2
+            ],
+            [
+              "Dic16",
+              2
+            ],
+            [
+              "F21",
+              1
+            ],
+            [
+              "Q8",
+              2
+            ],
+            [
+              "S3",
+              4
+            ],
+            [
+              "S4",
+              10
+            ]
+          ],
+          "36c38d95c43357f2"
+        ]
+      ]
     ],
     "sublinks": {
       "num_components": 2,
@@ -1575,6 +2165,12 @@
     "normal_euler_numbers": [
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        0,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -1592,7 +2188,7 @@
       "1"
     ],
     "single_var_alex": "t - 2",
-    "e1_fingerprint_hash": "8d491ccc9dab91ee",
+    "e1_fingerprint_hash": "91d8ecf8285af4ee",
     "hom_counts": {
       "S3": 12,
       "D8": 8,
@@ -1631,6 +2227,22 @@
     "mochizuki_c3_mirror_mod3": [
       "9",
       "9"
+    ],
+    "mochizuki_c5_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 24,
@@ -1681,6 +2293,16 @@
           2,
           2
         ]
+      ],
+      "F21": [
+        [
+          1,
+          [
+            7
+          ],
+          6,
+          6
+        ]
       ]
     },
     "certified_pi2_z_rank": null,
@@ -1693,13 +2315,16 @@
       "chiral_by_normal_euler": false,
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
-      "constructive_so4_amphicheiral": false,
-      "summary": "Symmetry open / no obstruction detected"
+      "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": false,
+      "constructive_minus_amphicheiral": true,
+      "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       8
     ],
+    "sublink_invariant_profile": [],
     "sublinks": {
       "num_components": 1,
       "all_singletons_unknotted": null,
@@ -1758,6 +2383,16 @@
       0,
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -1777,7 +2412,7 @@
       "1"
     ],
     "single_var_alex": "t**2 - 2*t + 1",
-    "e1_fingerprint_hash": "7733c28595fc6b2b",
+    "e1_fingerprint_hash": "cf2fa64b3b827f41",
     "hom_counts": {
       "S3": 24,
       "D8": 64,
@@ -1820,6 +2455,30 @@
       "3",
       "3",
       "3"
+    ],
+    "mochizuki_c5_mod5": [
+      "5",
+      "5",
+      "5",
+      "5"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "5",
+      "5",
+      "5",
+      "5"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7",
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7",
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 192,
@@ -1926,6 +2585,16 @@
           7,
           5
         ]
+      ],
+      "F21": [
+        [
+          4,
+          [
+            7
+          ],
+          12,
+          9
+        ]
       ]
     },
     "certified_pi2_z_rank": null,
@@ -1938,12 +2607,112 @@
       "chiral_by_normal_euler": false,
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
-      "constructive_so4_amphicheiral": false,
-      "summary": "Symmetry open / no obstruction detected"
+      "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": false,
+      "constructive_minus_amphicheiral": true,
+      "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       8
+    ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "S^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ],
+        [
+          "T^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ]
+      ]
     ],
     "sublinks": {
       "num_components": 2,
@@ -2028,6 +2797,16 @@
       0,
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        1,
+        0
+      ],
+      [
+        -2,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -2050,7 +2829,7 @@
       "1"
     ],
     "single_var_alex": "1",
-    "e1_fingerprint_hash": "ac1c66ee4e8849db",
+    "e1_fingerprint_hash": "90a3a7a8fe2d7e2f",
     "hom_counts": {
       "S3": 12,
       "D8": 32,
@@ -2078,6 +2857,10 @@
     "alexander_biquandle_s": null,
     "mochizuki_c3_mod3": null,
     "mochizuki_c3_mirror_mod3": null,
+    "mochizuki_c5_mod5": null,
+    "mochizuki_c5_mirror_mod5": null,
+    "mochizuki_c7_mod7": null,
+    "mochizuki_c7_mirror_mod7": null,
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 48,
     "sl2f3_non_meridional_peripheral_count": 9,
@@ -2147,16 +2930,116 @@
       "chiral_by_normal_euler": false,
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
-      "constructive_so4_amphicheiral": false,
-      "summary": "Symmetry open / no obstruction detected"
+      "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": false,
+      "constructive_minus_amphicheiral": false,
+      "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       6,
       9
     ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "K^2",
+          0,
+          [
+            [
+              "A4",
+              4
+            ],
+            [
+              "A5",
+              16
+            ],
+            [
+              "D10",
+              6
+            ],
+            [
+              "D8",
+              6
+            ],
+            [
+              "Dic12",
+              2
+            ],
+            [
+              "Dic16",
+              2
+            ],
+            [
+              "F21",
+              1
+            ],
+            [
+              "Q8",
+              2
+            ],
+            [
+              "S3",
+              4
+            ],
+            [
+              "S4",
+              10
+            ]
+          ],
+          "36c38d95c43357f2"
+        ],
+        [
+          "T^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ]
+      ]
+    ],
     "sublinks": {
       "num_components": 2,
-      "all_singletons_unknotted": false,
+      "all_singletons_unknotted": true,
       "is_brunnian": false,
       "proper_sublinks": [
         {
@@ -2177,7 +3060,7 @@
             "K^2"
           ],
           "min_ch_found": 3,
-          "certified_unknot": false
+          "certified_unknot": true
         }
       ]
     },
@@ -2193,7 +3076,7 @@
       "2"
     ],
     "has_yoshikawa_table_ii_erratum": true,
-    "erratum_note": "Yoshikawa Table II printed pi_1 = <x, y | yxyx^{-1} = 1> and E_1 = (x + 1, y - 1); actual group is abelian Z + Z_2 = <x, y | xy = yx, y^2 = 1> with E_1 = (x - 1, y - 1, 2).",
+    "erratum_note": "Yoshikawa Table II printed pi_1 = <x, y | yxyx^{-1} = 1> and E_1 = (x + 1, y - 1); actual group is abelian Z + Z_2 = <x, y | xy = yx, y^2 = 1> with E_1 = (x - 1, y - 1, 2) (noted by Ishii-Nikkuni-Oshiro 2018).",
     "cell_status": "EXACT_SINGLETON",
     "num_move_components": 1,
     "move_component_ids": [
@@ -2215,8 +3098,14 @@
         "orientability": "Mixed",
         "chi": 0,
         "normal_euler": [
-          0,
-          0
+          [
+            -2,
+            0
+          ],
+          [
+            1,
+            0
+          ]
         ]
       },
       "other_value": {
@@ -2227,8 +3116,14 @@
         "orientability": "Ori",
         "chi": 2,
         "normal_euler": [
-          0,
-          0
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ]
         ]
       }
     }
@@ -2251,6 +3146,12 @@
     "normal_euler_numbers": [
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        0,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -2268,7 +3169,7 @@
       "1"
     ],
     "single_var_alex": "t**2 - 3*t + 1",
-    "e1_fingerprint_hash": "d192b02c688b1add",
+    "e1_fingerprint_hash": "279e4a854b46275b",
     "hom_counts": {
       "S3": 6,
       "D8": 8,
@@ -2305,6 +3206,22 @@
     "mochizuki_c3_mirror_mod3": [
       "3",
       "3"
+    ],
+    "mochizuki_c5_mod5": [
+      "25",
+      "25"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "25",
+      "25"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 72,
@@ -2387,12 +3304,15 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": true,
+      "constructive_minus_amphicheiral": true,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       8
     ],
+    "sublink_invariant_profile": [],
     "sublinks": {
       "num_components": 1,
       "all_singletons_unknotted": null,
@@ -2449,6 +3369,12 @@
     "normal_euler_numbers": [
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        0,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -2467,7 +3393,7 @@
       "1"
     ],
     "single_var_alex": "1",
-    "e1_fingerprint_hash": "53511ab0b1702b9c",
+    "e1_fingerprint_hash": "4bb9893c50d50000",
     "hom_counts": {
       "S3": 12,
       "D8": 8,
@@ -2506,6 +3432,22 @@
     "mochizuki_c3_mirror_mod3": [
       "3 + 6*u",
       "3 + 6*u^2"
+    ],
+    "mochizuki_c5_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": true,
     "sl2f3_hom_count": 24,
@@ -2554,8 +3496,8 @@
         ]
       ]
     },
-    "certified_pi2_z_rank": 2,
-    "pi2_certification_reason": "finite_commutator_cover_S3",
+    "certified_pi2_z_rank": null,
+    "pi2_certification_reason": null,
     "sym_quandle_q6_col": 6,
     "sym_quandle_q6_trivial_weights": 6,
     "sym_quandle_q6_nontrivial_weights": 0,
@@ -2564,13 +3506,16 @@
       "chiral_by_normal_euler": false,
       "oriented_chiral_by_cocycle": true,
       "non_invertible_by_cocycle": true,
-      "constructive_so4_amphicheiral": false,
-      "summary": "Oriented-chiral & non-invertible (Mochizuki 3-cocycle)"
+      "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": false,
+      "constructive_minus_amphicheiral": true,
+      "summary": "Minus-amphicheiral & non-invertible (+F* ~= -F != +F; unoriented SO(4)-amphicheiral)"
     },
     "bridge_bounds": [
       4,
       8
     ],
+    "sublink_invariant_profile": [],
     "sublinks": {
       "num_components": 1,
       "all_singletons_unknotted": null,
@@ -2629,6 +3574,12 @@
     "normal_euler_numbers": [
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        0,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -2647,7 +3598,7 @@
       "1"
     ],
     "single_var_alex": "1",
-    "e1_fingerprint_hash": "3958ce50bf997a39",
+    "e1_fingerprint_hash": "80500284e6d77500",
     "hom_counts": {
       "S3": 6,
       "D8": 8,
@@ -2680,6 +3631,22 @@
     "mochizuki_c3_mirror_mod3": [
       "3",
       "3"
+    ],
+    "mochizuki_c5_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 72,
@@ -2743,8 +3710,8 @@
         ]
       ]
     },
-    "certified_pi2_z_rank": 7,
-    "pi2_certification_reason": "finite_commutator_cover_SL2F3",
+    "certified_pi2_z_rank": null,
+    "pi2_certification_reason": null,
     "sym_quandle_q6_col": 6,
     "sym_quandle_q6_trivial_weights": 6,
     "sym_quandle_q6_nontrivial_weights": 0,
@@ -2754,12 +3721,15 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": true,
+      "constructive_minus_amphicheiral": true,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       8
     ],
+    "sublink_invariant_profile": [],
     "sublinks": {
       "num_components": 1,
       "all_singletons_unknotted": null,
@@ -2818,6 +3788,12 @@
     "normal_euler_numbers": [
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        1,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -2835,7 +3811,7 @@
       "1"
     ],
     "single_var_alex": "t**2 - t + 1",
-    "e1_fingerprint_hash": "251c966b43e9c6c8",
+    "e1_fingerprint_hash": "95c24ce732de42c9",
     "hom_counts": {
       "S3": 12,
       "D8": 8,
@@ -2874,6 +3850,22 @@
     "mochizuki_c3_mirror_mod3": [
       "9",
       "9"
+    ],
+    "mochizuki_c5_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "5",
+      "5"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 72,
@@ -2958,12 +3950,15 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": true,
+      "constructive_minus_amphicheiral": true,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       9
     ],
+    "sublink_invariant_profile": [],
     "sublinks": {
       "num_components": 1,
       "all_singletons_unknotted": null,
@@ -3022,6 +4017,16 @@
       0,
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -3041,7 +4046,7 @@
       "1"
     ],
     "single_var_alex": "2*t - 2",
-    "e1_fingerprint_hash": "3f51b7ba8ceeef1f",
+    "e1_fingerprint_hash": "b0aed2daf6af760c",
     "hom_counts": {
       "S3": 30,
       "D8": 64,
@@ -3086,6 +4091,30 @@
       "3",
       "3",
       "3"
+    ],
+    "mochizuki_c5_mod5": [
+      "5",
+      "5",
+      "5",
+      "5"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "5",
+      "5",
+      "5",
+      "5"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7",
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7",
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 288,
@@ -3210,11 +4239,111 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": true,
+      "constructive_minus_amphicheiral": true,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       8
+    ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "S^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ],
+        [
+          "T^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ]
+      ]
     ],
     "sublinks": {
       "num_components": 2,
@@ -3246,15 +4375,15 @@
     "description": "Ribbon S^2 u T^2 link",
     "ribbon_status": "Ribbon",
     "yoshikawa_printed_e1": [
-      "(x - 1)*(x + 1)",
-      "(y - 1)*(x + 1)"
+      "(x - 1)*(x*y + 1)",
+      "(y - 1)*(x*y + 1)"
     ],
     "corrected_reference_e1": [
       "(x - 1)*(x + y)",
       "(y - 1)*(x + y)"
     ],
-    "has_yoshikawa_table_ii_erratum": true,
-    "erratum_note": "Yoshikawa Table II printed E_1 = (x - 1, y - 1)(x + 1); Fox calculus on <x, y | y^{-1}x^{-1}yx^{-1}yxy^{-1}x = 1> gives E_1 = (x - 1, y - 1)(x + y).",
+    "has_yoshikawa_table_ii_erratum": false,
+    "erratum_note": "",
     "cell_status": "EXACT_SINGLETON",
     "num_move_components": 1,
     "move_component_ids": [
@@ -3265,29 +4394,17 @@
     ],
     "nearest_separating_witness": {
       "nearest_label": "10_2^0,1",
-      "shared_prefix_layers": 3,
-      "separating_layer_index": 4,
-      "separating_layer": "Sigma2",
-      "this_value": {
-        "chi": 2,
-        "b1": 0,
-        "h1_torsion": [
-          4
-        ],
-        "b2_unoriented": [
-          0,
-          0
-        ]
-      },
-      "other_value": {
-        "chi": 2,
-        "b1": 1,
-        "h1_torsion": [],
-        "b2_unoriented": [
-          1,
-          1
-        ]
-      }
+      "shared_prefix_layers": 2,
+      "separating_layer_index": 3,
+      "separating_layer": "E1",
+      "this_value": [
+        "x**2 - y**2",
+        "x*y - x + y**2 - y"
+      ],
+      "other_value": [
+        "x**2 - 1",
+        "x*y - x + y - 1"
+      ]
     }
   },
   {
@@ -3311,6 +4428,16 @@
       0,
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -3330,7 +4457,7 @@
       "1"
     ],
     "single_var_alex": "t**2 - 1",
-    "e1_fingerprint_hash": "3f51b7ba8ceeef1f",
+    "e1_fingerprint_hash": "7df9ef49d4b9b8af",
     "hom_counts": {
       "S3": 30,
       "D8": 64,
@@ -3370,6 +4497,30 @@
       "9",
       "9",
       "9"
+    ],
+    "mochizuki_c5_mod5": [
+      "25",
+      "25",
+      "25",
+      "25"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "25",
+      "25",
+      "25",
+      "25"
+    ],
+    "mochizuki_c7_mod7": [
+      "49",
+      "49",
+      "49",
+      "49"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "49",
+      "49",
+      "49",
+      "49"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 288,
@@ -3479,12 +4630,112 @@
       "chiral_by_normal_euler": false,
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
-      "constructive_so4_amphicheiral": false,
-      "summary": "Symmetry open / no obstruction detected"
+      "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": false,
+      "constructive_minus_amphicheiral": true,
+      "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       8
+    ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "S^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ],
+        [
+          "T^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ]
+      ]
     ],
     "sublinks": {
       "num_components": 2,
@@ -3535,29 +4786,17 @@
     ],
     "nearest_separating_witness": {
       "nearest_label": "10_1^0,1",
-      "shared_prefix_layers": 3,
-      "separating_layer_index": 4,
-      "separating_layer": "Sigma2",
-      "this_value": {
-        "chi": 2,
-        "b1": 1,
-        "h1_torsion": [],
-        "b2_unoriented": [
-          1,
-          1
-        ]
-      },
-      "other_value": {
-        "chi": 2,
-        "b1": 0,
-        "h1_torsion": [
-          4
-        ],
-        "b2_unoriented": [
-          0,
-          0
-        ]
-      }
+      "shared_prefix_layers": 2,
+      "separating_layer_index": 3,
+      "separating_layer": "E1",
+      "this_value": [
+        "x**2 - 1",
+        "x*y - x + y - 1"
+      ],
+      "other_value": [
+        "x**2 - y**2",
+        "x*y - x + y**2 - y"
+      ]
     }
   },
   {
@@ -3581,6 +4820,16 @@
       0,
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -3600,7 +4849,7 @@
       "1"
     ],
     "single_var_alex": "t - 1",
-    "e1_fingerprint_hash": "f5578c5e52a7a6da",
+    "e1_fingerprint_hash": "9eeafbaf0f37103d",
     "hom_counts": {
       "S3": 18,
       "D8": 40,
@@ -3639,6 +4888,30 @@
       "3",
       "3",
       "3"
+    ],
+    "mochizuki_c5_mod5": [
+      "5",
+      "5",
+      "5",
+      "5"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "5",
+      "5",
+      "5",
+      "5"
+    ],
+    "mochizuki_c7_mod7": [
+      "7",
+      "7",
+      "7",
+      "7"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "7",
+      "7",
+      "7",
+      "7"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 168,
@@ -3705,11 +4978,111 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": true,
+      "constructive_minus_amphicheiral": true,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       6,
       9
+    ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "T^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ],
+        [
+          "T^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ]
+      ]
     ],
     "sublinks": {
       "num_components": 2,
@@ -3819,6 +5192,20 @@
       0,
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
     "c_plus": 3,
     "c_minus": 3,
     "pi1_generators": 3,
@@ -3839,7 +5226,7 @@
       "x*y - 1"
     ],
     "single_var_alex": "0",
-    "e1_fingerprint_hash": "273672869262e4ab",
+    "e1_fingerprint_hash": "45304678e06a269e",
     "hom_counts": {
       "S3": 108,
       "D8": 320,
@@ -3897,6 +5284,46 @@
       "9",
       "9",
       "9"
+    ],
+    "mochizuki_c5_mod5": [
+      "25",
+      "25",
+      "25",
+      "25",
+      "25",
+      "25",
+      "25",
+      "25"
+    ],
+    "mochizuki_c5_mirror_mod5": [
+      "25",
+      "25",
+      "25",
+      "25",
+      "25",
+      "25",
+      "25",
+      "25"
+    ],
+    "mochizuki_c7_mod7": [
+      "49",
+      "49",
+      "49",
+      "49",
+      "49",
+      "49",
+      "49",
+      "49"
+    ],
+    "mochizuki_c7_mirror_mod7": [
+      "49",
+      "49",
+      "49",
+      "49",
+      "49",
+      "49",
+      "49",
+      "49"
     ],
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 4032,
@@ -4109,11 +5536,325 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": true,
+      "constructive_minus_amphicheiral": true,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       5,
       9
+    ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "S^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ],
+        [
+          "S^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ],
+        [
+          "T^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ]
+      ],
+      [
+        [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              "A4",
+              144
+            ],
+            [
+              "A5",
+              3600
+            ],
+            [
+              "D10",
+              100
+            ],
+            [
+              "D8",
+              64
+            ],
+            [
+              "Dic12",
+              144
+            ],
+            [
+              "Dic16",
+              256
+            ],
+            [
+              "F21",
+              441
+            ],
+            [
+              "Q8",
+              64
+            ],
+            [
+              "S3",
+              36
+            ],
+            [
+              "S4",
+              576
+            ]
+          ],
+          "083e3596d42097a2"
+        ],
+        [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              "A4",
+              48
+            ],
+            [
+              "A5",
+              300
+            ],
+            [
+              "D10",
+              40
+            ],
+            [
+              "D8",
+              40
+            ],
+            [
+              "Dic12",
+              72
+            ],
+            [
+              "Dic16",
+              112
+            ],
+            [
+              "F21",
+              105
+            ],
+            [
+              "Q8",
+              40
+            ],
+            [
+              "S3",
+              18
+            ],
+            [
+              "S4",
+              120
+            ]
+          ],
+          "9eeafbaf0f37103d"
+        ],
+        [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              "A4",
+              48
+            ],
+            [
+              "A5",
+              300
+            ],
+            [
+              "D10",
+              40
+            ],
+            [
+              "D8",
+              40
+            ],
+            [
+              "Dic12",
+              72
+            ],
+            [
+              "Dic16",
+              112
+            ],
+            [
+              "F21",
+              105
+            ],
+            [
+              "Q8",
+              40
+            ],
+            [
+              "S3",
+              18
+            ],
+            [
+              "S4",
+              120
+            ]
+          ],
+          "9eeafbaf0f37103d"
+        ]
+      ]
     ],
     "sublinks": {
       "num_components": 3,
@@ -4226,9 +5967,18 @@
         "orientability": "Ori",
         "chi": 4,
         "normal_euler": [
-          0,
-          0,
-          0
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ]
         ]
       },
       "other_value": {
@@ -4239,8 +5989,14 @@
         "orientability": "Non",
         "chi": 2,
         "normal_euler": [
-          -2,
-          2
+          [
+            -1,
+            -2
+          ],
+          [
+            -1,
+            2
+          ]
         ]
       }
     }
@@ -4266,6 +6022,16 @@
       0,
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        0,
+        0
+      ],
+      [
+        -2,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -4287,7 +6053,7 @@
       "1"
     ],
     "single_var_alex": "2",
-    "e1_fingerprint_hash": "7ee04fb35c085ca2",
+    "e1_fingerprint_hash": "3c112ed4bc1aa2ea",
     "hom_counts": {
       "S3": 12,
       "D8": 48,
@@ -4317,6 +6083,10 @@
     "alexander_biquandle_s": null,
     "mochizuki_c3_mod3": null,
     "mochizuki_c3_mirror_mod3": null,
+    "mochizuki_c5_mod5": null,
+    "mochizuki_c5_mirror_mod5": null,
+    "mochizuki_c7_mod7": null,
+    "mochizuki_c7_mirror_mod7": null,
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 144,
     "sl2f3_non_meridional_peripheral_count": 0,
@@ -4435,12 +6205,112 @@
       "chiral_by_normal_euler": false,
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
-      "constructive_so4_amphicheiral": false,
-      "summary": "Symmetry open / no obstruction detected"
+      "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": false,
+      "constructive_minus_amphicheiral": false,
+      "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       8
+    ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "K^2",
+          0,
+          [
+            [
+              "A4",
+              4
+            ],
+            [
+              "A5",
+              16
+            ],
+            [
+              "D10",
+              6
+            ],
+            [
+              "D8",
+              6
+            ],
+            [
+              "Dic12",
+              2
+            ],
+            [
+              "Dic16",
+              2
+            ],
+            [
+              "F21",
+              1
+            ],
+            [
+              "Q8",
+              2
+            ],
+            [
+              "S3",
+              4
+            ],
+            [
+              "S4",
+              10
+            ]
+          ],
+          "36c38d95c43357f2"
+        ],
+        [
+          "S^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ]
+      ]
     ],
     "sublinks": {
       "num_components": 2,
@@ -4527,6 +6397,16 @@
       0,
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        0,
+        0
+      ],
+      [
+        -2,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -4550,7 +6430,7 @@
       "1"
     ],
     "single_var_alex": "2",
-    "e1_fingerprint_hash": "a995caf938cc44d4",
+    "e1_fingerprint_hash": "07336ab3e0533120",
     "hom_counts": {
       "S3": 12,
       "D8": 48,
@@ -4580,6 +6460,10 @@
     "alexander_biquandle_s": null,
     "mochizuki_c3_mod3": null,
     "mochizuki_c3_mirror_mod3": null,
+    "mochizuki_c5_mod5": null,
+    "mochizuki_c5_mirror_mod5": null,
+    "mochizuki_c7_mod7": null,
+    "mochizuki_c7_mirror_mod7": null,
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 144,
     "sl2f3_non_meridional_peripheral_count": 0,
@@ -4689,11 +6573,111 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": false,
+      "constructive_minus_amphicheiral": false,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       8
+    ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "K^2",
+          0,
+          [
+            [
+              "A4",
+              4
+            ],
+            [
+              "A5",
+              16
+            ],
+            [
+              "D10",
+              6
+            ],
+            [
+              "D8",
+              6
+            ],
+            [
+              "Dic12",
+              2
+            ],
+            [
+              "Dic16",
+              2
+            ],
+            [
+              "F21",
+              1
+            ],
+            [
+              "Q8",
+              2
+            ],
+            [
+              "S3",
+              4
+            ],
+            [
+              "S4",
+              10
+            ]
+          ],
+          "36c38d95c43357f2"
+        ],
+        [
+          "S^2",
+          0,
+          [
+            [
+              "A4",
+              12
+            ],
+            [
+              "A5",
+              60
+            ],
+            [
+              "D10",
+              10
+            ],
+            [
+              "D8",
+              8
+            ],
+            [
+              "Dic12",
+              12
+            ],
+            [
+              "Dic16",
+              16
+            ],
+            [
+              "F21",
+              21
+            ],
+            [
+              "Q8",
+              8
+            ],
+            [
+              "S3",
+              6
+            ],
+            [
+              "S4",
+              24
+            ]
+          ],
+          "682ba55477ad2470"
+        ]
+      ]
     ],
     "sublinks": {
       "num_components": 2,
@@ -4734,7 +6718,7 @@
       "4"
     ],
     "has_yoshikawa_table_ii_erratum": true,
-    "erratum_note": "Yoshikawa Table II printed E_1 = (2x + y - 1, 4), omitting the generator (x + 1)(y + 1); integral HNF over Z[x^{+-1}, y]/(y^2 - 1) proves E_1 = (2x + y - 1, (x + 1)(y + 1), 4).",
+    "erratum_note": "Yoshikawa Table II printed E_1 = (2x + y - 1, 4), omitting the generator (x + 1)(y + 1); integral HNF over Z[x^{+-1}, y]/(y^2 - 1) gives E_1 = (2x + y - 1, (x + 1)(y + 1), 4) (noted by Ishii-Nikkuni-Oshiro 2018).",
     "cell_status": "EXACT_SINGLETON",
     "num_move_components": 1,
     "move_component_ids": [
@@ -4781,6 +6765,16 @@
       -2,
       2
     ],
+    "component_genus_euler_pairs": [
+      [
+        -1,
+        -2
+      ],
+      [
+        -1,
+        2
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -4804,7 +6798,7 @@
       "1"
     ],
     "single_var_alex": "2",
-    "e1_fingerprint_hash": "be81245a750af1d3",
+    "e1_fingerprint_hash": "3e4a992e0eeee3b5",
     "hom_counts": {
       "S3": 10,
       "D8": 36,
@@ -4834,6 +6828,10 @@
     "alexander_biquandle_s": null,
     "mochizuki_c3_mod3": null,
     "mochizuki_c3_mirror_mod3": null,
+    "mochizuki_c5_mod5": null,
+    "mochizuki_c5_mirror_mod5": null,
+    "mochizuki_c7_mod7": null,
+    "mochizuki_c7_mirror_mod7": null,
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 4,
     "sl2f3_non_meridional_peripheral_count": 0,
@@ -4893,11 +6891,111 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": false,
+      "constructive_minus_amphicheiral": false,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       4,
       8
+    ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "RP^2",
+          2,
+          [
+            [
+              "A4",
+              4
+            ],
+            [
+              "A5",
+              16
+            ],
+            [
+              "D10",
+              6
+            ],
+            [
+              "D8",
+              6
+            ],
+            [
+              "Dic12",
+              2
+            ],
+            [
+              "Dic16",
+              2
+            ],
+            [
+              "F21",
+              1
+            ],
+            [
+              "Q8",
+              2
+            ],
+            [
+              "S3",
+              4
+            ],
+            [
+              "S4",
+              10
+            ]
+          ],
+          "36c38d95c43357f2"
+        ],
+        [
+          "RP^2",
+          2,
+          [
+            [
+              "A4",
+              4
+            ],
+            [
+              "A5",
+              16
+            ],
+            [
+              "D10",
+              6
+            ],
+            [
+              "D8",
+              6
+            ],
+            [
+              "Dic12",
+              2
+            ],
+            [
+              "Dic16",
+              2
+            ],
+            [
+              "F21",
+              1
+            ],
+            [
+              "Q8",
+              2
+            ],
+            [
+              "S3",
+              4
+            ],
+            [
+              "S4",
+              10
+            ]
+          ],
+          "36c38d95c43357f2"
+        ]
+      ]
     ],
     "sublinks": {
       "num_components": 2,
@@ -4986,6 +7084,16 @@
       0,
       0
     ],
+    "component_genus_euler_pairs": [
+      [
+        -2,
+        0
+      ],
+      [
+        -2,
+        0
+      ]
+    ],
     "c_plus": 2,
     "c_minus": 2,
     "pi1_generators": 2,
@@ -5009,7 +7117,7 @@
       "1"
     ],
     "single_var_alex": "2",
-    "e1_fingerprint_hash": "8547c5222b25e92c",
+    "e1_fingerprint_hash": "203bd2bab4653f4b",
     "hom_counts": {
       "S3": 10,
       "D8": 28,
@@ -5039,6 +7147,10 @@
     "alexander_biquandle_s": null,
     "mochizuki_c3_mod3": null,
     "mochizuki_c3_mirror_mod3": null,
+    "mochizuki_c5_mod5": null,
+    "mochizuki_c5_mirror_mod5": null,
+    "mochizuki_c7_mod7": null,
+    "mochizuki_c7_mirror_mod7": null,
     "certified_chiral_by_c3": false,
     "sl2f3_hom_count": 28,
     "sl2f3_non_meridional_peripheral_count": 0,
@@ -5089,15 +7201,115 @@
       "oriented_chiral_by_cocycle": false,
       "non_invertible_by_cocycle": false,
       "constructive_so4_amphicheiral": true,
+      "constructive_plus_amphicheiral": false,
+      "constructive_minus_amphicheiral": false,
       "summary": "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     },
     "bridge_bounds": [
       6,
       9
     ],
+    "sublink_invariant_profile": [
+      [
+        [
+          "K^2",
+          0,
+          [
+            [
+              "A4",
+              4
+            ],
+            [
+              "A5",
+              16
+            ],
+            [
+              "D10",
+              6
+            ],
+            [
+              "D8",
+              6
+            ],
+            [
+              "Dic12",
+              2
+            ],
+            [
+              "Dic16",
+              2
+            ],
+            [
+              "F21",
+              1
+            ],
+            [
+              "Q8",
+              2
+            ],
+            [
+              "S3",
+              4
+            ],
+            [
+              "S4",
+              10
+            ]
+          ],
+          "36c38d95c43357f2"
+        ],
+        [
+          "K^2",
+          0,
+          [
+            [
+              "A4",
+              4
+            ],
+            [
+              "A5",
+              16
+            ],
+            [
+              "D10",
+              6
+            ],
+            [
+              "D8",
+              6
+            ],
+            [
+              "Dic12",
+              2
+            ],
+            [
+              "Dic16",
+              2
+            ],
+            [
+              "F21",
+              1
+            ],
+            [
+              "Q8",
+              2
+            ],
+            [
+              "S3",
+              4
+            ],
+            [
+              "S4",
+              10
+            ]
+          ],
+          "36c38d95c43357f2"
+        ]
+      ]
+    ],
     "sublinks": {
       "num_components": 2,
-      "all_singletons_unknotted": false,
+      "all_singletons_unknotted": true,
       "is_brunnian": false,
       "proper_sublinks": [
         {
@@ -5108,7 +7320,7 @@
             "K^2"
           ],
           "min_ch_found": 3,
-          "certified_unknot": false
+          "certified_unknot": true
         },
         {
           "components": [
@@ -5118,7 +7330,7 @@
             "K^2"
           ],
           "min_ch_found": 3,
-          "certified_unknot": false
+          "certified_unknot": true
         }
       ]
     },
@@ -5157,8 +7369,14 @@
         "orientability": "Non",
         "chi": 0,
         "normal_euler": [
-          0,
-          0
+          [
+            -2,
+            0
+          ],
+          [
+            -2,
+            0
+          ]
         ]
       },
       "other_value": {
@@ -5169,8 +7387,14 @@
         "orientability": "Non",
         "chi": 2,
         "normal_euler": [
-          -2,
-          2
+          [
+            -1,
+            -2
+          ],
+          [
+            -1,
+            2
+          ]
         ]
       }
     }

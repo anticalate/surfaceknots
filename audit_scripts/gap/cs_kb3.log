@@ -1,0 +1,41 @@
+abelian invariants [ 0 ]
+[ x, X, u, U, v, V, w, W ]
+start KB 14 rules
+confluent, rules: 32
+[u,v] trivial: true
+[u,w] trivial: true
+[v,w] trivial: true
+x w x^-1 reduces to w*V^2*u
+x w x^-1 = w v^-2 u : true   or = w^2 v^-1 u : false
+[ x*X, <identity ...> ]
+[ X*x, <identity ...> ]
+[ u*U, <identity ...> ]
+[ U*u, <identity ...> ]
+[ v*V, <identity ...> ]
+[ V*v, <identity ...> ]
+[ w*W, <identity ...> ]
+[ W*w, <identity ...> ]
+[ V*x, x*U ]
+[ W*x, x*V ]
+[ U*X, X*V ]
+[ v*x, x*u ]
+[ V*X, X*W ]
+[ w*x, x*v ]
+[ u*X, X*v ]
+[ v*X, X*w ]
+[ U*w, w*U ]
+[ W*X, X*W*v^2*U ]
+[ u*x, x*w*V*u^2 ]
+[ V*w, w*V ]
+[ v*W, W*v ]
+[ v*w, w*v ]
+[ w*X, X*w*V^2*u ]
+[ u*w, w*u ]
+[ U*x, x*W*v*U^2 ]
+[ U*v, v*U ]
+[ u*W, W*u ]
+[ U*V, V*U ]
+[ u*V, V*u ]
+[ U*W, W*U ]
+[ V*W, W*V ]
+[ u*v, v*u ]

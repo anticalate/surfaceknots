@@ -16,9 +16,9 @@ Every invariant equivalence class $C \in \mathcal{C}_N$ in our JSON/CSV datasets
 
 | `cell_status` | Condition | Mathematical Guarantee |
 | :--- | :--- | :--- |
-| **`EXACT_SINGLETON`** | $\operatorname{Refs}_{<N}(C) = \emptyset$ and $m(C) = 1$ | **Unconditional**: $C$ represents **1** exact $\mathrm{O}(4)$-isotopy class $F$ with $\operatorname{ch}(F) = N$ (no move-height bound needed). |
-| **`NEW_PACKET`** | $\operatorname{Refs}_{<N}(C) = \emptyset$ and $m(C) \ge 2$ | **Unconditional lower bound**: $C$ contains between $1$ and $m(C)$ genuinely new $\mathrm{O}(4)$-isotopy classes with $\operatorname{ch}(F) = N$; diagram sub-IDs (`11_1.a`, `11_1.b`, ...) track the $m(C)$ move-components until merged by deeper stabilization or split by a finer invariant. |
-| **`AMBIGUOUS_SHADOW`** | $\operatorname{Refs}_{<N}(C) \neq \emptyset$ | **Potential duplicate / exotic candidate**: $I(C)$ collides with a known reference in $\operatorname{Refs}_{<N}(C)$ (most commonly a non-collapsible diagram of a lower-$\operatorname{ch}$ surface or stabilized unknot, or potentially an algebraic-doppelgänger new surface). Retained in the residual audit log rather than silently dropped or overclaimed. |
+| **`EXACT_SINGLETON`** | $\operatorname{Refs}_{<N}(C) = \emptyset$ and $m(C) = 1$ | **Conditional on completeness of $\operatorname{Refs}_{<N}$, unconditional in move-height $H$**: $C$ represents **1** exact $\mathrm{O}(4)$-isotopy class $F$ with $\operatorname{ch}(F) = N$ (no Yoshikawa move-stabilization height bound needed). |
+| **`NEW_PACKET`** | $\operatorname{Refs}_{<N}(C) = \emptyset$ and $m(C) \ge 2$ | **Conditional on completeness of $\operatorname{Refs}_{<N}$, unconditional in move-height $H$**: $C$ contains between $1$ and $m(C)$ genuinely new $\mathrm{O}(4)$-isotopy classes with $\operatorname{ch}(F) = N$; diagram sub-IDs (`11_1.a`, `11_1.b`, ...) track the $m(C)$ move-components until merged by deeper stabilization or split by a finer invariant. |
+| **`AMBIGUOUS_SHADOW`** | $\operatorname{Refs}_{<N}(C) \neq \emptyset$ | **Potential duplicate / algebraic collision**: $I(C)$ collides with a known reference in $\operatorname{Refs}_{<N}(C)$ (most commonly a non-collapsible diagram of a lower-$\operatorname{ch}$ surface or stabilized unknot, or potentially an algebraic-doppelgänger new surface). Retained in the residual audit log rather than silently dropped or overclaimed. |
 
 ### 1.2 Explicit Separating Witnesses (`nearest_separating_witness`)
 To answer *"why are $F$ and $F'$ definitely distinct?"* systematically across the entire catalog, we order our presentation-independent invariant hierarchy into $10$ layers (`invariant_filtration_layers` in [`yoshikawa_data.py`](../code/src/surfaceknots/yoshikawa_data.py)):
@@ -26,12 +26,12 @@ To answer *"why are $F$ and $F'$ definitely distinct?"* systematically across th
 2. `H1` (abelianization $\mathbb{Z}^r \oplus \mathbb{Z}_2^s$)
 3. `E1` (multivariable Alexander elementary ideals over $\mathbb{Z}[H_1]$)
 4. `Sigma2` (total mod-2 double branched cover $(\chi, b_1, \operatorname{Tors} H_1, b_2, |\sigma|)$)
-5. `pi2_covers` (Poincaré–Lefschetz cover Betti profile $(b_1, \operatorname{Tors} H_1, b_2, b_3)$ on regular finite covers $\widetilde{E}_\rho$)
-6. `finite_quotients` ($|\operatorname{Hom}(\pi_1, G)|$ + twisted $S_3$ Alexander factors)
+5. `finite_quotients` ($|\operatorname{Hom}(\pi_1, G)|$ + twisted $S_3$ Alexander factors)
+6. `pi2_covers` (Poincaré–Lefschetz cover Betti profile $(b_1, \operatorname{Tors} H_1, b_2, b_3)$ on regular finite covers $\widetilde{E}_\rho$)
 7. `kei_bikei_abq` (kei, universal linear bikei over $\mathbb{Z}[s]/(s^2 - 1)$, and oriented Alexander biquandle modules)
-8. `cocycles_and_sym_quandle` (Mochizuki $R_3$ 3-cocycles and Kamada–Oshiro $(Q_6, \rho)$ symmetric quandle colorings & 3-cocycles)
-9. `double_triple_linking` (Sanderson mod-2 $\operatorname{Dlk}$ and Carter–Saito triple linking)
-10. `peripheral_SL2F3` (non-meridional longitudinal $\operatorname{SL}(2, \mathbb{F}_3)$ holonomy)
+8. `peripheral_SL2F3` (non-meridional longitudinal $\operatorname{SL}(2, \mathbb{F}_3)$ holonomy)
+9. `double_triple_linking` (Rohlin–Matsumoto mod-2 membrane pairing $\operatorname{Dlk}$ and Carter–Saito triple linking)
+10. `cocycles_and_sym_quandle` (Mochizuki $R_3, R_5, R_7$ 3-cocycles and Kamada–Oshiro $(Q_6, \rho)$ symmetric quandle colorings & 3-cocycles)
 
 For every entry $C$, `nearest_separating_witness` records its closest neighbor $C'$ in this lexicographic filtration together with the first invariant layer (and explicit values) where $I_k(C) \neq I_k(C')$.
 
@@ -72,7 +72,8 @@ flowchart TD
 1. **Common Intermediate Representation (`MarkedDiagram`)**: Every family compiler outputs an explicit, admissible `MarkedDiagram` (`L_-` and `L_+` machine-verified to be unlinks) simplified by greedy $\operatorname{ch}$-reducing Yoshikawa moves.
 2. **Certified Complexity Intervals `[ch_lower, ch_upper]`**:
    - The simplified compiled diagram immediately certifies a rigorous constructive upper bound $\operatorname{ch}(F) \le \operatorname{ch}(D_{\text{compiled}}) = \text{ch\_upper}$.
-   - Cross-joining the invariant key $I(F)$ against the exhaustive Hub catalog up to $\operatorname{ch} \le N_{\max}$ (`N_max = 11` currently):
-     - If $I(F)$ matches a unique `EXACT_SINGLETON` Hub entry at $\operatorname{ch} = k \le N_{\max}$ (or is move-verified equal), both bounds collapse to an **exact determination** $\operatorname{ch}(F) = k$ and automatically supply the Hub entry's geometric name!
-     - If $I(F)$ does not appear anywhere in the exhaustive Hub catalog up to $N_{\max}$, Theorem 3.3 certifies the **rigorous lower bound** $\operatorname{ch}(F) \ge N_{\max} + 1$ (`ch_lower = 12`).
-3. **Bidirectional Foreign Keys**: Hub records carry `family_realizations` (listing all Spoke parameterizations realizing that surface-link), while Spoke records carry `hub_match` (`"8_1"`, `"11_1"`, ..., or `null` when $\operatorname{ch}(F) \ge 12$).
+   - Cross-joining the invariant key $I(F)$ against the exhaustive Hub catalog up to $\operatorname{ch} \le N_{\max}$ (`N_max = 12` currently):
+     - If an explicit Yoshikawa move sequence connects the compiled diagram $D_{\text{compiled}}$ to a Hub diagram at $\operatorname{ch} = k \le N_{\max}$ (`MOVE_CERTIFIED`), ambient isotopy is **provably certified** and (conditional on lower-$\operatorname{ch}$ exclusion) establishes $\operatorname{ch}(F) = k$ together with the Hub entry's geometric realization.
+     - If no move bridge is found within bounded stabilization search, a match $I(F) = I(C)$ against a Hub entry $C$ at $\operatorname{ch} = k \le N_{\max}$ is recorded explicitly as `INVARIANT_MATCH` (heuristic 10-layer invariant identification, rather than proven ambient isotopy).
+     - If $I(F)$ does not appear anywhere in the exhaustive Hub catalog up to $N_{\max}$ (including residual `AMBIGUOUS_SHADOW` cells), Theorem 3.3 certifies the lower bound $\operatorname{ch}(F) \ge N_{\max} + 1$ (`ch_lower = 13`, conditional on completeness of the lower-$\operatorname{ch}$ tables); when $\text{ch\_upper} = N_{\max} + 1 = 13$, both bounds meet at $\operatorname{ch}(F) = 13$.
+3. **Bidirectional Foreign Keys**: Hub records carry `family_realizations` (listing all Spoke parameterizations realizing or matching that surface-link, tagged by `MOVE_CERTIFIED` vs `INVARIANT_MATCH`), while Spoke records carry `hub_match` (`"8_1"`, `"11_1"`, `"12_1"`, ..., or `null` when $\operatorname{ch}(F) \ge 13$).

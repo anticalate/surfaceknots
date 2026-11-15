@@ -14,7 +14,9 @@ Key features:
 from __future__ import annotations
 
 from dataclasses import dataclass
+import heapq
 from itertools import combinations, permutations, product
+import math
 
 import sympy as sp
 
@@ -22,13 +24,20 @@ from surfaceknots.diagrams import MarkedDiagram
 from surfaceknots.invariants.fundamental_group import (
     GroupPresentation,
     Word,
+    tietze_simplify,
     wirtinger_presentation,
 )
 
 
 @dataclass(frozen=True)
 class AlexanderResult:
-    """Computed Alexander module invariants over `Z[H_1(S^4 \\ F)]`."""
+    """Computed Alexander module invariants over `Z[H_1(S^4 \\ F)]`.
+
+    `evaluation_fingerprint` `(fp_e1, fp_e2)` is the strict `Aut(H_1)`-invariant canonical key.
+    `single_var_alex` is canonicalized under `t <-> t^{-1}` when `r == 1` (`len(ori_syms) == 1`);
+    for `r >= 2`, `e1_generators`, `e2_generators`, and `single_var_alex` (`t_i -> t`) are
+    meridian-oriented display representatives.
+    """
 
     ring_description: str
     variable_names: tuple[str, ...]
@@ -167,7 +176,41 @@ def _simplify_ideal_generators(
 
     r = len(ori_syms)
     s = len(torsion_syms)
-    cleaned_list = sorted(cleaned_set, key=lambda expr: (len(str(expr)), str(expr)))
+    def _expr_complexity_key(e: sp.Expr) -> tuple:
+        p = sp.Poly(e, *all_vars, domain=sp.ZZ)
+        return (p.total_degree(), len(p.terms()), len(str(e)), str(e))
+
+    cleaned_list = sorted(cleaned_set, key=_expr_complexity_key)
+
+    def _fallback_gb_reduce(expr_list: list[sp.Expr]) -> list[sp.Expr]:
+        """When degree box exceeds HNF cap, try strong Groebner reduction over Z[H_1] to strip
+        high-degree Tietze consequences cleanly; fall back to degree-sorted `expr_list` if budget hit.
+        """
+        try:
+            gb = zh1_groebner_basis(expr_list, ori_syms, torsion_syms, raise_on_budget=True)
+        except _GroebnerBudgetExceeded:
+            return expr_list
+        inv_syms_tmp = [sp.Symbol(f"_inv_{sym.name}") for sym in ori_syms]
+        ring_syms_tmp = inv_syms_tmp + ori_syms + torsion_syms
+        subs_back = {inv_s: oi_s for inv_s, oi_s in zip(inv_syms_tmp, ori_inv_syms)}
+        red_set = set()
+        for poly_tup in gb:
+            e_gb = sp.Integer(0)
+            for mon, coeff in poly_tup:
+                term = sp.Integer(coeff)
+                for sym_rs, exp_rs in zip(ring_syms_tmp, mon):
+                    if exp_rs:
+                        term *= sym_rs**exp_rs
+                e_gb += term
+            e_gb = e_gb.subs(subs_back)
+            ce = _clear_negative_laurent_powers(e_gb, ori_syms, ori_inv_syms, torsion_syms)
+            if ce == 1:
+                return [sp.Integer(1)]
+            if ce != 0:
+                red_set.add(ce)
+        if not red_set:
+            return [sp.Integer(0)]
+        return sorted(red_set, key=_expr_complexity_key)
 
     # Determine max degree in each orientable variable `t_i`
     max_degs = [0] * r
@@ -198,8 +241,22 @@ def _simplify_ideal_generators(
     for d_val in box_degs:
         total_basis *= d_val + 1
 
-    if total_basis > 160:
-        return cleaned_list
+    if total_basis > 320:
+        gb_reduced = _fallback_gb_reduce(cleaned_list)
+        if gb_reduced != cleaned_list:
+            new_max = [0] * r
+            for expr in gb_reduced:
+                p = sp.Poly(expr, *all_vars, domain=sp.ZZ)
+                for mon, _ in p.terms():
+                    for i in range(r):
+                        if mon[i] > new_max[i]:
+                            new_max[i] = mon[i]
+            new_tb = 2**s
+            for dv in new_max:
+                new_tb *= dv + 1
+            if new_tb <= 320:
+                return _simplify_ideal_generators(gb_reduced, ori_syms, ori_inv_syms, torsion_syms)
+        return gb_reduced
 
     # Order basis in DECREASING total degree (so constant `1` is the LAST row; column-HNF
     # upper-triangularizes from top to bottom, isolating low-degree / constant generators at the end!)
@@ -228,6 +285,8 @@ def _simplify_ideal_generators(
 
     if not cols:
         return [sp.Integer(0)]
+    if len(cols) > 640:
+        return _fallback_gb_reduce(cleaned_list)
 
     mat = sp.Matrix(cols).T  # dim x num_cols
     hnf = hermite_normal_form(mat)
@@ -310,22 +369,468 @@ def _simplify_ideal_generators(
     return kept if kept else [sp.Integer(0)]
 
 
-def _ideal_evaluation_fingerprint(
+_PolyZZ = dict[tuple[int, ...], int]
+
+
+def _egcd_zz(a: int, b: int) -> tuple[int, int, int]:
+    if b == 0:
+        return (a, 1, 0) if a >= 0 else (-a, -1, 0)
+    g, x1, y1 = _egcd_zz(b, a % b)
+    return g, y1, x1 - (a // b) * y1
+
+
+def _mon_key(m: tuple[int, ...]) -> tuple[int, tuple[int, ...]]:
+    return (sum(m), m)
+
+
+def _lead_zz(f: _PolyZZ) -> tuple[tuple[int, ...], int]:
+    lm = max(f.keys(), key=_mon_key)
+    return lm, f[lm]
+
+
+def _norm_sign_zz(f: _PolyZZ) -> _PolyZZ:
+    if not f:
+        return f
+    _, lc = _lead_zz(f)
+    if lc < 0:
+        return {m: -c for m, c in f.items()}
+    return f
+
+
+def _mul_shift_zz(f: _PolyZZ, scale: int, shift: tuple[int, ...]) -> _PolyZZ:
+    if scale == 0 or not f:
+        return {}
+    return {
+        tuple(a + b for a, b in zip(m, shift)): c * scale
+        for m, c in f.items()
+        if c * scale != 0
+    }
+
+
+def _add_poly_zz(f: _PolyZZ, g: _PolyZZ, sign: int = 1) -> _PolyZZ:
+    out = dict(f)
+    for m, c in g.items():
+        nv = out.get(m, 0) + sign * c
+        if nv == 0:
+            out.pop(m, None)
+        else:
+            out[m] = nv
+    return out
+
+
+class _GroebnerBudgetExceeded(Exception):
+    """Internal signal raised when strong Groebner computation exceeds term, bit, or step budget."""
+
+
+def _check_poly_budget(p: _PolyZZ, max_terms: int = 96, max_bits: int = 256) -> None:
+    if len(p) > max_terms:
+        raise _GroebnerBudgetExceeded("max_terms exceeded")
+    for c in p.values():
+        if abs(c).bit_length() > max_bits:
+            raise _GroebnerBudgetExceeded("max_bits exceeded")
+
+
+def _reduce_poly_zz(
+    f: _PolyZZ,
+    basis: list[_PolyZZ],
+    *,
+    max_terms: int = 96,
+    max_bits: int = 256,
+    max_red_steps: int = 500,
+) -> _PolyZZ:
+    cur = dict(f)
+    if not cur or not basis:
+        return _norm_sign_zz(cur)
+    _check_poly_budget(cur, max_terms, max_bits)
+    b_leads: list[tuple[tuple[int, ...], int, _PolyZZ]] = []
+    for g in basis:
+        if g:
+            lm, lc = _lead_zz(g)
+            b_leads.append((lm, lc, g))
+    b_leads.sort(key=lambda item: (_mon_key(item[0]), abs(item[1]), len(item[2])))
+    changed = True
+    r_steps = 0
+    while changed and cur:
+        changed = False
+        for m in sorted(cur.keys(), key=_mon_key, reverse=True):
+            c = cur[m]
+            reduced_here = False
+            for lm_g, lc_g, g in b_leads:
+                if all(mi >= gi for mi, gi in zip(m, lm_g)):
+                    q = c // lc_g
+                    if q != 0:
+                        r_steps += 1
+                        if r_steps > max_red_steps:
+                            raise _GroebnerBudgetExceeded("max_red_steps exceeded")
+                        shift = tuple(mi - gi for mi, gi in zip(m, lm_g))
+                        cur = _add_poly_zz(cur, _mul_shift_zz(g, q, shift), sign=-1)
+                        _check_poly_budget(cur, max_terms, max_bits)
+                        changed = True
+                        reduced_here = True
+                        break
+            if reduced_here:
+                break
+    return _norm_sign_zz(cur)
+
+
+def strong_groebner_zz(
+    gens: list[_PolyZZ],
+    nvars: int,
+    *,
+    max_steps: int = 1500,
+    max_terms: int = 96,
+    max_bits: int = 256,
+    raise_on_budget: bool = False,
+) -> tuple[tuple[tuple[tuple[int, ...], int], ...], ...]:
+    """Compute the unique reduced strong Groebner basis over `Z` (Kandri-Rody & Kapur 1988).
+
+    Uses degree-ordered incremental generator insertion, dynamic retirement of superseded basis
+    elements, and strict term/coefficient/step blowup guards (returning `()` cleanly or raising
+    `_GroebnerBudgetExceeded` if `raise_on_budget=True`, never emitting fake sentinel polynomials).
+    """
+    try:
+        pending = [_norm_sign_zz(dict(g)) for g in gens if g]
+        for g in pending:
+            for c in g.values():
+                if abs(c).bit_length() > max_bits:
+                    raise _GroebnerBudgetExceeded("input max_bits exceeded")
+        pending.sort(key=lambda g: (_mon_key(_lead_zz(g)[0]), abs(_lead_zz(g)[1]), len(g)))
+
+        G: list[_PolyZZ] = []
+        pair_heap: list[tuple[tuple[int, tuple[int, ...]], int, int]] = []
+
+        def add_to_basis(rem: _PolyZZ) -> bool:
+            nonlocal G
+            if rem == {(0,) * nvars: 1}:
+                G = [rem]
+                pair_heap.clear()
+                pending.clear()
+                return True
+            lm_r, lc_r = _lead_zz(rem)
+            retired: list[_PolyZZ] = []
+            for idx_k, gk in enumerate(G):
+                if not gk:
+                    continue
+                lm_k, lc_k = _lead_zz(gk)
+                if lc_k % lc_r == 0 and all(mk >= mr for mk, mr in zip(lm_k, lm_r)):
+                    G[idx_k] = {}
+                    retired.append(gk)
+            new_idx = len(G)
+            G.append(rem)
+            for k in range(new_idx):
+                if G[k]:
+                    lm_k, _ = _lead_zz(G[k])
+                    lcm_m = tuple(max(a, b) for a, b in zip(lm_k, lm_r))
+                    heapq.heappush(pair_heap, (_mon_key(lcm_m), k, new_idx))
+            for rk_poly in retired:
+                r2 = _reduce_poly_zz(rk_poly, G, max_terms=max_terms, max_bits=max_bits)
+                if r2:
+                    if add_to_basis(r2):
+                        return True
+            return False
+
+        steps = 0
+        p_idx = 0
+        while p_idx < len(pending) or pair_heap:
+            if p_idx < len(pending):
+                g_next = pending[p_idx]
+                g_key = _mon_key(_lead_zz(g_next)[0])
+                if not pair_heap or g_key <= pair_heap[0][0]:
+                    p_idx += 1
+                    rem0 = _reduce_poly_zz(
+                        g_next, G, max_terms=max(max_terms, len(g_next) + 32), max_bits=max_bits
+                    )
+                    if rem0:
+                        _check_poly_budget(rem0, max_terms, max_bits)
+                        if add_to_basis(rem0):
+                            break
+                    continue
+
+            _, i, j = heapq.heappop(pair_heap)
+            f, g = G[i], G[j]
+            if not f or not g:
+                continue
+            steps += 1
+            if steps > max_steps:
+                raise _GroebnerBudgetExceeded("max_steps exceeded")
+
+            lm_f, lc_f = _lead_zz(f)
+            lm_g, lc_g = _lead_zz(g)
+            if lc_f == 1 and lc_g == 1 and all(a == 0 or b == 0 for a, b in zip(lm_f, lm_g)):
+                continue
+            L = tuple(max(a, b) for a, b in zip(lm_f, lm_g))
+            sh_f = tuple(l_i - a_i for l_i, a_i in zip(L, lm_f))
+            sh_g = tuple(l_i - b_i for l_i, b_i in zip(L, lm_g))
+
+            cands: list[_PolyZZ] = []
+            ell = math.lcm(lc_f, lc_g)
+            if ell.bit_length() > max_bits:
+                raise _GroebnerBudgetExceeded("lcm bit_length exceeded")
+            s_poly = _add_poly_zz(
+                _mul_shift_zz(f, ell // lc_f, sh_f),
+                _mul_shift_zz(g, ell // lc_g, sh_g),
+                sign=-1,
+            )
+            if s_poly:
+                cands.append(s_poly)
+
+            d_gcd, u_bez, v_bez = _egcd_zz(lc_f, lc_g)
+            if d_gcd < lc_f and d_gcd < lc_g:
+                g_poly = _add_poly_zz(
+                    _mul_shift_zz(f, u_bez, sh_f),
+                    _mul_shift_zz(g, v_bez, sh_g),
+                    sign=1,
+                )
+                if g_poly:
+                    cands.append(g_poly)
+
+            hit_unit = False
+            for cand in cands:
+                _check_poly_budget(cand, max_terms * 2, max_bits)
+                rem = _reduce_poly_zz(cand, G, max_terms=max_terms, max_bits=max_bits)
+                if rem:
+                    if add_to_basis(rem):
+                        hit_unit = True
+                        break
+            if hit_unit:
+                break
+
+        G = [g for g in G if g]
+        changed = True
+        while changed:
+            changed = False
+            for idx in range(len(G)):
+                others = [G[k] for k in range(len(G)) if k != idx and G[k]]
+                r = _reduce_poly_zz(G[idx], others, max_terms=max_terms, max_bits=max_bits)
+                if r != G[idx]:
+                    G[idx] = r
+                    changed = True
+            G = [g for g in G if g]
+
+        G.sort(key=lambda g: _mon_key(_lead_zz(g)[0]))
+        return tuple(tuple(sorted(g.items(), key=lambda kv: _mon_key(kv[0]))) for g in G)
+    except _GroebnerBudgetExceeded:
+        if raise_on_budget:
+            raise
+        return ()
+
+
+def zh1_groebner_basis(
+    gens: list[sp.Expr],
+    ori_syms: list[sp.Symbol],
+    torsion_syms: list[sp.Symbol],
+    *,
+    raise_on_budget: bool = False,
+) -> tuple[tuple[tuple[tuple[int, ...], int], ...], ...]:
+    """Return the unique reduced strong Groebner basis of `(gens)` in
+    `Z[t_1^{+-1}, ..., t_r^{+-1}, u_1, ..., u_s] / (u_j^2 - 1)` modeled as
+    `Z[inv_1..inv_r, t_1..t_r, u_1..u_s] / (inv_i * t_i - 1, u_j^2 - 1)`.
+    """
+    r = len(ori_syms)
+    s = len(torsion_syms)
+    inv_syms = [sp.Symbol(f"_inv_{sym.name}") for sym in ori_syms]
+    ring_syms = inv_syms + ori_syms + torsion_syms
+    nvars = len(ring_syms)
+    polys: list[_PolyZZ] = []
+    for i in range(r):
+        m = [0] * nvars
+        m[i] = 1
+        m[r + i] = 1
+        polys.append({tuple(m): 1, (0,) * nvars: -1})
+    for j in range(s):
+        m = [0] * nvars
+        m[2 * r + j] = 2
+        polys.append({tuple(m): 1, (0,) * nvars: -1})
+    for g in gens:
+        e = sp.expand(g)
+        if e == 0:
+            continue
+        num, _ = sp.fraction(sp.together(e))
+        e_num = sp.expand(num)
+        if not ring_syms:
+            v = int(e_num)
+            if v != 0:
+                polys.append({(): v})
+        else:
+            p = sp.Poly(e_num, *ring_syms, domain=sp.ZZ)
+            pd = {mon: int(c) for mon, c in p.terms() if int(c) != 0}
+            if pd:
+                polys.append(pd)
+    return strong_groebner_zz(polys, nvars, raise_on_budget=raise_on_budget)
+
+
+def _parse_zh1_laurent_poly(
+    expr: sp.Expr,
+    ori_syms: list[sp.Symbol],
+    torsion_syms: list[sp.Symbol],
+) -> dict[tuple[int, ...], int] | None:
+    """Parse a Laurent expression in `Z[t_1^{+-1}..t_r^{+-1}, u_1..u_s]/(u_j^2 - 1)` into
+    `{(e_0..e_{r-1}, b_0..b_{s-1}): coeff}`, or return `None` if `expr` has non-monomial denominator.
+    """
+    r = len(ori_syms)
+    s = len(torsion_syms)
+    all_syms = ori_syms + torsion_syms
+    e = sp.expand(expr)
+    if e == 0:
+        return {}
+    if not all_syms:
+        if e.is_Integer:
+            v = int(e)
+            return {(): v} if v != 0 else {}
+        return None
+    if e.is_polynomial(*all_syms):
+        p_num = sp.Poly(e, *all_syms, domain=sp.ZZ)
+        den_mon = (0,) * (r + s)
+        den_sign = 1
+    else:
+        num, den = sp.fraction(sp.together(e))
+        e_num = sp.expand(num)
+        e_den = sp.expand(den)
+        if not (e_num.is_polynomial(*all_syms) and e_den.is_polynomial(*all_syms)):
+            return None
+        p_den = sp.Poly(e_den, *all_syms, domain=sp.ZZ)
+        den_terms = p_den.terms()
+        if len(den_terms) != 1 or abs(int(den_terms[0][1])) != 1:
+            return None
+        den_mon = den_terms[0][0]
+        den_sign = int(den_terms[0][1])
+        p_num = sp.Poly(e_num, *all_syms, domain=sp.ZZ)
+
+    out: dict[tuple[int, ...], int] = {}
+    for mon, coeff in p_num.terms():
+        c = int(coeff) * den_sign
+        if c == 0:
+            continue
+        ori_e = tuple(mon[i] - den_mon[i] for i in range(r))
+        tor_b = tuple((mon[r + j] - den_mon[r + j]) & 1 for j in range(s))
+        key = ori_e + tor_b
+        nv = out.get(key, 0) + c
+        if nv:
+            out[key] = nv
+        else:
+            out.pop(key, None)
+    return out
+
+
+def canonical_zh1_groebner_key(
     gens: list[sp.Expr],
     ori_syms: list[sp.Symbol],
     torsion_syms: list[sp.Symbol],
 ) -> tuple:
-    """Compute an exact symmetry-invariant fingerprint of an ideal `I subset Z[H_1]`.
+    """Return the minimum reduced strong Groebner basis of `(gens)` over all topological
+    `H_1`-automorphisms (`t_i -> t_{pi(i)}^{+-1}`, `u_j -> u_{sigma(j)}`).
+    """
+    r = len(ori_syms)
+    s = len(torsion_syms)
+    if r > 3 or s > 3 or (r + s) > 3:
+        return ()
+    clean_gens = [sp.expand(g) for g in gens if sp.expand(g) != 0]
+    if not clean_gens:
+        return zh1_groebner_basis([], ori_syms, torsion_syms)
+    if any(g in (1, -1) for g in clean_gens):
+        return zh1_groebner_basis([sp.Integer(1)], ori_syms, torsion_syms)
 
-    Evaluates the ideal over `Z` (and `Z[i], Z[omega_3]`) across all `2^s` characters `u_j in {+1, -1}`
-    and test points `t_i in {1, -1, 2, 3}`, taking the lexicographically smallest tuple over:
-    - orientable meridian inversions `t_i <-> t_i^{-1}`, and
-    - permutations among orientable variables and among non-orientable variables!
-    Wait: notice that `E_1 = (u - 1, 2)` vs `E_1 = (2)` have IDENTICAL point-evaluations into `Z`
-    at `u = +1` (`gcd(0, 2) = 2`) and `u = -1` (`gcd(-2, 2) = 2`), because `Z[u]/(u^2-1)` has index 2
-    in `Z x Z`!
-    To distinguish fibered ideals like `(u - 1, 2)` from `(2)` with 100% precision, we ALSO include
-    the **exact cardinality / HNF invariant factors of the finite quotient `Z[H_1] / (I + (t_i^2 - 1, 4))`**!
+    parsed_gens: list[dict[tuple[int, ...], int]] = []
+    fallback_sympy = False
+    for g in clean_gens:
+        lp = _parse_zh1_laurent_poly(g, ori_syms, torsion_syms)
+        if lp is None:
+            fallback_sympy = True
+            break
+        if lp:
+            parsed_gens.append(lp)
+
+    if not fallback_sympy and not parsed_gens:
+        return zh1_groebner_basis([], ori_syms, torsion_syms)
+
+    nvars = 2 * r + s
+    base_rels: list[_PolyZZ] = []
+    for i in range(r):
+        m = [0] * nvars
+        m[i] = 1
+        m[r + i] = 1
+        base_rels.append({tuple(m): 1, (0,) * nvars: -1})
+    for j in range(s):
+        m = [0] * nvars
+        m[2 * r + j] = 2
+        base_rels.append({tuple(m): 1, (0,) * nvars: -1})
+
+    best: tuple | None = None
+    seen_sets: set[tuple] = set()
+    zero_inv = (0,) * r
+    try:
+        for p_ori in permutations(range(r)):
+            for p_tor in permutations(range(s)):
+                for inv_o in product((1, -1), repeat=r):
+                    if fallback_sympy:
+                        subs = {}
+                        for i in range(r):
+                            tgt = ori_syms[p_ori[i]]
+                            subs[ori_syms[i]] = tgt if inv_o[i] == 1 else (1 / tgt)
+                        for j in range(s):
+                            subs[torsion_syms[j]] = torsion_syms[p_tor[j]]
+                        mapped = [g.subs(subs) for g in clean_gens]
+                        gb = zh1_groebner_basis(
+                            mapped, ori_syms, torsion_syms, raise_on_budget=True
+                        )
+                    else:
+                        gen_keys: list[tuple[tuple[tuple[int, ...], int], ...]] = []
+                        for lp in parsed_gens:
+                            raw_terms: list[tuple[list[int], tuple[int, ...], int]] = []
+                            for mon, coeff in lp.items():
+                                op = [0] * r
+                                for i in range(r):
+                                    op[p_ori[i]] = inv_o[i] * mon[i]
+                                tp = [0] * s
+                                for j in range(s):
+                                    tp[p_tor[j]] = mon[r + j]
+                                raw_terms.append((op, tuple(tp), coeff))
+                            mins = [min(op[k] for op, _, _ in raw_terms) for k in range(r)]
+                            poly_d: _PolyZZ = {}
+                            for op, tp, coeff in raw_terms:
+                                full_mon = (
+                                    zero_inv
+                                    + tuple(op[k] - mins[k] for k in range(r))
+                                    + tp
+                                )
+                                poly_d[full_mon] = coeff
+                            poly_d = _norm_sign_zz(poly_d)
+                            if len(poly_d) == 1 and (0,) * nvars in poly_d and poly_d[(0,) * nvars] == 1:
+                                return zh1_groebner_basis([sp.Integer(1)], ori_syms, torsion_syms)
+                            gen_keys.append(
+                                tuple(sorted(poly_d.items(), key=lambda kv: _mon_key(kv[0])))
+                            )
+                        set_key = tuple(sorted(set(gen_keys)))
+                        if set_key in seen_sets:
+                            continue
+                        seen_sets.add(set_key)
+                        mapped_polys = [dict(gk) for gk in set_key]
+                        gb = strong_groebner_zz(
+                            base_rels + mapped_polys, nvars, raise_on_budget=True
+                        )
+                    if best is None or gb < best:
+                        best = gb
+    except _GroebnerBudgetExceeded:
+        return ()
+    return best if best is not None else ()
+
+
+def _ideal_evaluation_fingerprint(
+    gens: list[sp.Expr],
+    ori_syms: list[sp.Symbol],
+    torsion_syms: list[sp.Symbol],
+    *,
+    include_groebner: bool = True,
+) -> tuple:
+    """Compute a complete, strictly automorphism-invariant canonical key for an ideal `I subset Z[H_1]`.
+
+    Combines:
+    1. The exact canonical reduced strong Groebner basis over `Z` (`canonical_zh1_groebner_key`,
+       minimized over all `H_1` meridian permutations and orientable inversions `t_i <-> t_i^{-1}`),
+       which is a complete decision invariant of the ideal `I subset Z[H_1]` for `r, s <= 3`.
+    2. Canonical Smith Normal Form invariant factors of `Z[H_1] / (I + (t_i^m - 1, u_j^2 - 1))`
+       for `m in (2, 3, 4, 5)` whenever `m^r * 2^s <= 256`.
+    3. Sorted integer GCD evaluations at `(t_i, u_j) in {+1, -1}^{r+s}`.
     """
     from math import gcd
     from functools import reduce
@@ -334,56 +839,46 @@ def _ideal_evaluation_fingerprint(
     r = len(ori_syms)
     s = len(torsion_syms)
 
-    # 1. Exact quotient module invariant factors on `Z[t_1..t_r, u_1..u_s] / (t_i^3 - 1, u_j^2 - 1)`:
-    # Basis has `3^r * 2^s` elements (for c <= 4, <= 81 basis elements -> microseconds!).
-    # Under `t_i -> t_i^{-1}` (`t_i -> t_i^2 mod t_i^3 - 1`) and variable permutations, the SNF
-    # invariant factors of the multiplication ideal matrix are **100% CANONICALLY INVARIANT**
-    # WITHOUT EVEN NEEDING TO LOOP OVER VARIABLE PERMUTATIONS OR INVERSIONS!!
-    snf_3_2: tuple[int, ...] = ()
-    snf_2_2: tuple[int, ...] = ()
-    if (3**r) * (2**s) <= 243:
-        for t_mod, tag in ((2, "mod2"), (3, "mod3")):
-            basis_exps = list(product(*(range(t_mod) for _ in range(r)), *(range(2) for _ in range(s))))
-            b_idx = {e: idx for idx, e in enumerate(basis_exps)}
-            dim = len(basis_exps)
-            all_syms = ori_syms + torsion_syms
-            rows: list[list[int]] = []
-            for g in gens:
-                if g == 0:
-                    continue
-                p = sp.Poly(g, *all_syms, domain=sp.ZZ) if all_syms else None
-                g_terms: list[tuple[tuple[int, ...], int]] = []
-                if p is None:
-                    g_terms.append(((), int(g)))
-                else:
-                    for mon, coeff in p.terms():
-                        g_terms.append((mon, int(coeff)))
-                # Multiply `g` by every basis monomial `b`!
-                for b in basis_exps:
-                    vec = [0] * dim
-                    for mon, coeff in g_terms:
-                        prod_e = tuple((b[i] + mon[i]) % t_mod for i in range(r)) + tuple(
-                            (b[r + j] + mon[r + j]) & 1 for j in range(s)
-                        )
-                        vec[b_idx[prod_e]] += coeff
-                    if any(vec):
-                        rows.append(vec)
-            if not rows:
-                invs = (0,) * dim
+    snfs: list[tuple[int, tuple[int, ...]]] = []
+    for t_mod in (2, 3, 4, 5):
+        if (t_mod**r) * (2**s) > 256:
+            continue
+        basis_exps = list(product(*(range(t_mod) for _ in range(r)), *(range(2) for _ in range(s))))
+        b_idx = {e: idx for idx, e in enumerate(basis_exps)}
+        dim = len(basis_exps)
+        all_syms = ori_syms + torsion_syms
+        rows: list[list[int]] = []
+        for g in gens:
+            if g == 0:
+                continue
+            num, _ = sp.fraction(sp.together(sp.expand(g)))
+            e_num = sp.expand(num)
+            p = sp.Poly(e_num, *all_syms, domain=sp.ZZ) if all_syms else None
+            g_terms: list[tuple[tuple[int, ...], int]] = []
+            if p is None:
+                g_terms.append(((), int(e_num)))
             else:
-                mat = sp.Matrix(rows)
-                snf = smith_normal_form(mat, domain=sp.ZZ)
-                diag = [abs(int(snf[i, i])) for i in range(min(snf.rows, snf.cols))]
-                # Pad with zeros to `dim` columns
-                diag_padded = diag + [0] * (dim - len(diag))
-                invs = tuple(sorted(diag_padded))
-            if t_mod == 2:
-                snf_2_2 = invs
-            else:
-                snf_3_2 = invs
+                for mon, coeff in p.terms():
+                    g_terms.append((mon, int(coeff)))
+            for b in basis_exps:
+                vec = [0] * dim
+                for mon, coeff in g_terms:
+                    prod_e = tuple((b[i] + mon[i]) % t_mod for i in range(r)) + tuple(
+                        (b[r + j] + mon[r + j]) & 1 for j in range(s)
+                    )
+                    vec[b_idx[prod_e]] += coeff
+                if any(vec):
+                    rows.append(vec)
+        if not rows:
+            invs = (0,) * dim
+        else:
+            mat = sp.Matrix(rows)
+            snf = smith_normal_form(mat, domain=sp.ZZ)
+            diag = [abs(int(snf[i, i])) for i in range(min(snf.rows, snf.cols))]
+            diag_padded = diag + [0] * (dim - len(diag))
+            invs = tuple(sorted(diag_padded))
+        snfs.append((t_mod, invs))
 
-    # 2. Integer GCD evaluations at `t_i in {1, -1, 2}` (and `2^{-1}` handled by comparing `{2, 1/2}`
-    # via clearing `2^k`? Better: evaluate at `t_i = 1` and `t_i = -1`, which ARE self-inverse!).
     eval_pm1 = []
     for t_vals in product((1, -1), repeat=r):
         for u_vals in product((1, -1), repeat=s):
@@ -393,7 +888,8 @@ def _ideal_evaluation_fingerprint(
             eval_pm1.append(reduce(gcd, vals, 0))
     eval_pm1_sorted = tuple(sorted(eval_pm1))
 
-    return (snf_2_2, snf_3_2, eval_pm1_sorted)
+    gb_key = canonical_zh1_groebner_key(gens, ori_syms, torsion_syms) if include_groebner else ()
+    return (gb_key, tuple(snfs), eval_pm1_sorted)
 
 
 def compute_alexander_invariants(
@@ -405,6 +901,7 @@ def compute_alexander_invariants(
 ) -> AlexanderResult:
     """Compute multivariable Alexander elementary ideals `E_1(F), E_2(F)` over `Z[H_1(S^4 \\ F)]`."""
     from surfaceknots.diagrams import SurfaceTopology
+    from surfaceknots.invariants.fundamental_group import tietze_simplify
 
     if topo is None:
         if d is None:
@@ -417,6 +914,8 @@ def compute_alexander_invariants(
         if d is None:
             raise ValueError("Either `d` or `pres` must be supplied")
         pres = wirtinger_presentation(d, from_resolution=from_resolution, simplify=True)  # type: ignore[arg-type]
+    else:
+        pres = tietze_simplify(pres)
     topo = topo_obj
 
 
@@ -462,16 +961,26 @@ def compute_alexander_invariants(
     g = pres.num_generators
     num_c = topo.num_components
 
+    def _format_ring_desc() -> str:
+        if not ori_syms and not torsion_syms:
+            return "Z"
+        torsion_rels = [f"{u}^2=1" for u in torsion_syms]
+        ori_part = ", ".join(f"{s}^+-1" for s in ori_syms)
+        tor_part = ", ".join(str(u) for u in torsion_syms)
+        vars_desc = ", ".join(x for x in (ori_part, tor_part) if x)
+        return f"Z[{vars_desc}]" + (f" / ({', '.join(torsion_rels)})" if torsion_rels else "")
+
     if g == 0:
-        ring_desc = "Z"
+        fp1 = _ideal_evaluation_fingerprint([sp.Integer(1)], ori_syms, torsion_syms, include_groebner=True)
+        fp2 = _ideal_evaluation_fingerprint([sp.Integer(1)], ori_syms, torsion_syms, include_groebner=False)
         return AlexanderResult(
-            ring_description=ring_desc,
+            ring_description=_format_ring_desc(),
             variable_names=tuple(var_names),
             orientable_flags=tuple(ori_flags),
             e1_generators=("1",),
             e2_generators=("1",),
             single_var_alex="1",
-            evaluation_fingerprint=((1,), (1,), (1,)),
+            evaluation_fingerprint=(fp1, fp2),
         )
 
     # Solve linear system for generator images in `Z^r` (orientable coordinates) and `(Z_2)^s` (torsion):
@@ -483,10 +992,12 @@ def compute_alexander_invariants(
     def word_exp_vec(w: Word) -> list[int]:
         v = [0] * g
         for lit in w:
+            if lit == 0 or abs(lit) > g:
+                raise ValueError(f"Invalid generator literal {lit} for num_generators={g}")
             v[abs(lit) - 1] += 1 if lit > 0 else -1
         return v
 
-    # 1. Solve over Q/Z for orientable coordinates `gen_ori_exps[j][k]` (`j in 0..g-1, k in 0..r-1`)
+    # 1. Solve over Z for orientable coordinates `gen_ori_exps[j][k]` (`j in 0..g-1, k in 0..r-1`)
     r_cnt = len(ori_comp_indices)
     gen_ori_exps = [[0] * r_cnt for _ in range(g)]
     if r_cnt > 0:
@@ -510,7 +1021,12 @@ def compute_alexander_invariants(
             sol = sol.subs({p: 0 for p in params})
         for j in range(g):
             for k_idx in range(r_cnt):
-                gen_ori_exps[j][k_idx] = int(sol[j, k_idx])
+                val = sol[j, k_idx]
+                if not val.is_integer:
+                    raise ValueError(
+                        f"Presentation meridians/relators do not admit an integral Z^{r_cnt} homomorphism (got {val})"
+                    )
+                gen_ori_exps[j][k_idx] = int(val)
 
     # 2. Solve over GF(2) for non-orientable coordinates `gen_tor_exps[j][l]` (`l in 0..s-1`)
     s_cnt = len(tor_comp_indices)
@@ -519,8 +1035,10 @@ def compute_alexander_invariants(
         gf2_rows: list[list[int]] = []
         for rel in pres.relators:
             rv = [x & 1 for x in word_exp_vec(rel)]
-            if any(rv):
-                gf2_rows.append(rv + [0] * s_cnt)
+            gf2_rows.append(rv + [0] * s_cnt)
+        for sc in ori_comp_indices:
+            mv = [x & 1 for x in word_exp_vec(pres.component_meridians[sc])]
+            gf2_rows.append(mv + [0] * s_cnt)
         for l_idx, sc in enumerate(tor_comp_indices):
             mv = [x & 1 for x in word_exp_vec(pres.component_meridians[sc])]
             rhs = [0] * s_cnt
@@ -544,9 +1062,29 @@ def compute_alexander_invariants(
                 if rr != piv_row and gf2_rows[rr][col] == 1:
                     gf2_rows[rr] = [a ^ b for a, b in zip(gf2_rows[rr], gf2_rows[piv_row])]
             piv_row += 1
+        for rr in range(piv_row, num_rows):
+            if any(gf2_rows[rr][g:]):
+                raise ValueError(
+                    "Inconsistent GF(2) meridian/torsion system: presentation abelianization incompatible with topology"
+                )
         for rr, col in piv_col_for_row.items():
             for l_idx in range(s_cnt):
                 gen_tor_exps[col][l_idx] = gf2_rows[rr][g + l_idx]
+
+    # Verify exact group homomorphism `psi: <x | r> -> Z^r (+) (Z_2)^s` AND exact abelianization match:
+    # check that `pres.abelianization_invariant_factors()` matches `(r_cnt, (2,)*s_cnt)`!
+    ab_rk, ab_tor = pres.abelianization_invariant_factors()
+    if ab_rk != r_cnt or ab_tor != (2,) * s_cnt:
+        raise ValueError(
+            f"Presentation abelianization (rank={ab_rk}, torsion={ab_tor}) does not match "
+            f"surface topology H_1 = Z^{r_cnt} (+) (Z_2)^{s_cnt}"
+        )
+    for rel in pres.relators:
+        rv = word_exp_vec(rel)
+        if any(sum(rv[j] * gen_ori_exps[j][k_idx] for j in range(g)) != 0 for k_idx in range(r_cnt)):
+            raise ValueError("Relator fails to vanish in Z^r under abelianization map")
+        if any((sum(rv[j] * gen_tor_exps[j][l_idx] for j in range(g)) & 1) != 0 for l_idx in range(s_cnt)):
+            raise ValueError("Relator fails to vanish in (Z_2)^s under abelianization map")
 
     # Build SymPy monomials `gen_images[j]` and `gen_inv_images[j]`
     gen_images: list[sp.Expr] = []
@@ -613,12 +1151,18 @@ def compute_alexander_invariants(
         minor_size = g - k_order
         if minor_size <= 0:
             return [sp.Integer(1)]
-        if minor_size > m_rels or minor_size > g:
+        nz_rows = [row for row in jac_rows if any(entry != 0 for entry in row)]
+        nz_cols = [c for c in range(g) if any(row[c] != 0 for row in nz_rows)]
+        if minor_size > len(nz_rows) or minor_size > len(nz_cols):
             return [sp.Integer(0)]
-        mat = sp.Matrix(jac_rows)
+        mat = sp.Matrix(nz_rows)
         minors: list[sp.Expr] = []
-        for r_comb in combinations(range(m_rels), minor_size):
-            for c_comb in combinations(range(g), minor_size):
+        for r_comb in combinations(range(len(nz_rows)), minor_size):
+            for c_comb in combinations(nz_cols, minor_size):
+                if any(all(nz_rows[ri][ci] == 0 for ci in c_comb) for ri in r_comb):
+                    continue
+                if any(all(nz_rows[ri][ci] == 0 for ri in r_comb) for ci in c_comb):
+                    continue
                 sub = mat.extract(list(r_comb), list(c_comb))
                 det = normalize_ring_elem(sub.det(method="berkowitz"))
                 if det != 0:
@@ -627,8 +1171,8 @@ def compute_alexander_invariants(
 
     e1_gens = compute_elementary_ideal(1)
     e2_gens = compute_elementary_ideal(2)
-    fp1 = _ideal_evaluation_fingerprint(e1_gens, ori_syms, torsion_syms)
-    fp2 = _ideal_evaluation_fingerprint(e2_gens, ori_syms, torsion_syms)
+    fp1 = _ideal_evaluation_fingerprint(e1_gens, ori_syms, torsion_syms, include_groebner=True)
+    fp2 = _ideal_evaluation_fingerprint(e2_gens, ori_syms, torsion_syms, include_groebner=False)
 
     # Single-variable specialized Alexander polynomial (map all orientable vars -> t, torsion -> 1)
     t_sym = sp.Symbol("t")
@@ -658,13 +1202,26 @@ def compute_alexander_invariants(
         for nxt_p in spec_polys[1:]:
             cur_gcd = sp.gcd(sp.Poly(cur_gcd, t_sym, domain=sp.ZZ), sp.Poly(nxt_p, t_sym, domain=sp.ZZ)).as_expr()
         cur_gcd = _clear_negative_laurent_powers(cur_gcd, [t_sym], [], [])
+        if len(ori_syms) == 1:
+            # Canonicalize Delta(t) under `t <-> t^{-1}` so `single_var_alex` is strictly
+            # meridian-orientation-independent whenever `r == 1`!
+            p_1v = sp.Poly(sp.expand(cur_gcd), t_sym, domain=sp.ZZ)
+            terms_1v = [(m[0], int(c)) for m, c in p_1v.terms() if c != 0]
+            if terms_1v:
+                min_e1 = min(e for e, _ in terms_1v)
+                max_e1 = max(e for e, _ in terms_1v)
+                deg_1v = max_e1 - min_e1
+                fwd_1v = sorted(((e - min_e1, c) for e, c in terms_1v), reverse=True)
+                if fwd_1v[0][1] < 0:
+                    fwd_1v = [(e, -c) for e, c in fwd_1v]
+                rev_1v = sorted(((deg_1v - (e - min_e1), c) for e, c in terms_1v), reverse=True)
+                if rev_1v[0][1] < 0:
+                    rev_1v = [(e, -c) for e, c in rev_1v]
+                best_1v = min(fwd_1v, rev_1v)
+                cur_gcd = sp.expand(sum(sp.Integer(c) * (t_sym**e) for e, c in best_1v))
         single_alex = str(cur_gcd)
 
-    torsion_rels = [f"{u}^2=1" for u in torsion_syms]
-    ori_part = ", ".join(f"{s}^+-1" for s in ori_syms)
-    tor_part = ", ".join(str(u) for u in torsion_syms)
-    vars_desc = ", ".join(x for x in (ori_part, tor_part) if x)
-    ring_desc = f"Z[{vars_desc}]" + (f" / ({', '.join(torsion_rels)})" if torsion_rels else "")
+    ring_desc = _format_ring_desc()
 
     return AlexanderResult(
         ring_description=ring_desc,
@@ -694,6 +1251,8 @@ def twisted_s3_invariants(
         if d is None:
             raise ValueError("Either `d` or `pres` must be supplied")
         pres = wirtinger_presentation(d, from_resolution=-1, simplify=True)
+    else:
+        pres = tietze_simplify(pres)
     g = pres.num_generators
     if g == 0:
         return ()

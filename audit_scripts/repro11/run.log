@@ -1,0 +1,65 @@
+[Step 1] Generated 3378 ch=11 prime shadows in 0.25s
+[Step 2] Batch 1/12: raw=1426185, comps=382793, merged=7736 in 79.99s
+[Step 2] Batch 2/12: raw=1994593, comps=555036, merged=3800 in 80.53s
+[Step 2] Batch 3/12: raw=3519674, comps=1300450, merged=5646 in 138.85s
+[Step 2] Batch 4/12: raw=3925044, comps=1318433, merged=8751 in 139.00s
+[Step 2] Batch 5/12: raw=4936621, comps=1810935, merged=7939 in 169.91s
+[Step 2] Batch 6/12: raw=4418288, comps=1391193, merged=4129 in 129.65s
+[Step 2] Batch 7/12: raw=4160698, comps=1557475, merged=3825 in 187.37s
+[Step 2] Batch 8/12: raw=4703363, comps=1672801, merged=6999 in 197.53s
+[Step 2] Batch 9/12: raw=4195840, comps=1500994, merged=2866 in 153.49s
+[Step 2] Batch 10/12: raw=3742169, comps=1295629, merged=2581 in 124.99s
+[Step 2] Batch 11/12: raw=7412596, comps=2603509, merged=4215 in 146.97s
+[Step 2] Batch 12/12: raw=21582683, comps=6765827, merged=6052 in 558.96s
+[Step 3] Global ch=11 level merge: 39185 level-irreducible diagrams
+[Pass A] Chunk 1/22: 1800 -> 278
+[Pass A] Chunk 2/22: 1800 -> 307
+[Pass A] Chunk 3/22: 1800 -> 370
+[Pass A] Chunk 4/22: 1800 -> 334
+[Pass A] Chunk 5/22: 1800 -> 451
+[Pass A] Chunk 6/22: 1800 -> 429
+[Pass A] Chunk 7/22: 1800 -> 280
+[Pass A] Chunk 8/22: 1800 -> 346
+[Pass A] Chunk 9/22: 1800 -> 291
+[Pass A] Chunk 10/22: 1800 -> 213
+[Pass A] Chunk 11/22: 1800 -> 463
+[Pass A] Chunk 12/22: 1800 -> 406
+[Pass A] Chunk 13/22: 1800 -> 456
+[Pass A] Chunk 14/22: 1800 -> 526
+[Pass A] Chunk 15/22: 1800 -> 383
+[Pass A] Chunk 16/22: 1800 -> 401
+[Pass A] Chunk 17/22: 1800 -> 264
+[Pass A] Chunk 18/22: 1800 -> 299
+[Pass A] Chunk 19/22: 1800 -> 470
+[Pass A] Chunk 20/22: 1800 -> 242
+[Pass A] Chunk 21/22: 1800 -> 262
+[Pass A] Chunk 22/22: 1385 -> 754
+[Pass B] Chunk 1/16: 450 -> 2
+[Pass B] Chunk 2/16: 450 -> 12
+[Pass B] Chunk 3/16: 450 -> 12
+[Pass B] Chunk 4/16: 450 -> 26
+[Pass B] Chunk 5/16: 450 -> 17
+[Pass B] Chunk 6/16: 450 -> 41
+[Pass B] Chunk 7/16: 450 -> 47
+[Pass B] Chunk 8/16: 450 -> 62
+[Pass B] Chunk 9/16: 450 -> 60
+[Pass B] Chunk 10/16: 450 -> 97
+[Pass B] Chunk 11/16: 450 -> 104
+[Pass B] Chunk 12/16: 450 -> 94
+[Pass B] Chunk 13/16: 450 -> 115
+[Pass B] Chunk 14/16: 450 -> 93
+[Pass B] Chunk 15/16: 450 -> 122
+[Pass B] Chunk 16/16: 149 -> 20
+[Pass C1] Chunk 1/6: 120 -> 37
+[Pass C1] Chunk 2/6: 120 -> 39
+[Pass C1] Chunk 3/6: 120 -> 55
+[Pass C1] Chunk 4/6: 120 -> 61
+[Pass C1] Chunk 5/6: 120 -> 79
+[Pass C1] Chunk 6/6: 112 -> 79
+[Pass C2] Chunk 1/5: 75 -> 22
+[Pass C2] Chunk 2/5: 75 -> 36
+[Pass C2] Chunk 3/5: 75 -> 49
+[Pass C2] Chunk 4/5: 75 -> 64
+[Pass C2] Chunk 5/5: 35 -> 34
+[DONE] Saved 116 final ch=11 survivors to _census_ch11.json.
+Exported expanded_ch11.{json,csv}: 10 certified new prime classes, 93 residual collisions.

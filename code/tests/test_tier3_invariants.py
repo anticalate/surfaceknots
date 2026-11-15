@@ -102,14 +102,14 @@ def test_lomonaco_pi2_and_cover_betti_canonical_values() -> None:
     assert r_rp2.certified_pi2_z_rank == 1
     assert r_rp2.to_dict()["Z2"] == ((0, (), 1, 0),)
 
-    # 10_2 = tau^2(3_1): S_3 cover has ker ~= Z and b_2 = 2 -> rk_Z pi_2 = 2
+    # 10_2 = tau^2(3_1) and 10_3 = tau^3(3_1) have infinite pi_1(E), so universal-cover
+    # certified_pi2_z_rank is None while regular finite cover Betti profiles remain exact:
     r_10_2 = lomonaco_pi2_invariants(_diag("10_2"))
-    assert r_10_2.certified_pi2_z_rank == 2
+    assert r_10_2.certified_pi2_z_rank is None
     assert r_10_2.to_dict()["S3"] == ((1, (), 2, 2),)
 
-    # 10_3 = tau^3(3_1): SL(2, F_3) cover has ker ~= Z and max b_2 = 7 -> Lomonaco's pi_2(10_3) ~= Z^7!
     r_10_3 = lomonaco_pi2_invariants(_diag("10_3"))
-    assert r_10_3.certified_pi2_z_rank == 7
+    assert r_10_3.certified_pi2_z_rank is None
     assert r_10_3.to_dict()["SL2F3"] == ((1, (), 3, 3), (1, (), 7, 7))
 
     # Non-orientable links with finite non-abelian pi_1 (exact universal covers!):
@@ -158,10 +158,42 @@ def test_symmetry_profile_and_tier3_yoshikawa_move_invariance() -> None:
     assert not sym_8_1.chiral_by_normal_euler
     assert not sym_8_1.oriented_chiral_by_cocycle
 
-    # 10_2 = tau^2(3_1) is non-invertible and oriented-chiral by Mochizuki's 3-cocycle
+    # 10_2 = tau^2(3_1) is minus-amphicheiral (+F* ~= -F != +F): unoriented SO(4)-amphicheiral,
+    # while non-invertible and oriented-chiral by Mochizuki's 3-cocycle!
     sym_10_2 = symmetry_profile(_diag("10_2"))
     assert sym_10_2.oriented_chiral_by_cocycle
     assert sym_10_2.non_invertible_by_cocycle
+    assert sym_10_2.constructive_so4_amphicheiral
+    assert not sym_10_2.constructive_plus_amphicheiral
+    assert sym_10_2.constructive_minus_amphicheiral
+    assert (
+        sym_10_2.symmetry_summary
+        == "Minus-amphicheiral & non-invertible (+F* ~= -F != +F; unoriented SO(4)-amphicheiral)"
+    )
+
+    # Disjoint union (+10_2) u (+10_2)* is globally invertible (reversing both components swaps
+    # their cocycle states up to permutation) and unoriented SO(4)-amphicheiral:
+    d_pair_10_2 = disjoint_union(_diag("10_2"), _diag("10_2").mirror_3d())
+    sym_pair_10_2 = symmetry_profile(d_pair_10_2)
+    assert not sym_pair_10_2.non_invertible_by_cocycle
+    assert not sym_pair_10_2.oriented_chiral_by_cocycle
+    assert sym_pair_10_2.constructive_so4_amphicheiral
+
+    # Paired (genus, normal_euler) check for c >= 2 so e_list sum == 0 never decouples components:
+    p_plus = _diag("2_1^-1")
+    k_minus4 = planar_connected_sum(
+        p_plus.mirror_3d(), 0, p_plus.mirror_3d(), 0, flip_splice=False
+    )
+    if k_minus4.surface_topology().components[0].normal_euler != -4:
+        k_minus4 = planar_connected_sum(
+            p_plus.mirror_3d(), 0, p_plus.mirror_3d(), 0, flip_splice=True
+        )
+    d_3link = disjoint_union(disjoint_union(p_plus, p_plus), k_minus4)
+    sym_3link = symmetry_profile(d_3link, max_bfs_states=0)
+    assert sym_3link.chiral_by_normal_euler
+    assert sym_3link.invariant_flags() == symmetry_profile(
+        d_3link.mirror_3d(), max_bfs_states=0
+    ).invariant_flags()
 
     # 10_3 = tau^3(3_1) is constructively unoriented-amphicheiral in R^4
     sym_10_3 = symmetry_profile(_diag("10_3"))
@@ -199,3 +231,100 @@ def test_symmetry_profile_and_tier3_yoshikawa_move_invariance() -> None:
     assert double_branched_cover_invariants(d_a).o4_key() == double_branched_cover_invariants(d_b).o4_key()
     assert lomonaco_pi2_invariants(d_a) == lomonaco_pi2_invariants(d_b)
     assert octahedral_symmetric_quandle_invariants(d_a) == octahedral_symmetric_quandle_invariants(d_b)
+
+
+def test_lomonaco_pi2_multistep_and_commutator_ribbon_soundness() -> None:
+    from surfaceknots.families import compile_1fusion_ribbon_word, parse_ribbon_word
+
+    def _permute_vertices(d: MarkedDiagram, shift: int) -> MarkedDiagram:
+        n = d.num_vertices
+        perm = [(i + shift) % n for i in range(n)]
+        inv_p = [0] * n
+        for ov, nv in enumerate(perm):
+            inv_p[nv] = ov
+        new_opp = [0] * (4 * n)
+        new_vt = [d.vtype[inv_p[nv]] for nv in range(n)]
+        for nv in range(n):
+            ov = inv_p[nv]
+            for s in range(4):
+                od = d.opp[4 * ov + s]
+                new_opp[4 * nv + s] = 4 * perm[od >> 2] + (od & 3)
+        return MarkedDiagram(n, tuple(new_opp), tuple(new_vt), d.free_loops)
+
+    # 1. 10_2 # R(a^4 b a^-4 b^-1) has identical S_3 regular cover Betti to 10_2,
+    #    yet pi_2(E) has infinite Z-rank: certified_pi2_z_rank MUST remain None across relabelings!
+    d_10_2 = _diag("10_2")
+    d_rib = compile_1fusion_ribbon_word(parse_ribbon_word("a^4 b a^-4 b^-1"))
+    d_sum = planar_connected_sum(d_10_2, 0, d_rib, 0, flip_splice=False)
+    lom_base = lomonaco_pi2_invariants(d_sum, include_sl2f3=False)
+    assert lom_base.certified_pi2_z_rank is None
+    for sh in (5, 17, 35, 42):
+        lom_sh = lomonaco_pi2_invariants(_permute_vertices(d_sum, sh), include_sl2f3=False)
+        assert lom_sh == lom_base
+        assert lom_sh.certified_pi2_z_rank is None
+
+    # 2. Multi-step Yoshikawa walk on 10_2 (where meridian elimination can introduce higher
+    #    powers of mu) preserves lomonaco_pi2_invariants identically:
+    p_10_2 = lomonaco_pi2_invariants(d_10_2)
+    cur = d_10_2
+    for step_fn in (list_omega1_6_stabilizations, list_omega2_pokes, list_level_yoshikawa_neighbors):
+        nbs = step_fn(cur)
+        if nbs:
+            cur = nbs[0]
+            assert lomonaco_pi2_invariants(cur) == p_10_2
+
+
+def test_r1_plus_movie_step_invariance() -> None:
+    from surfaceknots.invariants.linking import _transport_component_tags_forward
+    from surfaceknots.invariants.quandle import _evaluate_classical_movie_cocycle
+    from surfaceknots.invariants.tier3 import _enumerate_q6_graph_colorings, _eval_q6_movie_bitmask
+    from surfaceknots.unlink import UnlinkMovieStep, _list_r1_plus_steps, _list_r3_steps, find_unlink_movie
+
+    d8 = _diag("8_1")
+    lp8 = d8.resolve(1)
+    base_mov = find_unlink_movie(lp8)
+    assert base_mov is not None
+
+    r1_steps = _list_r1_plus_steps(lp8)
+    assert r1_steps
+    st0 = r1_steps[0]
+    step_r1_minus = UnlinkMovieStep(
+        kind="R1-",
+        before=st0.after,
+        after=lp8,
+        meta={"old_to_new": {v: v for v in range(lp8.num_crossings)}},
+    )
+    aug_cancel = [st0, step_r1_minus] + base_mov
+
+    aug_r3 = None
+    for st_cand in r1_steps:
+        r3_cands = _list_r3_steps(st_cand.after)
+        if r3_cands:
+            tail = find_unlink_movie(r3_cands[0].after)
+            if tail is not None:
+                aug_r3 = [st_cand, r3_cands[0]] + tail
+                break
+    assert aug_r3 is not None
+
+    n_c = lp8.num_crossings
+    cycs, _ = lp8.circle_components()
+    ddir = [0] * (4 * n_c)
+    for cyc in cycs:
+        for hd in cyc:
+            ddir[hd] = 1
+            ddir[hd ^ 2] = -1
+
+    q6_cols = _enumerate_q6_graph_colorings(d8)
+    cl_vs = [v for v in range(d8.num_vertices) if d8.vtype[v] in ("X0", "X1")]
+
+    for mov in (aug_cancel, aug_r3):
+        tags = _transport_component_tags_forward(lp8, mov)
+        assert tags[-1] == ()
+        for c_const in range(3):
+            assert _evaluate_classical_movie_cocycle(
+                mov, [c_const] * (4 * n_c), ddir, 3
+            ) == _evaluate_classical_movie_cocycle(base_mov, [c_const] * (4 * n_c), ddir, 3)
+        for qc in q6_cols[:6]:
+            ic = [qc[4 * vo + s] for vo in cl_vs for s in range(4)]
+            assert _eval_q6_movie_bitmask(mov, ic) == _eval_q6_movie_bitmask(base_mov, ic)
+

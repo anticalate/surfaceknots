@@ -1,0 +1,29 @@
+#I  packagemanager package is not available. Check that the name is correct
+#I  and it is present in one of the GAP root directories (see '??RootPaths')
+j=2: confluent with 80 rules
+  [u,v]=1: true  [u,w]=1: true  [v,w]=1: true
+  x w x^-1 = w^2*V*u
+  e1 = x
+  e2 = x*w*V^2*u
+  e3 = X*v*U
+  e4 = X*U
+  e5 = X*W*v
+  e6 = X*W*v^2*U
+  e7 = x*w*V*U
+  e8 = x
+  e9 = X*U
+  e10 = X*U
+  e11 = x*w*V^2*u
+  e12 = x*w^2*V^3
+  e13 = X*v*U
+  e14 = X*W*v^2*U
+  e15 = X*W*v^2*U
+  e16 = x*w*V*U
+  e17 = x
+  e18 = X*W*v*U
+  e19 = X*W*v*U
+  e20 = x*w^2*V^3
+  e21 = x*w*V*U
+  e22 = X*W*v^3*U^2
+  e23 = X*W*v^2*U^2
+  e24 = x*w*V*U

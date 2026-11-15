@@ -175,5 +175,6 @@ def test_exported_family_catalog_and_hub_realizations() -> None:
     assert by_id["R(b^-1*a*b^-1*a^-1)"]["hub_match"] == "11_1"
     assert by_id["R(b^-1*a*b*a)"]["hub_match"] == "11_2"
     assert by_id["KleinMixed(L4a1,1)"]["hub_match"] == "11_3^0,-2"
-    assert by_id["Tube(L6a4)"]["ch_lower"] == 12
-    assert by_id["Mixed(L6a4,01)"]["ch_lower"] == 12
+    expected_unmatched_lower = int(payload.get("hub_max_ch", 11)) + 1
+    assert by_id["Tube(L6a4)"]["ch_lower"] == expected_unmatched_lower
+    assert by_id["Mixed(L6a4,01)"]["ch_lower"] == expected_unmatched_lower

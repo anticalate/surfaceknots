@@ -511,6 +511,14 @@ def compute_triplane_invariant_record(tp: TriPlaneDiagram, label: str = "") -> d
     normal_eulers = sorted(c.normal_euler for c in topo.components)
     e1_fp_hex = hashlib.sha256(repr(alex.evaluation_fingerprint).encode("utf-8")).hexdigest()[:16]
 
+    compiled_dlk2: list[list[object]] | None = None
+    if tp.is_concentrated:
+        compiled_md = concentrated_triplane_to_marked_diagram(tp)
+        if compiled_md is not None:
+            from surfaceknots.invariants.linking import double_linking_mod2
+
+            compiled_dlk2 = [list(x) for x in double_linking_mod2(compiled_md)]
+
     return {
         "label": label,
         "bridge_number": tp.bridge_number,
@@ -537,6 +545,7 @@ def compute_triplane_invariant_record(tp: TriPlaneDiagram, label: str = "") -> d
         "e1_fingerprint_hash": e1_fp_hex,
         "hom_counts": dict(hom_counts),
         "twisted_s3_delta0": [str(x) for x in tw_s3],
+        "double_linking_mod2": compiled_dlk2,
         "sigma2_euler": dbc.euler_characteristic,
         "sigma2_b1": dbc.b1,
         "sigma2_h1_torsion": list(dbc.h1_torsion),
@@ -548,10 +557,36 @@ def compute_triplane_invariant_record(tp: TriPlaneDiagram, label: str = "") -> d
     }
 
 
-def triplane_o4_key(rec: dict[str, object]) -> tuple:
+def _canonicalize_dlk2_o4(dlk_raw: object) -> tuple:
+    """Canonicalize `double_linking_mod2` up to global `O(4)` mirror `e -> -e`."""
+    import re
+
+    if not isinstance(dlk_raw, (list, tuple)):
+        return ()
+
+    def _flip_e(s: str) -> str:
+        return re.sub(r"e=(-?\d+)", lambda m: f"e={-int(m.group(1))}", s)
+
+    pos_rows = tuple(sorted((str(r[0]), str(r[1]), int(r[2])) for r in dlk_raw))
+    neg_rows = tuple(sorted((_flip_e(str(r[0])), _flip_e(str(r[1])), int(r[2])) for r in dlk_raw))
+    return min(pos_rows, neg_rows)
+
+
+def triplane_o4_key(rec: dict[str, object], *, include_double_linking: bool = False) -> tuple:
     """`O(4)`-invariant equivalence key compatible with both `compute_triplane_invariant_record`
     and `MarkedDiagram` / JSON catalog records (`yoshikawa_canonical.json`, `expanded_ch11.json`,
-    `family_catalog.json`, `targeted_ch12_13_census.json`).
+    `expanded_ch12.json`, `family_catalog.json`, `targeted_ch12_13_census.json`).
+
+    Invariant boundary note:
+    - By default (`include_double_linking=False`), returns the 6-tuple key over invariants defined
+      directly on every (concentrated or unconcentrated) `TriPlaneDiagram` without requiring a planar
+      `MarkedDiagram` compilation. Across `b <= 5`, this 6-tuple is completely free of the `(8_1^1,1,
+      10_1^1,1)` `T^2 u T^2` collision because every `T^2` component requires `>= 3` bridges (`chi(T^2)
+      = 0` cannot be realized with `<= 2` bridges), forcing `b(T^2 u T^2) >= 6`.
+    - When `include_double_linking=True` (e.g. comparing `b >= 6` concentrated compilable tri-plane
+      records against `MarkedDiagram` records where `rec.get("double_linking_mod2")` is non-`None` on
+      both sides), appends `O(4)`-canonicalized Carter-Saito-Satoh `double_linking_mod2`, separating
+      `8_1^1,1` (`dlk_2 = 0`) from `10_1^1,1` (`dlk_2 = 1`).
     """
     e_list: list[int] = [int(x) for x in rec["normal_euler_numbers"]]  # type: ignore[union-attr]
     if int(rec["num_components"]) == 1:  # type: ignore[arg-type]
@@ -561,7 +596,7 @@ def triplane_o4_key(rec: dict[str, object]) -> tuple:
     else:
         euler_key = tuple(min(sorted(e_list), sorted(-x for x in e_list)))
 
-    return (
+    base = (
         (
             int(rec["num_components"]),  # type: ignore[arg-type]
             tuple(int(g) for g in rec["yoshikawa_genera"]),  # type: ignore[union-attr]
@@ -581,6 +616,9 @@ def triplane_o4_key(rec: dict[str, object]) -> tuple:
         tuple(sorted((str(k), int(v)) for k, v in rec["hom_counts"].items())),  # type: ignore[union-attr]
         tuple(str(x) for x in rec["twisted_s3_delta0"]),  # type: ignore[union-attr]
     )
+    if include_double_linking and rec.get("double_linking_mod2") is not None:
+        return base + (_canonicalize_dlk2_o4(rec["double_linking_mod2"]),)
+    return base
 
 
 def concentrated_triplane_to_marked_diagram(tp: TriPlaneDiagram) -> MarkedDiagram | None:

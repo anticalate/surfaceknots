@@ -267,14 +267,24 @@ def certify_klein_bottle_subadditivity() -> dict[str, object]:
     }
 
 
-def analyze_connected_sum_collapses() -> list[dict[str, object]]:
+def analyze_connected_sum_collapses(data_dir: Path | None = None) -> list[dict[str, object]]:
     """Evaluate 4D connected sums `K # U` for `K in {8_1, 9_1, 10_1, 10_2, 10_3}` and
-    `U in {P_+, T^2}`, contrasting Viro's smooth collapse `10_3 # P_+ ~= P_+` (`ch: 12 -> 2`)
-    against composite persistence when `pi_1(K) *_{x} Z_2` remains non-abelian.
+    `U in {P_+, T^2}`, contrasting Viro's smooth collapse `10_3 # P_+ ~= P_+` (`ch: 12 -> 2`
+    by Viro 1973 / Yoshikawa Remark 2.8) against composite persistence when `pi_1(K) *_{x} Z_2`
+    remains non-abelian. Note: equivalence of `10_2 # P_+` and `8_1 # P_+` is open
+    (Jablonowski 2015, Remark 3.15).
     """
     rp_raw = MarkedDiagram.from_epd(YOSHIKAWA_BY_LABEL["2_1^-1"].canonical_epd)
     p_pos = rp_raw if rp_raw.surface_topology().components[0].normal_euler == 2 else rp_raw.mirror_3d()
     t2 = MarkedDiagram.from_epd(YOSHIKAWA_BY_LABEL["2_1^1"].canonical_epd)
+
+    viro_move_certified = False
+    if data_dir is not None:
+        ms_path = data_dir / "complexity" / "move_search_results.json"
+        if ms_path.exists():
+            ms_data = json.loads(ms_path.read_text())
+            v_tgt = ms_data.get("targets", {}).get("viro_10_3_plus_P_collapse_to_P", {})
+            viro_move_certified = bool(v_tgt.get("connected", False))
 
     out: list[dict[str, object]] = []
     for k_lbl in ("8_1", "9_1", "10_1", "10_2", "10_3"):
@@ -307,6 +317,13 @@ def analyze_connected_sum_collapses() -> list[dict[str, object]]:
                     "hom_Q8": hc["Q8"],  # type: ignore[index]
                     "sigma2_h1_torsion": rec["sigma2_h1_torsion"],
                     "viro_barden_collapse_to_unknot": is_viro_unknot,
+                    "topological_true_ch_via_viro_1973": 2 if is_viro_unknot else None,
+                    "move_path_certified": viro_move_certified if is_viro_unknot else False,
+                    "true_ch_certification_basis": (
+                        "constructive_yoshikawa_move_path"
+                        if (is_viro_unknot and viro_move_certified)
+                        else ("viro_1973_smooth_isotopy_theorem" if is_viro_unknot else None)
+                    ),
                     "certified_true_ch": 2 if is_viro_unknot else None,
                     "ch_collapse_amount": naive_ch - 2 if is_viro_unknot else 0,
                     "best_known_ch_upper": true_ch_upper,
@@ -316,21 +333,63 @@ def analyze_connected_sum_collapses() -> list[dict[str, object]]:
 
 
 def analyze_catalog_complexity(data_dir: Path) -> dict[str, object]:
-    """Compute `(c, m)`, `ch_0`, `excess_ch`, and weighted `ch_alpha` profiles across all 33 Hub
-    classes (`ch <= 11`) and 41 Spoke classes (`ch >= 12`).
+    """Compute `(c, m)`, `ch_0`, `excess_ch`, and weighted `ch_alpha` profiles across all Hub
+    classes (`ch <= 11`, plus `ch = 12` when `expanded_ch12.json` is present) and Spoke classes.
     """
+    from surfaceknots.yoshikawa_data import invariant_discrimination_key
+
     yosh_entries = json.loads((data_dir / "yoshikawa_ch10.json").read_text())
     ch11_payload = json.loads((data_dir / "expanded_ch11.json").read_text())
+    ch12_path = data_dir / "expanded_ch12.json"
+    ch12_entries = (
+        json.loads(ch12_path.read_text()).get("entries", [])
+        if ch12_path.exists()
+        else []
+    )
     fam_payload = json.loads((data_dir / "families" / "family_catalog.json").read_text())
+    hub_reals_map: dict[str, list[dict[str, object]]] = fam_payload.get("hub_realizations", {})
+
+    seen_hub_keys: set[str] = set()
+    promoted_ids: set[str] = set()
+    if ch12_path.exists():
+        ch12_raw = json.loads(ch12_path.read_text())
+        for pr in ch12_raw.get("promoted_exact_ch12_spokes", []):
+            promoted_ids.add(str(pr["family_id"]))
 
     hub_rows: list[dict[str, object]] = []
-    for e in yosh_entries + ch11_payload["entries"]:
+    for e in yosh_entries + ch11_payload["entries"] + ch12_entries:
+        seen_hub_keys.add(str(invariant_discrimination_key(e)))
+        for sm in e.get("matched_spoke_families", []):
+            promoted_ids.add(str(sm["family_id"]))
         d = MarkedDiagram.from_epd(str(e["epd"]))
         cm = diagram_c_m_split(d)
+        ch_diag = int(e["ch_index_diagram"])
+        tier_str = (
+            "Hub (ch <= 10)"
+            if ch_diag <= 10
+            else (f"Hub (ch = {ch_diag})")
+        )
+        cell_st = str(e.get("cell_status", "EXACT_SINGLETON"))
+        reals = hub_reals_map.get(str(e["label"]), []) or e.get("matched_spoke_families", [])
         hub_rows.append(
             {
                 "label": e["label"],
-                "tier": "Hub (ch <= 10)" if int(e["ch_index_diagram"]) <= 10 else "Hub (ch = 11)",
+                "tier": tier_str,
+                "certification_tier": "PROVEN_EXACT",
+                "match_mode": cell_st,
+                "spoke_realizations": [
+                    {
+                        "family_id": r["family_id"],
+                        "match_mode": r["match_mode"],
+                        "compiled_ch": r["compiled_ch"],
+                        "certification_tier": (
+                            "PROVEN_EXACT"
+                            if r["match_mode"] == "MOVE_CERTIFIED"
+                            else "HEURISTIC_INVARIANT_MATCH"
+                        ),
+                    }
+                    for r in reals
+                ],
                 "num_components": e["num_components"],
                 "component_types": e["component_types"],
                 "orientability": e["orientability"],
@@ -341,28 +400,29 @@ def analyze_catalog_complexity(data_dir: Path) -> dict[str, object]:
         )
 
     spoke_rows: list[dict[str, object]] = []
-    seen_spoke_keys: set[str] = set()
+    seen_spoke_keys: set[str] = set(seen_hub_keys)
     for e in fam_payload["entries"]:
         if e["hub_match"] is not None or e["reference_collisions"]:
             continue
-        # Keep unique invariant classes (matching the 41 distinct ch >= 12 Spoke classes)
         wit_lbl = str(e["family_id"])
-        # Check if duplicate invariant class via e's label or nearest_separating_witness
-        # Recompute discrimination key cleanly from fields:
-        from surfaceknots.yoshikawa_data import invariant_discrimination_key
-
+        if wit_lbl in promoted_ids:
+            continue
         ik = str(invariant_discrimination_key(e))
         if ik in seen_spoke_keys:
             continue
         seen_spoke_keys.add(ik)
         d = MarkedDiagram.from_epd(str(e["epd"]))
         cm = diagram_c_m_split(d)
+        is_ex = bool(e["exact_ch_certified"])
+        ch_lo = int(e["ch_lower"])
         spoke_rows.append(
             {
                 "label": wit_lbl,
-                "tier": "Spoke (exact ch = 12)" if e["exact_ch_certified"] else "Spoke (ch >= 12)",
-                "exact_ch_certified": e["exact_ch_certified"],
-                "ch_lower": e["ch_lower"],
+                "tier": f"Spoke (exact ch = {ch_lo})" if is_ex else f"Spoke (ch >= {ch_lo})",
+                "exact_ch_certified": is_ex,
+                "certification_tier": "PROVEN_EXACT" if is_ex else "UPPER_BOUND_ONLY",
+                "match_mode": "EXACT_SINGLETON" if is_ex else "UPPER_BOUND_ONLY",
+                "ch_lower": ch_lo,
                 "ch_upper": e["ch_upper"],
                 "num_components": e["num_components"],
                 "component_types": e["component_types"],
@@ -395,50 +455,128 @@ def analyze_catalog_complexity(data_dir: Path) -> dict[str, object]:
             for r in hopf_family
         ],
         "klein_bottle_subadditivity": certify_klein_bottle_subadditivity(),
-        "connected_sum_collapses": analyze_connected_sum_collapses(),
+        "connected_sum_collapses": analyze_connected_sum_collapses(data_dir),
         "hub_entries": hub_rows,
         "spoke_entries": spoke_rows,
     }
 
 
-def export_complexity_comparison_datasets(data_dir: Path) -> dict[str, object]:
-    """Join `ch`, `ch_0`, `excess_ch`, `(c, m)`, weighted `c + alpha * m`, targeted `ch = 12`
-    certifications, and braided tri-plane `(b, c_tri)` across the catalog, writing
-    `code/data/complexity/complexity_comparison.json` and `.csv`.
+def _deserialize_witness_triplane(wt: dict[str, object]):
+    """Reconstruct a `TriPlaneDiagram` directly from a serialized `witness_triplane` JSON dict."""
+    from surfaceknots.triplane import TangleDiagram, TriPlaneDiagram
+
+    def _dt(t_raw: object) -> TangleDiagram:
+        td: dict[str, object] = t_raw  # type: ignore[assignment]
+        return TangleDiagram(
+            num_bridges=int(td["num_bridges"]),  # type: ignore[arg-type]
+            bottom_matching=tuple((int(p[0]), int(p[1])) for p in td["bottom_matching"]),  # type: ignore[index, union-attr]
+            braid_word=tuple(int(g) for g in td["braid_word"]),  # type: ignore[union-attr]
+        )
+
+    return TriPlaneDiagram(_dt(wt["t1"]), _dt(wt["t2"]), _dt(wt["t3"]))
+
+
+def build_complexity_comparison(data_dir: Path) -> dict[str, object]:
+    """Compute the unified complexity comparison payload joining `ch`, `ch_0`, `excess_ch`, `(c, m)`,
+    weighted `c + alpha * m`, `expanded_ch12` / targeted `ch = 12, 13` certifications, epistemic rigor
+    tiers, and live-recomputed braided tri-plane `(b, c_tri)` records without writing to disk.
     """
-    import csv
-    from surfaceknots.triplane import triplane_o4_key
-    from surfaceknots.yoshikawa_data import invariant_discrimination_key
+    from surfaceknots.triplane import compute_triplane_invariant_record, triplane_o4_key
+    from surfaceknots.yoshikawa_data import compute_full_invariant_record, invariant_discrimination_key
 
     base = analyze_catalog_complexity(data_dir)
     out_dir = data_dir / "complexity"
-    out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load tri-plane `b <= 4, c_tri <= 6` census if present:
+    # Load tri-plane `b <= 4` census if present, recomputing `triplane_o4_key` directly from
+    # `witness_triplane` so stale `invariants["e1_fingerprint_hash"]` on disk never breaks joins!
     tp_by_o4: dict[tuple, dict[str, object]] = {}
+    tp_max_exhaustive_c = 6
+    tp_has_census = False
+    tp_pruned_boundary_arches = False
     tp_path = out_dir / "triplane_b4_census.json"
     if tp_path.exists():
+        tp_has_census = True
         tp_data = json.loads(tp_path.read_text())
-        for te in tp_data["entries"]:
-            ok = triplane_o4_key(te["invariants"])
-            tp_by_o4[ok] = te
+        tp_max_exhaustive_c = int(tp_data.get("max_c_tri", 6))
+        tp_pruned_boundary_arches = (
+            int(tp_data.get("enumeration_stats", {}).get("pruned_shared_untouched_arch_b4", 0)) > 0
+        )
+        for te in tp_data.get("entries", []):
+            if "witness_triplane" in te and te["witness_triplane"] is not None:
+                tp_obj = _deserialize_witness_triplane(te["witness_triplane"])
+                live_inv = compute_triplane_invariant_record(tp_obj)
+                ok = triplane_o4_key(live_inv)
+            else:
+                ok = triplane_o4_key(te["invariants"])
+            prev = tp_by_o4.get(ok)
+            if prev is None or (int(te["min_c_tri"]), int(te["min_bridge_in_census"])) < (
+                int(prev["min_c_tri"]),
+                int(prev["min_bridge_in_census"]),
+            ):
+                tp_by_o4[ok] = te
 
-    # Load targeted `ch = 12` census if present:
+        c4_ext = tp_data.get("campaign4_braided_c7_and_b5_extension", {})
+        if c4_ext.get("b4_exhaustive_max_c_tri") == 7:
+            tp_max_exhaustive_c = 7
+            if int(c4_ext.get("b4_c7_enumeration_stats", {}).get("pruned_shared_untouched_arch_b4", 0)) > 0:
+                tp_pruned_boundary_arches = True
+            for te7 in c4_ext.get("all_classes_first_appearing_at_b4_c7", []):
+                if "witness_triplane" in te7 and te7["witness_triplane"] is not None:
+                    tp_obj7 = _deserialize_witness_triplane(te7["witness_triplane"])
+                    live_inv7 = compute_triplane_invariant_record(tp_obj7)
+                    ok7 = triplane_o4_key(live_inv7)
+                elif "invariants" in te7:
+                    ok7 = triplane_o4_key(te7["invariants"])
+                else:
+                    continue
+                if ok7 not in tp_by_o4:
+                    tp_by_o4[ok7] = {
+                        **te7,
+                        "min_bridge_in_census": te7.get("min_bridge_in_census", te7.get("min_bridge")),
+                    }
+
+    # Load targeted `ch = 12, 13` census if present (recomputing live invariant records from `epd`
+    # when `expanded_ch12.json` is absent or for `ch = 13` so stale `e1_fingerprint_hash` never misses):
     t12_new_s2: list[dict[str, object]] = []
+    t13_new_s2: list[dict[str, object]] = []
     t12_promoted_spokes: dict[str, str] = {}
     t12_path = out_dir / "targeted_ch12_13_census.json"
+    ch12_path = data_dir / "expanded_ch12.json"
+
     if t12_path.exists():
         t12_data = json.loads(t12_path.read_text())
-        t12_new_s2 = list(t12_data.get("ch12_m2_s2_knots", {}).get("new_prime_classes", []))
-        for ce in t12_new_s2:
-            for sp_id in ce.get("spoke_matches", []):
-                t12_promoted_spokes[str(sp_id)] = str(ce["class_id"])
+        if not ch12_path.exists():
+            for ce in t12_data.get("ch12_m2_s2_knots", {}).get("new_prime_classes", []):
+                live_ce = compute_full_invariant_record(
+                    MarkedDiagram.from_epd(str(ce["epd"])),
+                    label=str(ce["class_id"]),
+                    include_sublinks=False,
+                )
+                live_ce["class_id"] = ce["class_id"]
+                live_ce["spoke_matches"] = list(ce.get("spoke_matches", []))
+                live_ce["cell_status"] = ce.get("cell_status", "EXACT_SINGLETON")
+                t12_new_s2.append(live_ce)
+                for sp_id in live_ce["spoke_matches"]:  # type: ignore[union-attr]
+                    t12_promoted_spokes[str(sp_id)] = str(ce["class_id"])
+        for ce13 in t12_data.get("ch13_m2_s2_knots", {}).get("new_prime_classes", []):
+            live_ce13 = compute_full_invariant_record(
+                MarkedDiagram.from_epd(str(ce13["epd"])),
+                label=str(ce13["class_id"]),
+                include_sublinks=False,
+            )
+            live_ce13["class_id"] = ce13["class_id"]
+            live_ce13["spoke_matches"] = list(ce13.get("spoke_matches", []))
+            live_ce13["cell_status"] = ce13.get("cell_status", "EXACT_SINGLETON")
+            t13_new_s2.append(live_ce13)
 
     yosh_entries = json.loads((data_dir / "yoshikawa_ch10.json").read_text())
     ch11_entries = json.loads((data_dir / "expanded_ch11.json").read_text())["entries"]
-    fam_entries = json.loads((data_dir / "families" / "family_catalog.json").read_text())["entries"]
+    fam_payload = json.loads((data_dir / "families" / "family_catalog.json").read_text())
+    fam_entries = fam_payload["entries"]
+    hub_reals_map: dict[str, list[dict[str, object]]] = fam_payload.get("hub_realizations", {})
 
     rows: list[dict[str, object]] = []
+    seen_all_iks: set[str] = set()
 
     def make_row(
         rec: dict[str, object],
@@ -447,6 +585,9 @@ def export_complexity_comparison_datasets(data_dir: Path) -> dict[str, object]:
         exact_ch: int | None,
         ch_lo: int,
         ch_hi: int,
+        certification_tier: str,
+        match_mode: str,
+        spoke_realizations: list[dict[str, object]] | None = None,
     ) -> dict[str, object]:
         d = MarkedDiagram.from_epd(str(rec["epd"]))
         cm = diagram_c_m_split(d)
@@ -457,20 +598,47 @@ def export_complexity_comparison_datasets(data_dir: Path) -> dict[str, object]:
         c_tri_conc: int | None = None
         c_tri_unconc: int | None = None
         tp_min_b: int | None = None
-        if tp_hit is not None:
+
+        if d.num_vertices == 0 and d.free_loops >= 1:
+            # Trivial unlink `0_1^k`: exact `b = k, c_tri = 0` unconditionally (even if `b = 4` shared
+            # untouched arches were pruned during the `triplane_b4_census` scan).
+            c_tri_exact = 0
+            c_tri_lo = 0
+            c_tri_conc = 0
+            c_tri_unconc = int(tp_hit["min_unconcentrated_c_tri"]) if (tp_hit and tp_hit.get("min_unconcentrated_c_tri") is not None) else None
+            tp_min_b = d.free_loops
+        elif tp_hit is not None:
             c_tri_exact = int(tp_hit["min_c_tri"])
-            c_tri_lo = c_tri_exact
-            c_tri_conc = tp_hit["min_concentrated_c_tri"]  # type: ignore[assignment]
-            c_tri_unconc = tp_hit["min_unconcentrated_c_tri"]  # type: ignore[assignment]
+            c_tri_lo = c_tri_exact if not tp_pruned_boundary_arches or int(tp_hit["min_bridge_in_census"]) <= 3 or int(rec["num_components"]) == 1 else max(int(cm["c_0"]), 0)  # type: ignore[arg-type]
+            c_tri_conc = tp_hit.get("min_concentrated_c_tri")  # type: ignore[assignment]
+            c_tri_unconc = tp_hit.get("min_unconcentrated_c_tri")  # type: ignore[assignment]
             tp_min_b = int(tp_hit["min_bridge_in_census"])
         else:
-            b_lo = int(rec["bridge_bounds"][0])  # type: ignore[index]
-            # If b <= 4 and absent from exhaustive b <= 4, c_tri <= 6 braided census, c_tri >= 7 (braided):
-            c_tri_lo = 7 if int(rec["bridge_bounds"][1]) <= 4 else max(int(cm["c_0"]), 0)  # type: ignore[index, arg-type]
+            # Only claim an unconditional `tp_max_exhaustive_c + 1` braided `b <= 4` lower bound when
+            # an UNPRUNED `triplane_b4_census.json` exists (`pruned_shared_untouched_arch_b4 == 0`)!
+            if tp_has_census and not tp_pruned_boundary_arches and int(rec["bridge_bounds"][1]) <= 4:  # type: ignore[index]
+                c_tri_lo = tp_max_exhaustive_c + 1
+            else:
+                c_tri_lo = max(int(cm["c_0"]), 0)  # type: ignore[arg-type]
 
         return {
             "label": label,
             "tier": tier,
+            "certification_tier": certification_tier,
+            "match_mode": match_mode,
+            "spoke_realizations": [
+                {
+                    "family_id": r["family_id"],
+                    "match_mode": r["match_mode"],
+                    "compiled_ch": r.get("compiled_ch"),
+                    "certification_tier": (
+                        "PROVEN_EXACT"
+                        if r["match_mode"] == "MOVE_CERTIFIED"
+                        else "HEURISTIC_INVARIANT_MATCH"
+                    ),
+                }
+                for r in (spoke_realizations or [])
+            ],
             "exact_ch": exact_ch,
             "ch_lower": ch_lo,
             "ch_upper": ch_hi,
@@ -499,42 +667,145 @@ def export_complexity_comparison_datasets(data_dir: Path) -> dict[str, object]:
 
     for e in yosh_entries:
         ch_v = int(e["ch_index_diagram"])
-        rows.append(make_row(e, str(e["label"]), "Hub (ch <= 10)", ch_v, ch_v, ch_v))
-
-    for e in ch11_entries:
-        rows.append(make_row(e, str(e["label"]), "Hub (ch = 11)", 11, 11, 11))
-
-    # Add newly certified `ch = 12, m = 2` prime 2-knots:
-    seen_spoke_iks: set[str] = set()
-    for ce in t12_new_s2:
-        iks = str(invariant_discrimination_key(ce))
-        seen_spoke_iks.add(iks)
-        sp_m = ce.get("spoke_matches", [])
-        lbl = f"{ce['class_id']} ({sp_m[0]})" if sp_m else str(ce["class_id"])
-        rows.append(make_row(ce, lbl, "Targeted Census (exact ch = 12, m = 2)", 12, 12, 12))
-
-    # Add remaining Spoke classes (`ch >= 12`):
-    for fe in fam_entries:
-        if fe["hub_match"] is not None or fe["reference_collisions"]:
-            continue
-        iks = str(invariant_discrimination_key(fe))
-        if iks in seen_spoke_iks:
-            continue
-        seen_spoke_iks.add(iks)
-        ex = 12 if fe["exact_ch_certified"] else None
+        seen_all_iks.add(str(invariant_discrimination_key(e)))
+        lbl_y = str(e["label"])
         rows.append(
             make_row(
-                fe,
-                str(fe["family_id"]),
-                "Spoke (exact ch = 12)" if ex == 12 else "Spoke (ch >= 12)",
-                ex,
-                int(fe["ch_lower"]),
-                int(fe["ch_upper"]),
+                e,
+                lbl_y,
+                "Hub (ch <= 10)",
+                ch_v,
+                ch_v,
+                ch_v,
+                "PROVEN_EXACT",
+                str(e.get("cell_status", "EXACT_SINGLETON")),
+                hub_reals_map.get(lbl_y, []),
             )
         )
 
-    payload = {
+    for e in ch11_entries:
+        seen_all_iks.add(str(invariant_discrimination_key(e)))
+        lbl_11 = str(e["label"])
+        rows.append(
+            make_row(
+                e,
+                lbl_11,
+                "Hub (ch = 11)",
+                11,
+                11,
+                11,
+                "PROVEN_EXACT",
+                str(e.get("cell_status", "EXACT_SINGLETON")),
+                hub_reals_map.get(lbl_11, []),
+            )
+        )
+
+    # Prefer full `expanded_ch12.json` over `targeted_ch12_13_census.json` for `ch = 12`:
+    if ch12_path.exists():
+        ch12_payload = json.loads(ch12_path.read_text())
+        for pr in ch12_payload.get("promoted_exact_ch12_spokes", []):
+            t12_promoted_spokes[str(pr["family_id"])] = str(pr["hub_label"])
+        for e12 in ch12_payload.get("entries", []):
+            iks = str(invariant_discrimination_key(e12))
+            seen_all_iks.add(iks)
+            matched_sp = list(e12.get("matched_spoke_families", []))
+            sp_list = [str(m["family_id"]) for m in matched_sp]
+            for sp_id in sp_list:
+                t12_promoted_spokes[sp_id] = str(e12["label"])
+            reals12 = hub_reals_map.get(str(e12["label"]), []) or matched_sp
+            lbl12 = f"{e12['label']} ({sp_list[0]})" if sp_list else str(e12["label"])
+            rows.append(
+                make_row(
+                    e12,
+                    lbl12,
+                    "Hub (ch = 12)",
+                    12,
+                    12,
+                    12,
+                    "PROVEN_EXACT",
+                    str(e12.get("cell_status", "EXACT_SINGLETON")),
+                    reals12,
+                )
+            )
+    else:
+        for ce in t12_new_s2:
+            iks = str(invariant_discrimination_key(ce))
+            if iks in seen_all_iks:
+                continue
+            seen_all_iks.add(iks)
+            sp_m = [str(x) for x in ce.get("spoke_matches", [])]  # type: ignore[union-attr]
+            lbl = f"{ce['class_id']} ({sp_m[0]})" if sp_m else str(ce["class_id"])
+            reals_t12 = [{"family_id": s, "match_mode": "INVARIANT_MATCH", "compiled_ch": None} for s in sp_m]
+            rows.append(
+                make_row(
+                    ce,
+                    lbl,
+                    "Targeted Census (exact ch = 12, m = 2)",
+                    12,
+                    12,
+                    12,
+                    "PROVEN_EXACT",
+                    str(ce.get("cell_status", "EXACT_SINGLETON")),
+                    reals_t12,
+                )
+            )
+
+    # Also add any certified `ch = 13, m = 2` S^2 classes from `targeted_ch12_13_census.json`:
+    for ce13 in t13_new_s2:
+        iks13 = str(invariant_discrimination_key(ce13))
+        if iks13 in seen_all_iks:
+            continue
+        seen_all_iks.add(iks13)
+        sp_m13 = [str(x) for x in ce13.get("spoke_matches", [])]  # type: ignore[union-attr]
+        for sp_id in sp_m13:
+            t12_promoted_spokes.setdefault(sp_id, str(ce13["class_id"]))
+        lbl13 = f"{ce13['class_id']} ({sp_m13[0]})" if sp_m13 else str(ce13["class_id"])
+        reals_t13 = [{"family_id": s, "match_mode": "INVARIANT_MATCH", "compiled_ch": None} for s in sp_m13]
+        rows.append(
+            make_row(
+                ce13,
+                lbl13,
+                "Targeted Census (exact ch = 13, m = 2)",
+                13,
+                13,
+                13,
+                "PROVEN_EXACT",
+                str(ce13.get("cell_status", "EXACT_SINGLETON")),
+                reals_t13,
+            )
+        )
+
+    # Add remaining Spoke classes (`ch >= 12` / `ch >= 13`), deduplicated by BOTH promoted family_id
+    # AND live `invariant_discrimination_key`:
+    for fe in fam_entries:
+        if fe["hub_match"] is not None or fe["reference_collisions"]:
+            continue
+        fid = str(fe["family_id"])
+        if fid in t12_promoted_spokes:
+            continue
+        iks = str(invariant_discrimination_key(fe))
+        if iks in seen_all_iks:
+            continue
+        seen_all_iks.add(iks)
+        ex = int(fe["ch_lower"]) if fe["exact_ch_certified"] else None
+        cert_tier = "PROVEN_EXACT" if ex is not None else "UPPER_BOUND_ONLY"
+        m_mode = "EXACT_SINGLETON" if ex is not None else "UPPER_BOUND_ONLY"
+        rows.append(
+            make_row(
+                fe,
+                fid,
+                f"Spoke (exact ch = {ex})" if ex is not None else f"Spoke (ch >= {fe['ch_lower']})",
+                ex,
+                int(fe["ch_lower"]),
+                int(fe["ch_upper"]),
+                cert_tier,
+                m_mode,
+            )
+        )
+
+    return {
         "total_distinct_classes_compared": len(rows),
+        "triplane_census_pruned_boundary_arches": tp_pruned_boundary_arches,
         "newly_certified_ch12_spoke_promotions": t12_promoted_spokes,
         "hopf_excess_ch_4_cohort": base["hopf_excess_ch_4_cohort"],
         "klein_bottle_subadditivity": base["klein_bottle_subadditivity"],
@@ -549,8 +820,11 @@ def export_complexity_comparison_datasets(data_dir: Path) -> dict[str, object]:
             {
                 "pair": ["9_1 (ribbon 2-knot)", "10_2 (2-twist-spun trefoil)"],
                 "ch_values": [9, 10],
-                "c_tri_values": [">= 7 (at b=4)", 6],
-                "mechanism": "10_2 achieves c_tri = 6 at b = 4 via 90 concentrated (0,0,6) braided realizations, ALL 90 of which hit the A-B-A-B Meander Interleaving Obstruction (0 compilable), forcing +2 R2 crossings upon planarization (ch = 6 + 2 + 2 = 10 > ch(9_1) = 9).",
+                "c_tri_values": [
+                    next((r["c_tri_b4_braided"] for r in rows if r["label"] == "9_1"), None) or ">= 7 (braided b=4)",
+                    6,
+                ],
+                "mechanism": "9_1 achieves exact braided c_tri = 7 at b = 4 (e.g. via (1,3,3)), whereas 10_2 achieves c_tri = 6 at b = 4 via concentrated (0,0,6) realization hitting the A-B-A-B Meander Interleaving Obstruction (0 compilable), forcing +2 R2 crossings upon planarization (ch = 6 + 2 + 2 = 10 > ch(9_1) = 9).",
             },
             {
                 "pair": ["6_1^0,1 .. 10_1^-2,-2 (6 Hopf-type 2-links)"],
@@ -562,6 +836,19 @@ def export_complexity_comparison_datasets(data_dir: Path) -> dict[str, object]:
         "rows": rows,
     }
 
+
+def export_complexity_comparison_datasets(data_dir: Path) -> dict[str, object]:
+    """Join `ch`, `ch_0`, `excess_ch`, `(c, m)`, weighted `c + alpha * m`, `ch = 12`
+    certifications, and braided tri-plane `(b, c_tri)` across the catalog, writing
+    `code/data/complexity/complexity_comparison.json` and `.csv`.
+    """
+    import csv
+
+    payload = build_complexity_comparison(data_dir)
+    rows: list[dict[str, object]] = payload["rows"]  # type: ignore[assignment]
+    out_dir = data_dir / "complexity"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
     json_path = out_dir / "complexity_comparison.json"
     csv_path = out_dir / "complexity_comparison.csv"
     json_path.write_text(json.dumps(payload, indent=2) + "\n")
@@ -569,6 +856,8 @@ def export_complexity_comparison_datasets(data_dir: Path) -> dict[str, object]:
     fieldnames = [
         "label",
         "tier",
+        "certification_tier",
+        "match_mode",
         "num_components",
         "component_types",
         "orientability",
@@ -604,6 +893,8 @@ def export_complexity_comparison_datasets(data_dir: Path) -> dict[str, object]:
                 {
                     "label": r["label"],
                     "tier": r["tier"],
+                    "certification_tier": r["certification_tier"],
+                    "match_mode": r["match_mode"],
                     "num_components": r["num_components"],
                     "component_types": ";".join(str(x) for x in r["component_types"]),  # type: ignore[union-attr]
                     "orientability": r["orientability"],

@@ -35,17 +35,26 @@ def _is_over(vt: VertexKind, slot: int) -> bool:
     raise ValueError(f"_is_over called on marked vertex {vt}")
 
 
-def canonical_marked_key(d: MarkedDiagram, up_to_mirror_and_reverse: bool = False) -> tuple:
+def canonical_marked_key(
+    d: MarkedDiagram,
+    up_to_mirror_and_reverse: bool = False,
+    *,
+    up_to_unoriented_so4: bool = False,
+) -> tuple:
     """Canonical spherical isomorphism code of a `MarkedDiagram`.
 
-    If `up_to_mirror_and_reverse=True`, canonicalizes across:
-    - spherical orientation-preserving and orientation-reversing homeomorphisms (`orient in {+1, -1}`),
-    - 3D mirror `R_z` (`X0 <-> X1`),
-    - time mirror `R_t` (`Y <-> Z`),
-    - and orientation reversal `R_{zt}` (`X0 <-> X1` and `Y <-> Z`),
-    matching Yoshikawa's unoriented, up-to-mirror census equivalence!
+    - Default (`up_to_mirror_and_reverse=False, up_to_unoriented_so4=False`): canonicalizes across
+      the 2-element spatial time-preserving symmetry group `{id, R_x R_z} <= SO(3) x {id_t}`
+      (preserving both 4D orientation and surface/time orientation `+F`).
+    - If `up_to_unoriented_so4=True` (with `up_to_mirror_and_reverse=False`), also includes
+      `d.reverse_orientation_zt()` (`R_z R_t`, `det = +1` in `SO(4)`), generating all 4
+      orientation-preserving `SO(4)` diagram symmetries `{id, R_x R_z, R_z R_t, R_x R_t}` for
+      unoriented surfaces `+-F` in oriented `R^4` (distinguishing 4D mirrors `F*`).
+    - If `up_to_mirror_and_reverse=True`, canonicalizes across all 8 `O(4)` symmetries:
+      spherical orientation-preserving and orientation-reversing homeomorphisms (`orient in {+1, -1}`),
+      3D mirror `R_z` (`X0 <-> X1`), time mirror `R_t` (`Y <-> Z`), and `R_{zt}` (`X0 <-> X1` and
+      `Y <-> Z`), matching Yoshikawa's unoriented, up-to-mirror census equivalence.
     """
-    variants = [d]
     if up_to_mirror_and_reverse:
         variants = [
             d,
@@ -53,6 +62,13 @@ def canonical_marked_key(d: MarkedDiagram, up_to_mirror_and_reverse: bool = Fals
             d.mirror_time(),
             d.reverse_orientation_zt(),
         ]
+    elif up_to_unoriented_so4:
+        variants = [
+            d,
+            d.reverse_orientation_zt(),
+        ]
+    else:
+        variants = [d]
 
     overall_best = None
     for diag in variants:
@@ -76,9 +92,6 @@ def canonical_marked_key(d: MarkedDiagram, up_to_mirror_and_reverse: bool = Fals
             free_loops=diag.free_loops,
         )
         sub_diags = [diag, diag_rot180]
-        if up_to_mirror_and_reverse:
-            # Also allow pure planar reflection without R_z (already covered since variants has mirror_3d!)
-            pass
 
         for sd in sub_diags:
             k = _single_marked_canonical(sd)
@@ -86,6 +99,11 @@ def canonical_marked_key(d: MarkedDiagram, up_to_mirror_and_reverse: bool = Fals
                 overall_best = k
     assert overall_best is not None
     return overall_best
+
+
+def canonical_unoriented_so4_key(d: MarkedDiagram) -> tuple:
+    """Canonical `SO(4)` diagram key of unoriented `F` (`det = +1`, equating `+F` and `-F = R_{zt}(F)`)."""
+    return canonical_marked_key(d, up_to_unoriented_so4=True)
 
 
 def _single_marked_canonical(d: MarkedDiagram) -> tuple:
@@ -1005,21 +1023,31 @@ def find_planar_connected_sum_decomposition(
             da = greedy_yoshikawa_reduce(build_factor(True, e1_a, e2_a))
             db = greedy_yoshikawa_reduce(build_factor(False, e1_b, e2_b))
             # Check if BOTH factors are genuinely nontrivial (not unknotted 0_1 S^2)!
-            ta = da.surface_topology()
-            tb = db.surface_topology()
-            da_is_s2_unknot = (
-                ta.num_components == 1
-                and ta.components[0].orientable
-                and ta.components[0].euler_characteristic == 2
-                and da.num_vertices < 8
+            from surfaceknots.invariants.alexander import compute_alexander_invariants
+            from surfaceknots.invariants.fundamental_group import (
+                finite_quotient_profile,
+                wirtinger_presentation,
             )
-            db_is_s2_unknot = (
-                tb.num_components == 1
-                and tb.components[0].orientable
-                and tb.components[0].euler_characteristic == 2
-                and db.num_vertices < 8
-            )
-            if not da_is_s2_unknot and not db_is_s2_unknot:
+
+            def _is_certified_nontrivial_factor(df: MarkedDiagram) -> bool:
+                tf = df.surface_topology()
+                if not (
+                    tf.num_components == 1
+                    and tf.components[0].orientable
+                    and tf.components[0].euler_characteristic == 2
+                ):
+                    return True
+                if df.num_vertices < 8:
+                    return False
+                wp = wirtinger_presentation(df)
+                if wp.num_generators <= 1:
+                    return False
+                al = compute_alexander_invariants(df, pres=wp, topo=tf)
+                if tuple(al.e1_generators) != ("1",):
+                    return True
+                return finite_quotient_profile(wp, ("A5",))["A5"] != 60
+
+            if _is_certified_nontrivial_factor(da) and _is_certified_nontrivial_factor(db):
                 return (da, db)
     return None
 
@@ -1367,13 +1395,17 @@ def has_certified_cyclic_unknotted_tube(d: MarkedDiagram, _depth: int = 0) -> bo
             sw_b = d_b & 3
             if ((sw_b + 1) & 3) != sw_a:
                 continue
+            # Require `{u, w}` to form a genuine 1-handle (pinched bigon loop in one resolution,
+            # parallel band rails in the other); the base diagram pinches the outer darts at `u` and `w`.
+            if (d.vtype[u] == d.vtype[w]) != ((su & 1) == (sw_a & 1)):
+                continue
             p0, p1 = 4 * u + ((su + 2) & 3), 4 * u + ((su + 3) & 3)
             p2, p3 = 4 * w + ((sw_b + 2) & 3), 4 * w + ((sw_b + 3) & 3)
             remap = [v - (1 if v > u else 0) - (1 if v > w else 0) for v in range(n)]
             m = n - 2
             nvt = tuple(d.vtype[v] for v in range(n) if v not in (u, w))
 
-            for pairs in ([(p0, p1), (p2, p3)], [(p0, p3), (p1, p2)]):
+            for pairs in ([(p0, p1), (p2, p3)],):
                 partner = {x: y for x, y in pairs} | {y: x for x, y in pairs}
                 nopp = [0] * (4 * m)
                 valid = True
@@ -1434,7 +1466,7 @@ def has_certified_cyclic_unknotted_tube(d: MarkedDiagram, _depth: int = 0) -> bo
                 red, sp, cp = simplify_and_explore_yoshikawa(cand, max_states=24)
                 if sp:
                     continue
-                if cp or red.num_vertices <= 7:
+                if (cp and red.num_vertices <= 9) or red.num_vertices <= 7:
                     return True
                 if red.num_vertices in (8, 9):
                     from surfaceknots.fast_enum import tunnel_diagrams_c

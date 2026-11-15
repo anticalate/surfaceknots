@@ -1,0 +1,30 @@
+diagrams 29
+12_m2_S2_2.0           E1=['2*x**2 - 3*x + 2']  KB confluent (67 rules, second meridian e2); u,v,w commute: false,false,false; x w x^-1 = x*w*X
+12_m2_S2_2.1           E1=['2*x**2 - 3*x + 2']  KB confluent (67 rules, second meridian e9); u,v,w commute: false,false,false; x w x^-1 = x*w*X
+12_m2_S2_2.2           E1=['2*x**2 - 3*x + 2']  KB confluent (67 rules, second meridian e2); u,v,w commute: false,false,false; x w x^-1 = x*w*X
+12_m2_S2_23.0          E1=['3*x**2 - 3*x + 1']  KB confluent (64 rules, second meridian e9); u,v,w commute: false,false,false; x w x^-1 = v*U^2*v*U*(U*(U*v)^2)^2
+12_m2_S2_15.0          E1=['5', 'x + 1']  KB confluent (58 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = u^4
+12_m2_S2_15.1          E1=['5', 'x + 1']  KB confluent (58 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = u^4
+12_m2_S2_15.2          E1=['5', 'x + 1']  KB confluent (58 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = u^4
+12_m2_S2_15.3          E1=['5', 'x + 1']  KB confluent (58 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = u^4
+12_m2_S2_15.4          E1=['5', 'x + 1']  KB confluent (58 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = u^4
+12_m2_S2_15.5          E1=['5', 'x + 1']  KB confluent (58 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = u^4
+12_m2_S2_25.0          E1=['7', 'x + 1']  KB confluent (58 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = u^6
+12_m2_S2_25.1          E1=['7', 'x + 1']  KB confluent (58 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = u^6
+12_m2_S2_18.0          E1=['x**3 - 2*x**2 + 3*x - 1']  KB confluent (68 rules, second meridian e9); u,v,w commute: false,false,false; x w x^-1 = w*V*u*w*V*w
+12_m2_S2_18.1          E1=['x**3 - 2*x**2 + 3*x - 1']  KB confluent (68 rules, second meridian e2); u,v,w commute: false,false,false; x w x^-1 = w*V*u*V*w^2
+12_m2_S2_18.2          E1=['x**3 - 2*x**2 + 3*x - 1']  KB confluent (68 rules, second meridian e2); u,v,w commute: false,false,false; x w x^-1 = V^2*u*V*w^2
+12_m2_S2_18.3          E1=['x**3 - 2*x**2 + 3*x - 1']  KB confluent (68 rules, second meridian e2); u,v,w commute: false,false,false; x w x^-1 = w*V*u*w*V*w
+12_m2_S2_18.4          E1=['x**3 - 2*x**2 + 3*x - 1']  KB confluent (80 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = w^3*V^2*u
+12_m2_S2_5.0           E1=['x**3 - x**2 + 1']  KB confluent (68 rules, second meridian e2); u,v,w commute: false,false,false; x w x^-1 = U*v
+12_m2_S2_0.0           E1=['x**4 - x**3 + x**2 - x + 1']  no confluent system within 150 s
+amb0_0_1               E1=['1']  KB confluent (56 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = <identity
+amb1_0_1               E1=['1']  KB confluent (56 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = <identity
+amb2_0_1               E1=['3', 'x**2 + 1']  KB confluent (60 rules, second meridian e3); u,v,w commute: false,false,false; x w x^-1 = v*u*(u*v^2)^2
+amb3_11_2              E1=['x**3 - x**2 + 2*x - 1']  KB confluent (68 rules, second meridian e2); u,v,w commute: false,false,false; x w x^-1 = V*u*w^2
+amb4_10_1              E1=['x**2 - 3*x + 1']  KB confluent (64 rules, second meridian e5); u,v,w commute: false,false,false; x w x^-1 = v*U*(v^2*U*v)^2*v
+amb5_0_1               E1=['1']  KB confluent (56 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = <identity
+amb6_10_1              E1=['x**2 - 3*x + 1']  KB confluent (64 rules, second meridian e9); u,v,w commute: false,false,false; x w x^-1 = v*U*(v^2*U*v)^2*v
+amb7_11_2              E1=['x**3 - 2*x**2 + x - 1']  KB confluent (68 rules, second meridian e2); u,v,w commute: false,false,false; x w x^-1 = V*u*V*w
+amb8_11_2              E1=['x**3 - x**2 + 2*x - 1']  KB confluent (80 rules, second meridian e2); u,v,w commute: true,true,true; x w x^-1 = w^2*V*u
+amb9_0_1               E1=['3', 'x**2 + 1']  KB confluent (60 rules, second meridian e2); u,v,w commute: false,false,false; x w x^-1 = v*u*(u*v^2)^2

@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from itertools import permutations, product
 import json
 from pathlib import Path
+import re
 import sympy as sp
 from sympy.matrices.normalforms import hermite_normal_form
 
@@ -17,10 +18,12 @@ from surfaceknots.invariants.alexander import (
     _ideal_evaluation_fingerprint,
     compute_alexander_invariants,
     twisted_s3_invariants,
+    zh1_groebner_basis,
 )
 from surfaceknots.invariants.fundamental_group import finite_quotient_profile, wirtinger_presentation
 from surfaceknots.invariants.linking import (
     double_linking_mod2,
+    exact_sublink_invariant_profile,
     mod2_triple_linking_profile,
     peripheral_sl2f3_profile,
     sublink_summary,
@@ -28,6 +31,7 @@ from surfaceknots.invariants.linking import (
 from surfaceknots.invariants.quandle import (
     alexander_biquandle_invariants,
     bikei_module_invariants,
+    dihedral_coloring_count,
     kei_module_invariants,
     mochizuki_3cocycle_invariant,
 )
@@ -170,7 +174,8 @@ YOSHIKAWA_TABLE: tuple[YoshikawaEntry, ...] = (
         has_yoshikawa_table_ii_erratum=True,
         erratum_note=(
             "Yoshikawa Table II printed pi_1 = <x, y | yxyx^{-1} = 1> and E_1 = (x + 1, y - 1); "
-            "actual group is abelian Z + Z_2 = <x, y | xy = yx, y^2 = 1> with E_1 = (x - 1, y - 1, 2)."
+            "actual group is abelian Z + Z_2 = <x, y | xy = yx, y^2 = 1> with E_1 = (x - 1, y - 1, 2) "
+            "(noted by Ishii-Nikkuni-Oshiro 2018)."
         ),
     ),
     YoshikawaEntry(
@@ -220,13 +225,10 @@ YOSHIKAWA_TABLE: tuple[YoshikawaEntry, ...] = (
         canonical_epd="X[1,2,3,4], X[4,5,6,1], X[7,6,5,8], X[9,3,2,10], X[9,11,12,13], X[13,12,14,15], X[15,14,16,17], Z[7,18,19,20], Y[20,19,11,10], X[18,8,17,16]",
         description="Ribbon S^2 u T^2 link",
         ribbon_status="Ribbon",
-        yoshikawa_printed_e1=("(x - 1)*(x + 1)", "(y - 1)*(x + 1)"),
+        yoshikawa_printed_e1=("(x - 1)*(x*y + 1)", "(y - 1)*(x*y + 1)"),
         corrected_e1=("(x - 1)*(x + y)", "(y - 1)*(x + y)"),
-        has_yoshikawa_table_ii_erratum=True,
-        erratum_note=(
-            "Yoshikawa Table II printed E_1 = (x - 1, y - 1)(x + 1); "
-            "Fox calculus on <x, y | y^{-1}x^{-1}yx^{-1}yxy^{-1}x = 1> gives E_1 = (x - 1, y - 1)(x + y)."
-        ),
+        has_yoshikawa_table_ii_erratum=False,
+        erratum_note="",
     ),
     YoshikawaEntry(
         label="10_2^0,1",
@@ -280,7 +282,8 @@ YOSHIKAWA_TABLE: tuple[YoshikawaEntry, ...] = (
         has_yoshikawa_table_ii_erratum=True,
         erratum_note=(
             "Yoshikawa Table II printed E_1 = (2x + y - 1, 4), omitting the generator (x + 1)(y + 1); "
-            "integral HNF over Z[x^{+-1}, y]/(y^2 - 1) proves E_1 = (2x + y - 1, (x + 1)(y + 1), 4)."
+            "integral HNF over Z[x^{+-1}, y]/(y^2 - 1) gives E_1 = (2x + y - 1, (x + 1)(y + 1), 4) "
+            "(noted by Ishii-Nikkuni-Oshiro 2018)."
         ),
     ),
     YoshikawaEntry(
@@ -314,51 +317,13 @@ def exact_zh1_ideal_equals(
     ori_syms: list[sp.Symbol],
     tor_syms: list[sp.Symbol],
 ) -> bool:
-    """Test exact ideal equality `(gens_a) == (gens_b)` in `Z[ori_syms^{+-1}, tor_syms]/(u_j^2 - 1)`
-    using evaluation fingerprints + integral Hermite Normal Form in finite group-ring quotients.
+    """Exact decision procedure for ideal equality `(gens_a) == (gens_b)` in
+    `Z[ori_syms^{+-1}, tor_syms] / (u_j^2 - 1)` via reduced strong Groebner bases over `Z`
+    (Kandri-Rody & Kapur 1988).
     """
-    if _ideal_evaluation_fingerprint(gens_a, ori_syms, tor_syms) != _ideal_evaluation_fingerprint(
+    return zh1_groebner_basis(gens_a, ori_syms, tor_syms) == zh1_groebner_basis(
         gens_b, ori_syms, tor_syms
-    ):
-        return False
-
-    r = len(ori_syms)
-    s = len(tor_syms)
-    all_syms = ori_syms + tor_syms
-    for m_ord in (3, 4, 5):
-        if (m_ord**r) * (2**s) > 512:
-            continue
-        basis = list(product(*(range(m_ord) for _ in range(r)), *(range(2) for _ in range(s))))
-        b_idx = {e: idx for idx, e in enumerate(basis)}
-        dim = len(basis)
-
-        def build_hnf(gens: list[sp.Expr]) -> sp.Matrix:
-            cols: list[list[int]] = []
-            for g in gens:
-                g_exp = sp.expand(g)
-                if g_exp == 0:
-                    continue
-                if not all_syms:
-                    terms = [((), int(g_exp))]
-                else:
-                    p = sp.Poly(g_exp, *all_syms, domain=sp.ZZ)
-                    terms = [(mon, int(c)) for mon, c in p.terms()]
-                for b in basis:
-                    col = [0] * dim
-                    for mon, coeff in terms:
-                        pe = tuple((b[i] + mon[i]) % m_ord for i in range(r)) + tuple(
-                            (b[r + j] + mon[r + j]) & 1 for j in range(s)
-                        )
-                        col[b_idx[pe]] += coeff
-                    if any(col):
-                        cols.append(col)
-            if not cols:
-                return sp.zeros(dim, 1)
-            return hermite_normal_form(sp.Matrix(cols).T)
-
-        if build_hnf(gens_a) != build_hnf(gens_b):
-            return False
-    return True
+    )
 
 
 def check_e1_ideal_against_reference(
@@ -450,19 +415,35 @@ def compute_full_invariant_record(
     kei = kei_module_invariants(d)
     bikei = bikei_module_invariants(d)
     abq = alexander_biquandle_invariants(d)
-    c3_oriented = mochizuki_3cocycle_invariant(d, p=3, up_to_mirror=False)
+    col_r3 = dihedral_coloring_count(kei[0], kei[1], 3)
+    col_r5 = dihedral_coloring_count(kei[0], kei[1], 5)
+    col_r7 = dihedral_coloring_count(kei[0], kei[1], 7)
+    c3_oriented = mochizuki_3cocycle_invariant(d, p=3, known_col_count=col_r3, up_to_mirror=False)
     c3_mirror = (
-        mochizuki_3cocycle_invariant(d.mirror_3d(), p=3, up_to_mirror=False)
+        mochizuki_3cocycle_invariant(d.mirror_3d(), p=3, known_col_count=col_r3, up_to_mirror=False)
         if c3_oriented is not None
         else None
     )
     is_c3_chiral = (c3_oriented is not None) and (
         c3_oriented != c3_mirror or len(set(c3_oriented)) > 1
     )
+    c5_oriented = mochizuki_3cocycle_invariant(d, p=5, known_col_count=col_r5, up_to_mirror=False)
+    c5_mirror = (
+        mochizuki_3cocycle_invariant(d.mirror_3d(), p=5, known_col_count=col_r5, up_to_mirror=False)
+        if c5_oriented is not None
+        else None
+    )
+    c7_oriented = mochizuki_3cocycle_invariant(d, p=7, known_col_count=col_r7, up_to_mirror=False)
+    c7_mirror = (
+        mochizuki_3cocycle_invariant(d.mirror_3d(), p=7, known_col_count=col_r7, up_to_mirror=False)
+        if c7_oriented is not None
+        else None
+    )
 
     psl2_homs, psl2_non_merid = peripheral_sl2f3_profile(d)
     dlk = double_linking_mod2(d)
     tlk = mod2_triple_linking_profile(d)
+    sub_inv_prof = exact_sublink_invariant_profile(d)
     bridge_est = estimate_bridge_bounds_from_marked(d)
     sublinks = sublink_summary(d) if include_sublinks else None
 
@@ -476,6 +457,7 @@ def compute_full_invariant_record(
 
     comp_types = [c.homeomorphism_type for c in topo.components]
     normal_eulers = sorted(c.normal_euler for c in topo.components)
+    comp_ge_pairs = [[c.genus_symbol, c.normal_euler] for c in topo.components]
 
     import hashlib
 
@@ -493,6 +475,7 @@ def compute_full_invariant_record(
         "orientability": topo.orientability_label,
         "euler_characteristic": topo.euler_characteristic,
         "normal_euler_numbers": normal_eulers,
+        "component_genus_euler_pairs": comp_ge_pairs,
         "c_plus": topo.num_circles_plus,
         "c_minus": topo.num_circles_minus,
         "pi1_generators": wp_m.num_generators,
@@ -513,6 +496,10 @@ def compute_full_invariant_record(
         "alexander_biquandle_s": list(abq[1]) if abq is not None else None,
         "mochizuki_c3_mod3": list(c3_oriented) if c3_oriented is not None else None,
         "mochizuki_c3_mirror_mod3": list(c3_mirror) if c3_mirror is not None else None,
+        "mochizuki_c5_mod5": list(c5_oriented) if c5_oriented is not None else None,
+        "mochizuki_c5_mirror_mod5": list(c5_mirror) if c5_mirror is not None else None,
+        "mochizuki_c7_mod7": list(c7_oriented) if c7_oriented is not None else None,
+        "mochizuki_c7_mirror_mod7": list(c7_mirror) if c7_mirror is not None else None,
         "certified_chiral_by_c3": is_c3_chiral,
         "sl2f3_hom_count": psl2_homs,
         "sl2f3_non_meridional_peripheral_count": len(psl2_non_merid),
@@ -542,20 +529,63 @@ def compute_full_invariant_record(
             "oriented_chiral_by_cocycle": sym.oriented_chiral_by_cocycle,
             "non_invertible_by_cocycle": sym.non_invertible_by_cocycle,
             "constructive_so4_amphicheiral": sym.constructive_so4_amphicheiral,
+            "constructive_plus_amphicheiral": sym.constructive_plus_amphicheiral,
+            "constructive_minus_amphicheiral": sym.constructive_minus_amphicheiral,
             "summary": sym.symmetry_summary,
         },
         "bridge_bounds": bridge_est,
+        "sublink_invariant_profile": json.loads(json.dumps(sub_inv_prof)),
         "sublinks": sublinks,
     }
 
 
-def _unoriented_euler_key(rec: dict[str, object]) -> tuple[int, ...]:
-    e_list: list[int] = [int(x) for x in rec["normal_euler_numbers"]]  # type: ignore[union-attr]
-    if rec["num_components"] == 1:
-        return tuple(sorted(abs(x) for x in e_list))
-    if sum(e_list) == 0:
-        return tuple(sorted(e_list))
-    return tuple(min(sorted(e_list), sorted(-x for x in e_list)))
+def _deep_tuple(obj: object) -> object:
+    if isinstance(obj, (list, tuple)):
+        return tuple(_deep_tuple(x) for x in obj)
+    return obj
+
+
+_EULER_TAG_RE = re.compile(r"\(e=(-?\d+)\)")
+
+
+def _negate_euler_tags_in_tuple(rows: tuple[tuple, ...]) -> tuple[tuple, ...]:
+    flipped = []
+    for row in rows:
+        flipped.append(
+            tuple(
+                _EULER_TAG_RE.sub(lambda m: f"(e={-int(m.group(1))})", x)
+                if isinstance(x, str)
+                else x
+                for x in row
+            )
+        )
+    return tuple(sorted(flipped))
+
+
+def _canonicalize_euler_tagged_rows(raw_rows: object) -> tuple[tuple, ...] | None:
+    if raw_rows is None:
+        return None
+    pos = tuple(sorted(tuple(x) for x in raw_rows))  # type: ignore[union-attr]
+    if not pos:
+        return ()
+    neg = _negate_euler_tags_in_tuple(pos)
+    return min(pos, neg)
+
+
+def _unoriented_euler_key(rec: dict[str, object]) -> tuple[tuple[int, int], ...]:
+    raw_pairs = rec.get("component_genus_euler_pairs")
+    if raw_pairs is not None:
+        pairs = [(int(g), int(e)) for g, e in raw_pairs]  # type: ignore[union-attr]
+    else:
+        e_list = [int(x) for x in rec["normal_euler_numbers"]]  # type: ignore[union-attr]
+        g_raw = rec.get("yoshikawa_genera")
+        g_list = [int(x) for x in g_raw] if g_raw is not None else [0] * len(e_list)  # type: ignore[union-attr]
+        if len(g_list) != len(e_list):
+            g_list = [0] * len(e_list)
+        pairs = list(zip(g_list, e_list))
+    pos = tuple(sorted((g, e) for g, e in pairs))
+    neg = tuple(sorted((g, -e) for g, e in pairs))
+    return min(pos, neg)
 
 
 def invariant_filtration_layers(rec: dict[str, object]) -> tuple[tuple[str, object], ...]:
@@ -569,6 +599,20 @@ def invariant_filtration_layers(rec: dict[str, object]) -> tuple[tuple[str, obje
     c3_unoriented = (
         tuple(sorted([tuple(c3), tuple(c3_m)]))  # type: ignore[arg-type]
         if (c3 is not None and c3_m is not None)
+        else None
+    )
+    c5 = rec.get("mochizuki_c5_mod5")
+    c5_m = rec.get("mochizuki_c5_mirror_mod5")
+    c5_nontriv = (
+        tuple(sorted([tuple(c5), tuple(c5_m)]))  # type: ignore[arg-type]
+        if (c5 is not None and c5_m is not None and any("u" in str(s) for s in c5))  # type: ignore[union-attr]
+        else None
+    )
+    c7 = rec.get("mochizuki_c7_mod7")
+    c7_m = rec.get("mochizuki_c7_mirror_mod7")
+    c7_nontriv = (
+        tuple(sorted([tuple(c7), tuple(c7_m)]))  # type: ignore[arg-type]
+        if (c7 is not None and c7_m is not None and any("u" in str(s) for s in c7))  # type: ignore[union-attr]
         else None
     )
     cov_raw = rec.get("cover_betti_profile", {})
@@ -608,7 +652,11 @@ def invariant_filtration_layers(rec: dict[str, object]) -> tuple[tuple[str, obje
         ("Sigma2", sigma2_key),
         (
             "finite_quotients",
-            (tuple(sorted(rec["hom_counts"].items())), rec["sl2f3_hom_count"]),  # type: ignore[union-attr]
+            (
+                tuple(sorted(rec["hom_counts"].items())),  # type: ignore[union-attr]
+                rec["sl2f3_hom_count"],
+                _deep_tuple(rec.get("sublink_invariant_profile", ())),
+            ),
         ),
         ("pi2_covers", cov_key),
         (
@@ -625,13 +673,18 @@ def invariant_filtration_layers(rec: dict[str, object]) -> tuple[tuple[str, obje
         (
             "double_triple_linking",
             (
-                tuple(tuple(x) for x in rec["double_linking_mod2"]),  # type: ignore[union-attr]
-                tuple(tuple(x) for x in rec["triple_linking_mod2"])  # type: ignore[union-attr]
-                if rec["triple_linking_mod2"] is not None
-                else None,
+                _canonicalize_euler_tagged_rows(rec["double_linking_mod2"]),
+                _canonicalize_euler_tagged_rows(rec["triple_linking_mod2"]),
             ),
         ),
-        ("cocycles_and_sym_quandle", (c3_unoriented, q6_key)),
+        (
+            "cocycles_and_sym_quandle",
+            (
+                (c3_unoriented, q6_key)
+                if (c5_nontriv is None and c7_nontriv is None)
+                else (c3_unoriented, c5_nontriv, c7_nontriv, q6_key)
+            ),
+        ),
     )
 
 
@@ -646,7 +699,7 @@ def _human_layer_summary(layer_name: str, rec: dict[str, object]) -> object:
             "components": rec["component_types"],
             "orientability": rec["orientability"],
             "chi": rec["euler_characteristic"],
-            "normal_euler": list(_unoriented_euler_key(rec)),
+            "normal_euler": [[g, e] for g, e in _unoriented_euler_key(rec)],
         }
     if layer_name == "H1":
         return {"free_rank": rec["h1_free_rank"], "torsion": rec["h1_torsion"]}
@@ -677,6 +730,8 @@ def _human_layer_summary(layer_name: str, rec: dict[str, object]) -> object:
     if layer_name == "cocycles_and_sym_quandle":
         return {
             "mochizuki_c3": rec["mochizuki_c3_mod3"],
+            "mochizuki_c5": rec.get("mochizuki_c5_mod5"),
+            "mochizuki_c7": rec.get("mochizuki_c7_mod7"),
             "q6": [
                 rec["sym_quandle_q6_col"],
                 rec["sym_quandle_q6_trivial_weights"],
@@ -741,7 +796,7 @@ def assign_nearest_separating_witnesses(
 
 
 def export_yoshikawa_datasets(out_dir: Path) -> list[dict[str, object]]:
-    """Verify all 23 Yoshikawa entries + 3 Table II errata, and write `yoshikawa_ch10.{json,csv}`."""
+    """Verify all 23 Yoshikawa entries + 2 Table II errata, and write `yoshikawa_ch10.{json,csv}`."""
     out_dir.mkdir(parents=True, exist_ok=True)
     records: list[dict[str, object]] = []
     seen_keys: dict[tuple, str] = {}

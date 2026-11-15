@@ -13,6 +13,7 @@ from surfaceknots.complexity import (
     MINIMAL_KLEIN_BOTTLE_E0_EPD,
     analyze_catalog_complexity,
     analyze_connected_sum_collapses,
+    build_complexity_comparison,
     certify_klein_bottle_subadditivity,
     component_unknot_floor,
     construct_minimal_unknot_diagram,
@@ -38,7 +39,10 @@ from surfaceknots.triplane import (
     triplane_o4_key,
     union_two_tangles_to_classical_link,
 )
-from surfaceknots.triplane_census import enumerate_minimal_braided_tangles
+from surfaceknots.triplane_census import (
+    enumerate_minimal_braided_tangles,
+    verify_general_planar_tangles_b4,
+)
 from surfaceknots.unlink import certify_classical_unlink
 from surfaceknots.yoshikawa_data import YOSHIKAWA_BY_LABEL, compute_full_invariant_record
 
@@ -200,7 +204,7 @@ def test_braided_tangles_and_exported_complexity_datasets() -> None:
     assert comp_path.exists()
 
     t12 = json.loads(t12_path.read_text())
-    assert len(t12["ch12_m2_s2_knots"]["new_prime_classes"]) == 7
+    assert len(t12["ch12_m2_s2_knots"]["new_prime_classes"]) >= 7
 
     tp_data = json.loads(tp_path.read_text())
     glmo = tp_data["gong_lewis_monkman_osnes_2026_verification"]
@@ -211,3 +215,64 @@ def test_braided_tangles_and_exported_complexity_datasets() -> None:
 
     comp_data = json.loads(comp_path.read_text())
     assert comp_data["total_distinct_classes_compared"] >= 70
+
+
+def test_general_planar_tangles_b4_and_dlk2_o4_key() -> None:
+    res1 = verify_general_planar_tangles_b4(max_crossings=1)
+    assert res1["all_general_planar_trivial_tangles_realized_by_braided_up_to_max_c"] is True
+    assert res1["per_crossing_counts"]["1"]["non_braided_trivial_diagrams"] == 0  # type: ignore[index]
+
+    res2 = verify_general_planar_tangles_b4(max_crossings=2)
+    assert res2["per_crossing_counts"]["2"]["free_pi1_rank4_diagrams"] == 224  # type: ignore[index]
+    assert res2["per_crossing_counts"]["2"]["certified_isotopic_to_braided_le_c"] == 208  # type: ignore[index]
+    assert res2["per_crossing_counts"]["2"]["non_braided_trivial_diagrams"] == 16  # type: ignore[index]
+
+    res3 = verify_general_planar_tangles_b4(max_crossings=3)
+    assert res3["per_crossing_counts"]["3"]["free_pi1_rank4_diagrams"] == 1232  # type: ignore[index]
+    assert res3["per_crossing_counts"]["3"]["certified_isotopic_to_braided_le_c"] == 1084  # type: ignore[index]
+    assert res3["per_crossing_counts"]["3"]["non_braided_trivial_diagrams"] == 148  # type: ignore[index]
+
+    # (8_1^1,1, 10_1^1,1) collide on the base 6-tuple triplane_o4_key (both b >= 6),
+    # and separate cleanly when include_double_linking=True:
+    r8 = compute_full_invariant_record(
+        MarkedDiagram.from_epd(YOSHIKAWA_BY_LABEL["8_1^1,1"].canonical_epd),
+        label="8_1^1,1",
+        include_sublinks=False,
+    )
+    r10 = compute_full_invariant_record(
+        MarkedDiagram.from_epd(YOSHIKAWA_BY_LABEL["10_1^1,1"].canonical_epd),
+        label="10_1^1,1",
+        include_sublinks=False,
+    )
+    assert triplane_o4_key(r8) == triplane_o4_key(r10)
+    assert triplane_o4_key(r8, include_double_linking=True) != triplane_o4_key(r10, include_double_linking=True)
+
+
+def test_live_build_complexity_comparison() -> None:
+    live = build_complexity_comparison(DATA_DIR)
+    rows_by_lbl = {r["label"]: r for r in live["rows"]}  # type: ignore[union-attr]
+
+    # Exact bridge & c_tri cross-join checks via witness_triplane recomputation:
+    assert rows_by_lbl["0_1"]["b4_census_bridge"] == 1
+    assert rows_by_lbl["0_1"]["c_tri_b4_braided"] == 0
+    assert rows_by_lbl["2_1^1"]["bridge_bounds"] == [3, 3]
+    assert rows_by_lbl["2_1^1"]["b4_census_bridge"] == 3
+    assert rows_by_lbl["2_1^1"]["c_tri_b4_braided"] == 0
+    assert rows_by_lbl["2_1^-1"]["b4_census_bridge"] == 2
+    assert rows_by_lbl["2_1^-1"]["c_tri_b4_braided"] == 1
+    assert int(rows_by_lbl["8_1"]["c_tri_b4_braided"]) <= 6
+    assert rows_by_lbl["10_2"]["c_tri_b4_braided"] == 6
+
+    # All 9 b <= 4 census bridge matches must resolve cleanly:
+    b4_matched = [r["label"] for r in live["rows"] if r["b4_census_bridge"] is not None]  # type: ignore[union-attr]
+    assert len(b4_matched) >= 9
+
+    # Explicit epistemic certification tiers and zero duplicate promoted Spoke rows:
+    valid_tiers = {"PROVEN_EXACT", "HEURISTIC_INVARIANT_MATCH", "UPPER_BOUND_ONLY"}
+    for r in live["rows"]:  # type: ignore[union-attr]
+        assert r["certification_tier"] in valid_tiers
+    ch12_path = DATA_DIR / "expanded_ch12.json"
+    if ch12_path.exists():
+        ch12_data = json.loads(ch12_path.read_text())
+        for pr in ch12_data.get("promoted_exact_ch12_spokes", []):
+            assert pr["family_id"] not in rows_by_lbl

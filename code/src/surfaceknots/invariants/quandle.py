@@ -137,19 +137,10 @@ def kei_module_invariants(
     Note: for any dihedral kei `R_n` (`n >= 2`), the exact number of `R_n`-colorings is:
     `|Col_{R_n}(F)| = n^{free_rank} * prod_{t in torsion} gcd(n, t)`.
     """
-    if pres is None:
-        pres = wirtinger_presentation(d, from_resolution=-1, simplify=True)
-    g = pres.num_generators
-    if g == 0:
+    if pres is not None and pres.num_generators == 0:
         return (0, ())
-    # Evaluate Fox Jacobian at `psi(x_i) = -1`!
-    #Wait: in `Hom(pi_1, Z_n rtimes_{-1} Z_2)`, mapping every meridian generator `x_i` to a
-    # reflection `(c_i, -1)` satisfies `x_i^2 = 1` automatically! Let's compute directly on
-    # over-arcs of `L_-(D)` (where every meridian generator IS a reflection `(c_i, -1)`!):
-    # Don't use Tietze-simplified `pres` unless all generators are meridians (Tietze preserves
-    # meridian reflections ONLY if every generator maps to `-1` in `{+1, -1}`!).
-    # Instead, build directly from un-simplified `wirtinger_presentation(d, simplify=False)` where
-    # EVERY generator IS a genuine meridian over-arc!
+    # Build directly from un-simplified `wirtinger_presentation(d, simplify=False)` where
+    # every generator is a genuine meridian over-arc reflection `(c_i, -1)` in `Z rtimes_{-1} Z_2`:
     raw_pres = wirtinger_presentation(d, from_resolution=-1, simplify=False)
     ng = raw_pres.num_generators
     if ng == 0:
@@ -531,6 +522,54 @@ def alexander_biquandle_invariants(
                     return sign * (s_sym ** (-e_abs.exp))
             return None
 
+        def _normalize_and_dedup_sym_rows(rows_in: list[dict[int, sp.Expr]]) -> list[dict[int, sp.Expr]]:
+            seen_keys: set[tuple[tuple[int, str], ...]] = set()
+            deduped: list[dict[int, sp.Expr]] = []
+            for rd_in in rows_in:
+                nz_items = [(k, v) for k, v in sorted(rd_in.items()) if v != 0]
+                if not nz_items:
+                    continue
+                # Clear negative/common `s` powers across the row so it lies in Z[s] with min valuation 0
+                term_maps: list[tuple[int, list[tuple[int, int]]]] = []
+                min_exp: int | None = None
+                for k, v in nz_items:
+                    num_v, den_v = sp.fraction(sp.together(v))
+                    p_num = sp.Poly(sp.expand(num_v), s_sym, domain=sp.ZZ)
+                    d_deg = 0
+                    if den_v != 1:
+                        p_den = sp.Poly(sp.expand(den_v), s_sym, domain=sp.ZZ)
+                        c_den = int(p_den.LC())
+                        d_deg = p_den.degree()
+                    else:
+                        c_den = 1
+                    t_list = [(m[0] - d_deg, int(c) * (1 if c_den > 0 else -1)) for m, c in p_num.terms() if c != 0]
+                    if t_list:
+                        loc_min = min(e for e, _ in t_list)
+                        min_exp = loc_min if min_exp is None else min(min_exp, loc_min)
+                        term_maps.append((k, t_list))
+                if not term_maps or min_exp is None:
+                    continue
+                # Normalize sign by first variable's highest-degree coefficient
+                first_terms = sorted(term_maps[0][1], reverse=True)
+                sgn = -1 if first_terms[0][1] < 0 else 1
+                norm_rd: dict[int, sp.Expr] = {}
+                key_parts: list[tuple[int, str]] = []
+                for k, t_list in term_maps:
+                    expr_k = sp.expand(
+                        sum(sp.Integer(sgn * c) * (s_sym ** (e - min_exp)) for e, c in t_list)
+                    )
+                    if expr_k != 0:
+                        norm_rd[k] = expr_k
+                        key_parts.append((k, str(expr_k)))
+                if norm_rd:
+                    rk = tuple(key_parts)
+                    if rk not in seen_keys:
+                        seen_keys.add(rk)
+                        deduped.append(norm_rd)
+            return deduped
+
+        sym_rows = _normalize_and_dedup_sym_rows(sym_rows)
+
         # Eliminate equations where a variable has a Laurent-monomial unit coefficient `+- s^k`!
         changed = True
         while changed and len(active_vars) > 1:
@@ -565,14 +604,25 @@ def alexander_biquandle_invariants(
                             nd = {k: v for k, v in nd.items() if v != 0}
                             if nd:
                                 new_sym_rows.append(nd)
-                    sym_rows = new_sym_rows
+                    sym_rows = _normalize_and_dedup_sym_rows(new_sym_rows)
                     active_vars.remove(piv_var)
                     changed = True
                     break
 
-        def _to_s_poly(expr: sp.Expr) -> sp.Poly:
+        def _to_stripped_s_poly(expr: sp.Expr) -> sp.Poly:
             num, _den = sp.fraction(sp.together(expr))
-            return sp.Poly(sp.expand(num), s_sym, domain=sp.ZZ)
+            dp = sp.Poly(sp.expand(num), s_sym, domain=sp.ZZ)
+            terms = [(m[0], int(c)) for m, c in dp.terms() if c != 0]
+            if not terms:
+                return sp.Poly(0, s_sym, domain=sp.ZZ)
+            m0 = min(e for e, _ in terms)
+            if m0 > 0:
+                dp = sp.Poly(
+                    sum(sp.Integer(c) * (s_sym ** (e - m0)) for e, c in terms),
+                    s_sym,
+                    domain=sp.ZZ,
+                )
+            return dp
 
         rem_g = len(active_vars)
         if rem_g <= 1:
@@ -581,53 +631,25 @@ def alexander_biquandle_invariants(
             else:
                 v0 = active_vars[0]
                 polys = [rd.get(v0, sp.Integer(0)) for rd in sym_rows if rd.get(v0, sp.Integer(0)) != 0]
-                cur_g = _to_s_poly(polys[0])
-                for p_ex in polys[1:]:
-                    cur_g = sp.gcd(cur_g, _to_s_poly(p_ex))
-                s_monodromy_strs.add(_canonicalize_s_poly(cur_g.as_expr(), s_sym))
-        else:
-            minor_sz = rem_g - 1
-            if len(sym_rows) < minor_sz:
+                if not polys:
+                    s_monodromy_strs.add("0")
+                else:
+                    cur_g = _to_stripped_s_poly(polys[0])
+                    for p_ex in polys[1:]:
+                        cur_g = sp.gcd(cur_g, _to_stripped_s_poly(p_ex))
+                        if cur_g.as_expr() in (1, -1):
+                            break
+                    s_monodromy_strs.add(_canonicalize_s_poly(cur_g.as_expr(), s_sym))
+        elif rem_g == 2:
+            # `minor_sz == 1`: 1x1 minors are simply all entries of `sym_rows` (O(len(sym_rows)) for ANY row count!)
+            if not sym_rows:
                 s_monodromy_strs.add("0")
-            elif rem_g <= 8 and len(sym_rows) <= 14:
-                from itertools import combinations
-
-                v_map = {v: idx for idx, v in enumerate(active_vars)}
-                mat = sp.zeros(len(sym_rows), rem_g)
-                for ri, rd in enumerate(sym_rows):
-                    for vk, vv in rd.items():
-                        num_vv, den_vv = sp.fraction(sp.together(vv))
-                        mat[ri, v_map[vk]] = sp.expand(num_vv) if den_vv == 1 else sp.together(vv)
-                # Multiply each row by highest needed power of `s_sym` so `mat` is strictly polynomial!
-                for ri in range(len(sym_rows)):
-                    min_p = 0
-                    for ci in range(rem_g):
-                        entry = mat[ri, ci]
-                        if entry == 0:
-                            continue
-                        num_e, den_e = sp.fraction(sp.together(entry))
-                        if den_e != 1:
-                            d_poly = sp.Poly(sp.expand(den_e), s_sym, domain=sp.ZZ)
-                            min_p = max(min_p, d_poly.degree())
-                    if min_p > 0:
-                        for ci in range(rem_g):
-                            if mat[ri, ci] != 0:
-                                mat[ri, ci] = sp.expand(sp.simplify(mat[ri, ci] * (s_sym**min_p)))
+            else:
                 cur_g = None
-                for rc in combinations(range(len(sym_rows)), minor_sz):
-                    for cc in combinations(range(rem_g), minor_sz):
-                        det = sp.expand(mat.extract(list(rc), list(cc)).det(method="berkowitz"))
-                        if det != 0:
-                            dp = sp.Poly(det, s_sym, domain=sp.ZZ)
-                            # Strip `s^k` factor before gcd so Laurent units don't mask `1`!
-                            terms = [(m[0], int(c)) for m, c in dp.terms() if c != 0]
-                            m0 = min(e for e, _ in terms)
-                            if m0 > 0:
-                                dp = sp.Poly(
-                                    sum(sp.Integer(c) * (s_sym ** (e - m0)) for e, c in terms),
-                                    s_sym,
-                                    domain=sp.ZZ,
-                                )
+                for rd in sym_rows:
+                    for vv in rd.values():
+                        if vv != 0:
+                            dp = _to_stripped_s_poly(vv)
                             cur_g = dp if cur_g is None else sp.gcd(cur_g, dp)
                             if cur_g.as_expr() in (1, -1):
                                 break
@@ -636,6 +658,43 @@ def alexander_biquandle_invariants(
                 s_monodromy_strs.add(
                     "0" if cur_g is None else _canonicalize_s_poly(cur_g.as_expr(), s_sym)
                 )
+        else:
+            import math
+            from itertools import combinations
+            from sympy.polys.matrices import DomainMatrix
+
+            minor_sz = rem_g - 1
+            if len(sym_rows) < minor_sz:
+                s_monodromy_strs.add("0")
+            else:
+                v_map = {v: idx for idx, v in enumerate(active_vars)}
+                mat = sp.zeros(len(sym_rows), rem_g)
+                for ri, rd in enumerate(sym_rows):
+                    for vk, vv in rd.items():
+                        mat[ri, v_map[vk]] = vv
+                # Exact rank over Q(s): if rank < minor_sz, EVERY minor_sz x minor_sz minor is identically 0!
+                dm_qs = DomainMatrix.from_Matrix(mat).to_field()
+                if dm_qs.rank() < minor_sz:
+                    s_monodromy_strs.add("0")
+                else:
+                    num_minors = math.comb(len(sym_rows), minor_sz) * math.comb(rem_g, minor_sz)
+                    if num_minors <= 2500:
+                        cur_g = None
+                        for rc in combinations(range(len(sym_rows)), minor_sz):
+                            for cc in combinations(range(rem_g), minor_sz):
+                                det = sp.expand(mat.extract(list(rc), list(cc)).det(method="berkowitz"))
+                                if det != 0:
+                                    dp = _to_stripped_s_poly(det)
+                                    cur_g = dp if cur_g is None else sp.gcd(cur_g, dp)
+                                    if cur_g.as_expr() in (1, -1):
+                                        break
+                            if cur_g is not None and cur_g.as_expr() in (1, -1):
+                                break
+                        s_monodromy_strs.add(
+                            "0" if cur_g is None else _canonicalize_s_poly(cur_g.as_expr(), s_sym)
+                        )
+                    else:
+                        s_monodromy_strs.add("UNDETERMINED")
 
     all_orient_profiles.sort()
     return (tuple(all_orient_profiles), tuple(sorted(s_monodromy_strs)))
@@ -741,6 +800,21 @@ def _evaluate_classical_movie_cocycle(
                 for s in range(4):
                     new_col[4 * vn + s] = col[4 * vo + s]
                     new_dir[4 * vn + s] = ddir[4 * vo + s]
+            col, ddir = new_col, new_dir
+
+        elif kind == "R1+":
+            n_prev = step.before.num_crossings
+            u = n_prev
+            new_col = list(col) + [0] * 4
+            new_dir = list(ddir) + [0] * 4
+            ext_slots = [s for s in range(4) if aft.opp[4 * u + s] < 4 * u]
+            c_kink = col[aft.opp[4 * u + ext_slots[0]]]
+            for s in range(4):
+                new_col[4 * u + s] = c_kink
+            for s in ext_slots:
+                od = aft.opp[4 * u + s]
+                new_dir[4 * u + s] = -ddir[od]
+                new_dir[4 * u + (s ^ 2)] = ddir[od]
             col, ddir = new_col, new_dir
 
         elif kind == "R2+":
@@ -853,22 +927,13 @@ def _evaluate_classical_movie_cocycle(
     return total_w
 
 
-def mochizuki_3cocycle_invariant(
+def _mochizuki_3cocycle_core(
     d: MarkedDiagram,
     p: int = 3,
     known_col_count: int | None = None,
-    up_to_mirror: bool = True,
-) -> tuple[str, ...] | None:
-    """Compute Mochizuki's dihedral quandle 3-cocycle state-sum invariant `Phi_{theta_p}(F)` in `Z[Z_p]`
-    across all `2^c` surface orientations of `F(D)` (returns `None` if `F(D)` is non-orientable).
-
-    - When `up_to_mirror=False`, returns the exact sorted `2^c`-tuple of state-sums in fixed oriented
-      `R^4` (evaluating both `+o` and `-o` directly on the unlinking movies). Comparing `d` against
-      `d.mirror_3d()` certifies **4D chirality** (`F != F*`), while distinct entries within `d`
-      certify **orientation sensitivity / non-invertibility** (`+F != -F`).
-    - When `up_to_mirror=True` (default for Yoshikawa unoriented/unmirrored census comparison),
-      canonicalizes between `Phi` and its mirror-conjugate `bar(Phi)` (`u^k -> u^{-k mod p}`).
-    - Any state-sum with nontrivial `u^k` (`k != 0`) terms certifies `t(F) > 0` (non-ribbon!).
+) -> tuple[list[tuple[str, str]], list[tuple[str, str]]] | None:
+    """Internal helper returning `(pairs_pos, pairs_mir)` of global-reversal pairs `(Phi(+o), Phi(-o))`
+    across all `2^{c-1}` relative orientation classes (repeated `2^{free_loops}` times).
     """
     from surfaceknots.unlink import find_unlink_movie
 
@@ -883,7 +948,9 @@ def mochizuki_3cocycle_invariant(
     num_scomps = d.surface_topology().num_components
     if d.num_vertices == 0 or known_col_count == p:
         s_str = str(known_col_count)
-        return tuple([s_str] * (1 << num_scomps))
+        n_pairs = 1 << max(0, num_scomps - 1)
+        pairs = [(s_str, s_str)] * n_pairs
+        return pairs, list(pairs)
 
     if known_col_count > 729:
         return None
@@ -983,10 +1050,12 @@ def mochizuki_3cocycle_invariant(
         f"Coloring count mismatch: {len(colorings_dart)} vs {known_col_count}"
     )
 
-    state_sums_pos: list[str] = []
-    state_sums_mir: list[str] = []
+    pairs_pos: list[tuple[str, str]] = []
+    pairs_mir: list[tuple[str, str]] = []
     free_ori_mult = 1 << d.free_loops
     for base_ddir in base_oris:
+        pair_p: list[str] = []
+        pair_m: list[str] = []
         for sign_mult in (1, -1):
             init_dir_cl = [sign_mult * base_ddir[4 * v_old + s] for v_old in classical_vs for s in range(4)]
             counts: Counter[int] = Counter()
@@ -998,13 +1067,56 @@ def mochizuki_3cocycle_invariant(
                 w_net = (wp - wm) % p
                 counts[w_net] += 1
                 counts_mir[(-w_net) % p] += 1
-            state_sums_pos.extend([_format_zp_state_sum(counts, p)] * free_ori_mult)
-            state_sums_mir.extend([_format_zp_state_sum(counts_mir, p)] * free_ori_mult)
+            pair_p.append(_format_zp_state_sum(counts, p))
+            pair_m.append(_format_zp_state_sum(counts_mir, p))
+        p_tup = (min(pair_p[0], pair_p[1]), max(pair_p[0], pair_p[1]))
+        m_tup = (min(pair_m[0], pair_m[1]), max(pair_m[0], pair_m[1]))
+        pairs_pos.extend([p_tup] * free_ori_mult)
+        pairs_mir.extend([m_tup] * free_ori_mult)
 
-    tup_pos = tuple(sorted(state_sums_pos))
+    return pairs_pos, pairs_mir
+
+
+def mochizuki_3cocycle_orientation_pairs(
+    d: MarkedDiagram,
+    p: int = 3,
+    known_col_count: int | None = None,
+) -> tuple[tuple[str, str], ...] | None:
+    """Return sorted `(min(Phi(+o), Phi(-o)), max(Phi(+o), Phi(-o)))` pairs across all `2^{c-1}`
+    global-reversal orientation pairs `{+o, -o}` of `F(D)` in fixed oriented `R^4` (or `None`).
+    """
+    core = _mochizuki_3cocycle_core(d, p=p, known_col_count=known_col_count)
+    if core is None:
+        return None
+    pairs_pos, _ = core
+    return tuple(sorted(pairs_pos))
+
+
+def mochizuki_3cocycle_invariant(
+    d: MarkedDiagram,
+    p: int = 3,
+    known_col_count: int | None = None,
+    up_to_mirror: bool = True,
+) -> tuple[str, ...] | None:
+    """Compute Mochizuki's dihedral quandle 3-cocycle state-sum invariant `Phi_{theta_p}(F)` in `Z[Z_p]`
+    across all `2^c` surface orientations of `F(D)` (returns `None` if `F(D)` is non-orientable).
+
+    - When `up_to_mirror=False`, returns the exact sorted `2^c`-tuple of state-sums in fixed oriented
+      `R^4` (evaluating both `+o` and `-o` directly on the unlinking movies). Comparing `d` against
+      `d.mirror_3d()` certifies **4D chirality** (`F != F*`), while global reversal pairs `{+o, -o}`
+      (`mochizuki_3cocycle_orientation_pairs`) certify **global non-invertibility** (`+F != -F`).
+    - When `up_to_mirror=True` (default for Yoshikawa unoriented/unmirrored census comparison),
+      canonicalizes between `Phi` and its mirror-conjugate `bar(Phi)` (`u^k -> u^{-k mod p}`).
+    - Any state-sum with nontrivial `u^k` (`k != 0`) terms certifies `t(F) > 0` (non-ribbon!).
+    """
+    core = _mochizuki_3cocycle_core(d, p=p, known_col_count=known_col_count)
+    if core is None:
+        return None
+    pairs_pos, pairs_mir = core
+    tup_pos = tuple(sorted(s for pair in pairs_pos for s in pair))
     if not up_to_mirror:
         return tup_pos
-    tup_mir = tuple(sorted(state_sums_mir))
+    tup_mir = tuple(sorted(s for pair in pairs_mir for s in pair))
     return min(tup_pos, tup_mir)
 
 

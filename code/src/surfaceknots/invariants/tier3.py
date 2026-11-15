@@ -7,8 +7,8 @@ Implements:
 2. `lomonaco_pi2_invariants(d)`: Exact regular finite-cover homology `(b_1, Tors H_1, b_2, b_3)` of
    `widetilde{E}_rho -> E = S^4 \\ nu(F)` via Schreier-Tietze lifting and Poincare-Lefschetz duality
    (Theorem 5.5 of `math/foundations_and_invariants.md`), together with certified `rk_Z pi_2(E)` on
-   finite-`pi_1` and cyclic-kernel finite-commutator surface-knots (`0` on `0_1`, `1` on `2_1^-1`,
-   `2` on `10_2`, `7` on `10_3`, `0` on `8_1^-1,-1`, `16` on `10_1^-2,-2`, `2` on `10_1^-1,-1`).
+   exact cyclic-`Z` spheres and finite-`pi_1` universal covers (`0` on `0_1`, `1` on `2_1^-1`,
+   `0` on `8_1^-1,-1`, `16` on `10_1^-2,-2`, `2` on `10_1^-1,-1`).
 3. `octahedral_symmetric_quandle_invariants(d)`: Kamada-Oshiro octahedral symmetric quandle
    `(Q_6, *, rho)` coloring counts and 12-dimensional `H^3_{Q, rho}(Q_6; Z_2)` symmetric 3-cocycle
    state-sum invariant directly from constructive Reidemeister unlink movies `(M_-, M_+)`, applicable
@@ -38,7 +38,11 @@ from surfaceknots.invariants.fundamental_group import (
     wirtinger_presentation,
 )
 from surfaceknots.invariants.linking import _SL2_ID, _SL2_INV, _SL2_MUL
-from surfaceknots.invariants.quandle import kei_module_invariants, mochizuki_3cocycle_invariant
+from surfaceknots.invariants.quandle import (
+    kei_module_invariants,
+    mochizuki_3cocycle_invariant,
+    mochizuki_3cocycle_orientation_pairs,
+)
 from surfaceknots.moves import (
     canonical_marked_key,
     greedy_yoshikawa_reduce,
@@ -147,6 +151,10 @@ def _build_cover_target_groups() -> tuple[FiniteGroup, ...]:
     sl2_inv = tuple(inv_p0[_SL2_INV[perm_to_0[i]]] for i in range(sl2_order))
     sl2_grp = FiniteGroup("SL2F3", 24, sl2_mul, sl2_inv)
 
+    f57 = _group_from_permutations(
+        "F57",
+        [tuple((x + 1) % 19 for x in range(19)), tuple((7 * x) % 19 for x in range(19))],
+    )
     by_name = {g.name: g for g in STANDARD_TEST_GROUPS}
     return (
         z2,
@@ -155,11 +163,182 @@ def _build_cover_target_groups() -> tuple[FiniteGroup, ...]:
         by_name["Q8"],
         by_name["A4"],
         by_name["Dic16"],
+        by_name["F21"],
         sl2_grp,
+        f57,
     )
 
 
 _COVER_TARGET_GROUPS: tuple[FiniteGroup, ...] = _build_cover_target_groups()
+
+
+def _build_metacyclic_3p_tables() -> dict[str, tuple[int, int, tuple[tuple[int, int, int], ...]]]:
+    """Precompute exact semidirect product parameterizations `Z_p rtimes_omega Z_3` for `F21` and `F57`."""
+    tables: dict[str, tuple[int, int, tuple[tuple[int, int, int], ...]]] = {}
+    for grp in _COVER_TARGET_GROUPS:
+        if grp.name not in ("F21", "F57"):
+            continue
+        p = grp.order // 3
+        mul = grp.mul
+        inv = grp.inv
+        u0 = 0
+        for x in range(1, grp.order):
+            for y in range(1, grp.order):
+                c = mul[mul[x][y]][mul[inv[x]][inv[y]]]
+                if c != 0:
+                    u0 = c
+                    break
+            if u0 != 0:
+                break
+        assert u0 != 0
+        pow_u = [0] * p
+        for b in range(1, p):
+            pow_u[b] = mul[pow_u[b - 1]][u0]
+        n_set = set(pow_u)
+        assert len(n_set) == p
+        s0 = next(x for x in range(1, grp.order) if x not in n_set and mul[mul[x][x]][x] == 0)
+        omega = pow_u.index(mul[mul[s0][u0]][inv[s0]])
+        assert omega > 1 and (omega * omega * omega) % p == 1
+        pow_s = (0, s0, mul[s0][s0])
+        ba_to_elem = tuple(
+            (mul[pow_u[b]][pow_s[0]], mul[pow_u[b]][pow_s[1]], mul[pow_u[b]][pow_s[2]])
+            for b in range(p)
+        )
+        pow_om = (1, omega, (omega * omega) % p)
+        for b1 in range(p):
+            for a1 in range(3):
+                e1 = ba_to_elem[b1][a1]
+                for b2 in range(p):
+                    for a2 in range(3):
+                        e2 = ba_to_elem[b2][a2]
+                        assert mul[e1][e2] == ba_to_elem[(b1 + pow_om[a1] * b2) % p][(a1 + a2) % 3]
+        tables[grp.name] = (p, omega, ba_to_elem)
+    return tables
+
+
+_METACYCLIC_3P_TABLES = _build_metacyclic_3p_tables()
+
+
+def _rref_nullspace_mod_p(rows: list[list[int]], ncols: int, p: int) -> list[list[int]]:
+    """Exact nullspace basis over `F_p` (`p` prime) in O(nrows * ncols * min(nrows, ncols))."""
+    mat = [[x % p for x in r] for r in rows if any(x % p for x in r)]
+    m = len(mat)
+    piv_cols: list[int] = []
+    r_idx = 0
+    for col in range(ncols):
+        piv = -1
+        for i in range(r_idx, m):
+            if mat[i][col] != 0:
+                piv = i
+                break
+        if piv == -1:
+            continue
+        if piv != r_idx:
+            mat[r_idx], mat[piv] = mat[piv], mat[r_idx]
+        inv_v = pow(mat[r_idx][col], p - 2, p)
+        row_p = mat[r_idx]
+        for c in range(col, ncols):
+            row_p[c] = (row_p[c] * inv_v) % p
+        for i in range(m):
+            if i != r_idx and mat[i][col] != 0:
+                fac = mat[i][col]
+                row_i = mat[i]
+                for c in range(col, ncols):
+                    row_i[c] = (row_i[c] - fac * row_p[c]) % p
+        piv_cols.append(col)
+        r_idx += 1
+        if r_idx == m:
+            break
+    piv_set = set(piv_cols)
+    free_cols = [c for c in range(ncols) if c not in piv_set]
+    basis: list[list[int]] = []
+    for fc in free_cols:
+        vec = [0] * ncols
+        vec[fc] = 1
+        for p_row, pc in enumerate(piv_cols):
+            vec[pc] = (-mat[p_row][fc]) % p
+        basis.append(vec)
+    return basis
+
+
+def _solve_metacyclic_3p_surjections(
+    grp_name: str,
+    num_gens: int,
+    rels: tuple[Word, ...],
+) -> list[tuple[int, ...]]:
+    """Exact polynomial-time `F_p` Fox linear solver for surjections `G -> Z_p rtimes_omega Z_3`
+    up to `Inn(N)` and `Aut(N) ~= F_p^*` (`grp_name in {'F21', 'F57'}`).
+    """
+    if num_gens <= 1:
+        return []
+    p, omega, ba_to_elem = _METACYCLIC_3P_TABLES[grp_name]
+    pow_om = (1, omega, (omega * omega) % p)
+    non_empty_rels = [r for r in rels if r]
+
+    # 1. Non-zero homomorphisms `a: G -> Z_3`:
+    f3_rows: list[list[int]] = []
+    for r in non_empty_rels:
+        row3 = [0] * num_gens
+        for lit in r:
+            if lit > 0:
+                row3[lit - 1] = (row3[lit - 1] + 1) % 3
+            else:
+                row3[-lit - 1] = (row3[-lit - 1] + 2) % 3
+        if any(row3):
+            f3_rows.append(row3)
+    f3_basis = _rref_nullspace_mod_p(f3_rows, num_gens, 3)
+    if not f3_basis:
+        return []
+
+    from itertools import product as _iproduct
+
+    out: list[tuple[int, ...]] = []
+    dim3 = len(f3_basis)
+    for coeffs3 in _iproduct((0, 1, 2), repeat=dim3):
+        if not any(coeffs3):
+            continue
+        a_vec = [sum(coeffs3[i] * f3_basis[i][j] for i in range(dim3)) % 3 for j in range(num_gens)]
+        v0 = next((j for j, aj in enumerate(a_vec) if aj != 0), -1)
+        if v0 == -1:
+            continue
+
+        # 2. Gauge-fix `b[v0] = 0` via `Inn(Z_p)` and build Fox linear system mod `p`:
+        gauge_row = [0] * num_gens
+        gauge_row[v0] = 1
+        fp_rows: list[list[int]] = [gauge_row]
+        for r in non_empty_rels:
+            rowp = [0] * num_gens
+            e = 0
+            for lit in r:
+                if lit > 0:
+                    j = lit - 1
+                    rowp[j] = (rowp[j] + pow_om[e]) % p
+                    e = (e + a_vec[j]) % 3
+                else:
+                    j = -lit - 1
+                    e = (e + 3 - a_vec[j]) % 3
+                    rowp[j] = (rowp[j] - pow_om[e]) % p
+            if any(rowp):
+                fp_rows.append(rowp)
+        fp_basis = _rref_nullspace_mod_p(fp_rows, num_gens, p)
+        dimp = len(fp_basis)
+        if dimp == 0:
+            continue
+
+        # 3. Emit one representative per `F_p^*`-ray (`Aut(Z_p)` scales `b -> lambda * b`):
+        for lead_i in range(dimp):
+            for tail_c in _iproduct(range(p), repeat=(dimp - 1 - lead_i)):
+                b_vec = [
+                    (
+                        fp_basis[lead_i][j]
+                        + sum(tail_c[t] * fp_basis[lead_i + 1 + t][j] for t in range(len(tail_c)))
+                    )
+                    % p
+                    for j in range(num_gens)
+                ]
+                if any(b_vec):
+                    out.append(tuple(ba_to_elem[b_vec[j]][a_vec[j]] for j in range(num_gens)))
+    return out
 
 
 @dataclass(frozen=True)
@@ -530,10 +709,6 @@ def _cover_homology_for_surjection(
     return (b1, torsion, b2, b3)
 
 
-# Known finite fundamental groups occurring in low-ch censuses (`pi_1(E) ~= Gamma` literally)
-_CERTIFIED_FINITE_PI1_QUOTIENT_PROFILES: dict[dict[str, int] | tuple[tuple[str, int], ...], str] = {}
-
-
 def lomonaco_pi2_invariants(
     d: MarkedDiagram,
     include_sl2f3: bool = True,
@@ -555,58 +730,29 @@ def lomonaco_pi2_invariants(
 
     profile_items: list[tuple[str, tuple[tuple[int, tuple[int, ...], int, int], ...]]] = []
 
+    seen_surj_groups: set[str] = set()
+
     for grp in _COVER_TARGET_GROUPS:
-        if grp.name == "SL2F3":
+        if grp.name in ("SL2F3", "F21"):
             # Condition strictly on topological invariant `topo.num_components` (`|pi_0(F)|`), never `free_loops`!
             if not include_sl2f3 or topo.num_components >= 3:
                 continue
+        elif grp.name == "F57":
+            if not include_sl2f3 or topo.num_components >= 2:
+                continue
+
+        # Exact quotient-group necessary conditions (100% lossless):
+        if grp.name in ("S3", "Q8", "Dic16") and "Z2" not in seen_surj_groups:
+            continue
+        if grp.name in ("A4", "F21", "SL2F3", "F57") and "Z3" not in seen_surj_groups:
+            continue
+        if grp.name == "SL2F3" and "A4" not in seen_surj_groups:
+            continue
 
         order = grp.order
         mul = grp.mul
         inv = grp.inv
 
-        adj_g: list[set[int]] = [set() for _ in range(num_gens)]
-        for r in rels:
-            vs_r = {abs(lit) - 1 for lit in r}
-            for a in vs_r:
-                adj_g[a] |= vs_r - {a}
-        var_order: list[int] = []
-        seen_v = [False] * num_gens
-        for s_v in range(num_gens):
-            if not seen_v[s_v]:
-                seen_v[s_v] = True
-                qv = deque([s_v])
-                while qv:
-                    u = qv.popleft()
-                    var_order.append(u)
-                    for wv in sorted(adj_g[u]):
-                        if not seen_v[wv]:
-                            seen_v[wv] = True
-                            qv.append(wv)
-        pos_of = {v_orig: step_i for step_i, v_orig in enumerate(var_order)}
-        step_checks: list[list[Word]] = [[] for _ in range(num_gens)]
-        forced_at: list[tuple[int, int] | None] = [None] * num_gens
-        for r in rels:
-            if len(r) == 2 and abs(r[0]) != abs(r[1]):
-                v0, v1 = abs(r[0]) - 1, abs(r[1]) - 1
-                s0, s1 = (1 if r[0] > 0 else -1), (1 if r[1] > 0 else -1)
-                if pos_of[v1] > pos_of[v0] and forced_at[pos_of[v1]] is None:
-                    forced_at[pos_of[v1]] = (v0, -s0 * s1)
-                elif pos_of[v0] > pos_of[v1] and forced_at[pos_of[v0]] is None:
-                    forced_at[pos_of[v0]] = (v1, -s0 * s1)
-            mx = max(pos_of[abs(lit) - 1] for lit in r)
-            step_checks[mx].append(r)
-
-        conj_reps: list[int] = []
-        seen_conj: set[int] = set()
-        for x in range(order):
-            if x in seen_conj:
-                continue
-            conj_reps.append(x)
-            for h in range(order):
-                seen_conj.add(mul[mul[h][x]][inv[h]])
-
-        assign = [0] * num_gens
         surj_homs: list[tuple[int, ...]] = []
 
         def is_surjective(imgs: tuple[int, ...]) -> bool:
@@ -622,40 +768,191 @@ def lomonaco_pi2_invariants(
                         st.append(y)
             return len(seen_el) == order
 
-        def dfs(step_i: int) -> None:
-            if step_i == num_gens:
-                tup = tuple(assign)
+        if grp.name in _METACYCLIC_3P_TABLES:
+            for tup in _solve_metacyclic_3p_surjections(grp.name, num_gens, rels):
                 if is_surjective(tup):
                     surj_homs.append(tup)
-                return
-            v_orig = var_order[step_i]
-            fc = forced_at[step_i]
-            if fc is not None:
-                src_v, sgn = fc
-                cand = (assign[src_v] if sgn == 1 else inv[assign[src_v]],)
-            elif step_i == 0:
-                cand = tuple(conj_reps)
-            else:
-                cand = tuple(range(order))
+        elif num_gens > 0:
+            from itertools import product as _iproduct
 
-            for val in cand:
-                assign[v_orig] = val
-                ok = True
-                for r in step_checks[step_i]:
-                    acc = 0
-                    for lit in r:
-                        gv = assign[lit - 1] if lit > 0 else inv[assign[-lit - 1]]
-                        acc = mul[acc][gv]
-                    if acc != 0:
-                        ok = False
+            non_empty_rels = [r for r in rels if r]
+            adj_g: list[set[int]] = [set() for _ in range(num_gens)]
+            gen_rel_cnt = [0] * num_gens
+            rel_vsets: list[set[int]] = []
+            for r in non_empty_rels:
+                vs_r = {abs(lit) - 1 for lit in r}
+                rel_vsets.append(vs_r)
+                for a in vs_r:
+                    gen_rel_cnt[a] += 1
+                    adj_g[a] |= vs_r - {a}
+
+            v0 = max(
+                range(num_gens),
+                key=lambda cv: (
+                    sum(1 for vs in rel_vsets if vs == {cv}),
+                    len(adj_g[cv]),
+                    gen_rel_cnt[cv],
+                    -cv,
+                ),
+            )
+            root_only_rels: list[Word] = [
+                tuple(1 if lit > 0 else -1 for lit in r)
+                for r, vs in zip(non_empty_rels, rel_vsets)
+                if vs == {v0}
+            ]
+
+            rem_all = set(range(num_gens)) - {v0}
+            blocks_raw: list[set[int]] = []
+            vis_rem: set[int] = set()
+            for rv in sorted(rem_all):
+                if rv in vis_rem:
+                    continue
+                blk: set[int] = set()
+                qb = [rv]
+                vis_rem.add(rv)
+                while qb:
+                    u_b = qb.pop()
+                    blk.add(u_b)
+                    for w_b in adj_g[u_b]:
+                        if w_b != v0 and w_b in rem_all and w_b not in vis_rem:
+                            vis_rem.add(w_b)
+                            qb.append(w_b)
+                blocks_raw.append(blk)
+
+            compiled_blocks = []
+            for blk in blocks_raw:
+                placed_b: set[int] = {v0}
+                ord_b: list[int] = [v0]
+                rem_b = set(blk)
+                b_rels_raw = [r for r, vs in zip(non_empty_rels, rel_vsets) if bool(vs & blk)]
+                b_vsets = [vs for vs in rel_vsets if bool(vs & blk)]
+                while rem_b:
+                    best_v = max(
+                        rem_b,
+                        key=lambda cv: (
+                            sum(1 for vs in b_vsets if cv in vs and vs.issubset(placed_b | {cv})),
+                            sum(1 for vs in b_vsets if cv in vs and bool(vs & placed_b)),
+                            gen_rel_cnt[cv],
+                            -cv,
+                        ),
+                    )
+                    ord_b.append(best_v)
+                    placed_b.add(best_v)
+                    rem_b.remove(best_v)
+
+                o2n = {ov: ni for ni, ov in enumerate(ord_b)}
+                kb = len(ord_b)
+                m_rels_b: list[Word] = [
+                    tuple((o2n[lit - 1] + 1) if lit > 0 else -(o2n[-lit - 1] + 1) for lit in r)
+                    for r in b_rels_raw
+                ]
+                rels_by_max_b: list[list[Word]] = [[] for _ in range(kb)]
+                u_solve_b: list[tuple[Word, int, bool] | None] = [None] * kb
+                for r in m_rels_b:
+                    mx_i = max(abs(lit) - 1 for lit in r)
+                    rels_by_max_b[mx_i].append(r)
+                for idx_b in range(1, kb):
+                    for r in rels_by_max_b[idx_b]:
+                        positions = [p for p, lit in enumerate(r) if abs(lit) - 1 == idx_b]
+                        if len(positions) == 1:
+                            pos = positions[0]
+                            u_solve_b[idx_b] = (r, pos, r[pos] > 0)
+                            break
+                compiled_blocks.append((ord_b[1:], kb, rels_by_max_b, u_solve_b))
+
+            conj_reps: list[int] = []
+            seen_conj: set[int] = set()
+            for x in range(order):
+                if x in seen_conj:
+                    continue
+                conj_reps.append(x)
+                for h in range(order):
+                    seen_conj.add(mul[mul[h][x]][inv[h]])
+
+            def _solve_block_tuples(
+                kb: int,
+                rels_by_max_b: list[list[Word]],
+                u_solve_b: list[tuple[Word, int, bool] | None],
+                val0: int,
+            ) -> list[tuple[int, ...]]:
+                assign_b = [0] * kb
+                assign_b[0] = val0
+                out_b: list[tuple[int, ...]] = []
+
+                def _check_b(idx_b: int) -> bool:
+                    for r in rels_by_max_b[idx_b]:
+                        acc = 0
+                        for lit in r:
+                            gv = assign_b[lit - 1] if lit > 0 else inv[assign_b[-lit - 1]]
+                            acc = mul[acc][gv]
+                        if acc != 0:
+                            return False
+                    return True
+
+                def _bt(idx_b: int) -> None:
+                    if idx_b == kb:
+                        out_b.append(tuple(assign_b[1:]))
+                        return
+                    u_info = u_solve_b[idx_b]
+                    if u_info is not None:
+                        r_u, pos, is_pos = u_info
+                        pref = 0
+                        for lit in r_u[:pos]:
+                            pref = mul[pref][assign_b[lit - 1] if lit > 0 else inv[assign_b[-lit - 1]]]
+                        suff = 0
+                        for lit in r_u[pos + 1 :]:
+                            suff = mul[suff][assign_b[lit - 1] if lit > 0 else inv[assign_b[-lit - 1]]]
+                        val_lit = mul[inv[pref]][inv[suff]]
+                        assign_b[idx_b] = val_lit if is_pos else inv[val_lit]
+                        if _check_b(idx_b):
+                            _bt(idx_b + 1)
+                        return
+                    for val in range(order):
+                        assign_b[idx_b] = val
+                        if _check_b(idx_b):
+                            _bt(idx_b + 1)
+
+                _bt(1)
+                return out_b
+
+            full_assign = [0] * num_gens
+            for rep_val in conj_reps:
+                ok_root = True
+                for r0 in root_only_rels:
+                    acc0 = 0
+                    for lit in r0:
+                        acc0 = mul[acc0][rep_val if lit > 0 else inv[rep_val]]
+                    if acc0 != 0:
+                        ok_root = False
                         break
-                if ok:
-                    dfs(step_i + 1)
-
-        if num_gens > 0:
-            dfs(0)
+                if not ok_root:
+                    continue
+                if not compiled_blocks:
+                    tup0 = (rep_val,)
+                    if is_surjective(tup0):
+                        surj_homs.append(tup0)
+                    continue
+                block_sol_lists: list[list[tuple[int, ...]]] = []
+                possible = True
+                for _, kb, rels_by_max_b, u_solve_b in compiled_blocks:
+                    bsols = _solve_block_tuples(kb, rels_by_max_b, u_solve_b, rep_val)
+                    if not bsols:
+                        possible = False
+                        break
+                    block_sol_lists.append(bsols)
+                if not possible:
+                    continue
+                full_assign[v0] = rep_val
+                for combo in _iproduct(*block_sol_lists):
+                    for (vars_b, _, _, _), vals_b in zip(compiled_blocks, combo):
+                        for vr, vl in zip(vars_b, vals_b):
+                            full_assign[vr] = vl
+                    tup = tuple(full_assign)
+                    if is_surjective(tup):
+                        surj_homs.append(tup)
 
         if surj_homs:
+            seen_surj_groups.add(grp.name)
             # Deduplicate by exact kernel (`Aut(grp)`-orbit) via canonical BFS Cayley signature
             uniq_homs: list[tuple[int, ...]] = []
             seen_sigs: set[tuple[int, ...]] = set()
@@ -690,61 +987,47 @@ def lomonaco_pi2_invariants(
 
     prof_dict = dict(profile_items)
 
-    # Certified `rk_Z pi_2(E)` detection where presentation / cover is exact universal or cyclic-universal:
+    # Certified `rk_Z pi_2(E)` detection ONLY when `pi_1(E)` itself is rigorously certified to be
+    # infinite cyclic `Z` (unknotted S^2) or a finite group whose universal cover is computed above:
     pi2_rk: int | None = None
     reason: str | None = None
 
-    if num_gens == 1 and not rels:
-        # Exact infinite cyclic fundamental group `pi_1(E) == Z`!
-        # Wait: when `pi_1(E) == Z` and `D` is an unknotted orientable surface `Sigma_g` (`c=1`):
-        # For `S^2` (`chi = 2`), `E ~= S^1` -> `pi_2(E) = 0` (`rk_Z = 0`).
-        # For `g >= 1` (`chi = 2 - 2g < 2`), `pi_2(E) ~= Z[t^{+-1}]^{2g}` has infinite Z-rank!
+    if num_gens == 0:
+        pi2_rk = (2 - chi_f) - 1 + max(0, topo.num_components - 1)
+        reason = "trivial_pi1"
+    elif num_gens == 1 and not rels:
+        # Exact infinite cyclic fundamental group `pi_1(E) == Z`:
+        # For `S^2` (`c = 1, chi = 2`), `E ~= S^1 x D^3` -> `pi_2(E) = 0` (`rk_Z = 0`).
+        # For `g >= 1` (`chi = 2 - 2g < 2`), `pi_2(E) ~= Z[t^{+-1}]^{2g}` has infinite Z-rank.
         if chi_f == 2 and topo.num_components == 1:
             pi2_rk = 0
             reason = "exact_pi1_Z_sphere"
-    elif num_gens == 1 and len(rels) == 1 and abs(rels[0][0]) == 1 and len(set(rels[0])) == 1:
-        # Cyclic finite fundamental group `Z_m` (`m = len(rels[0])`, e.g. `Z_2` on `2_1^-1`):
-        m_ord = len(rels[0])
-        if m_ord == 2 and "Z2" in prof_dict and len(prof_dict["Z2"]) == 1:
-            b1_u, tors_u, b2_u, _ = prof_dict["Z2"][0]
-            if b1_u == 0 and not tors_u:
-                pi2_rk = b2_u
-                reason = "universal_cover_Z2"
     elif orientable_count == 0:
-        # Check if one of the non-abelian finite groups `Q8` or `Dic16` is the universal cover
-        # (`b1 == 0, tors == ()` on a 2-generator finite presentation known to have order 8 or 16):
-        # Verify finite order directly by Todd-Coxeter coset enumeration (with small cap `<= 64`)!
-        tc_order = _todd_coxeter_group_order(num_gens, rels, max_cosets=64)
-        if tc_order is not None:
-            for gname, g_ord in (("Z2", 2), ("S3", 6), ("Q8", 8), ("A4", 12), ("Dic16", 16), ("SL2F3", 24)):
+        # Purely non-orientable surface-link (`b_1(E) == 0`): check via exact Todd-Coxeter coset
+        # enumeration over `{1}` whether `pi_1(E)` itself is finite, so the `|pi_1(E)|`-sheeted
+        # regular cover IS the universal cover `widetilde{E}` (`pi_2(E) ~= pi_2(widetilde{E}) ~= H_2(widetilde{E}; Z)`)!
+        tc_order = _todd_coxeter_group_order(num_gens, rels, max_cosets=256)
+        if tc_order == 1:
+            pi2_rk = (2 - chi_f) - 1 + max(0, topo.num_components - 1)
+            reason = "trivial_pi1"
+        elif tc_order is not None:
+            for gname, g_ord in (
+                ("Z2", 2),
+                ("Z3", 3),
+                ("S3", 6),
+                ("Q8", 8),
+                ("A4", 12),
+                ("Dic16", 16),
+                ("F21", 21),
+                ("SL2F3", 24),
+                ("F57", 57),
+            ):
                 if tc_order == g_ord and gname in prof_dict and len(prof_dict[gname]) == 1:
                     b1_u, tors_u, b2_u, _ = prof_dict[gname][0]
                     if b1_u == 0 and not tors_u:
                         pi2_rk = b2_u
                         reason = f"universal_cover_{gname}"
                         break
-    elif topo.num_components == 1 and chi_f == 2 and orientable_count == 1:
-        # Connected 2-sphere knot `S^2`: test if commutator subgroup `[pi_1, pi_1]` is finite by
-        # killing `k * mu_0` (`mu_0^k = 1` for `k in (2, 3)`) via Todd-Coxeter!
-        mu_w = periph[0][0]
-        for k_mer, expected_g in ((1, None), (2, "S3"), (3, "SL2F3")):
-            extra_rel = mu_w * k_mer
-            q_ord = _todd_coxeter_group_order(num_gens, rels + (extra_rel,), max_cosets=64)
-            if k_mer == 1 and q_ord == 1:
-                # `pi_1(E) / <mu_0> = 1` always; check if `pi_1` itself is `Z`:
-                pass
-            elif expected_g is not None and q_ord is not None and expected_g in prof_dict:
-                grp_expected_ord = 6 if expected_g == "S3" else 24
-                if q_ord == grp_expected_ord:
-                    # `pi_1 / <mu_0^k> ~= Gamma` of exact order `q_ord`! Wait: check if `ker(pi_1 -> Gamma)` is `Z`!
-                    # Verify by checking `|pi_1 / <mu_0^{2*k_mer}>| == 2 * q_ord` AND `b1 == 1, tors == ()`!
-                    q_ord2 = _todd_coxeter_group_order(num_gens, rels + (mu_w * (2 * k_mer),), max_cosets=128)
-                    if q_ord2 == 2 * grp_expected_ord:
-                        cands = [b2_c for (b1_c, t_c, b2_c, _) in prof_dict[expected_g] if b1_c == 1 and not t_c]
-                        if cands:
-                            pi2_rk = max(cands)
-                            reason = f"finite_commutator_cover_{expected_g}"
-                            break
 
     return CoverHomologyResult(
         cover_betti_profile=tuple(profile_items),
@@ -1238,6 +1521,18 @@ def _eval_q6_movie_bitmask(movie: list, init_col: list[int]) -> int:
                     new_col[4 * vn + s] = col[4 * vo + s]
             col = new_col
 
+        elif kind == "R1+":
+            n_prev = step.before.num_crossings
+            u = n_prev
+            new_col = list(col) + [0] * 4
+            ext_slots = [s for s in range(4) if aft.opp[4 * u + s] < 4 * u]
+            for s in ext_slots:
+                od = aft.opp[4 * u + s]
+                c_in = _q6_rho(col[od])
+                new_col[4 * u + s] = c_in
+                new_col[4 * u + (s ^ 2)] = _q6_rho(c_in)
+            col = new_col
+
         elif kind == "R2+":
             da, oda, db, odb, vt = meta["da"], meta["oda"], meta["db"], meta["odb"], meta["vt"]
             n_prev = step.before.num_crossings
@@ -1368,9 +1663,11 @@ def octahedral_symmetric_quandle_invariants(d: MarkedDiagram) -> SymmetricQuandl
 class SymmetryProfile:
     """Rigorous 4D symmetry classification of `F(D)` under mirror `F*` and orientation `-F`.
 
-    Note: `invariant_symmetry_flags` depends strictly on topological invariants (safe for census
-    stratification keys), while `constructive_so4_amphicheiral` records whether bounded Yoshikawa
-    search explicitly connected `D` to `D.mirror_3d()` in `SO(4)`.
+    Note: `invariant_flags()` depends strictly on topological invariants (safe for census
+    stratification keys), while `constructive_so4_amphicheiral` (together with
+    `constructive_plus_amphicheiral` and `constructive_minus_amphicheiral` on orientable surfaces)
+    records whether bounded Yoshikawa search in `SO(4)` (including `reverse_orientation_zt`)
+    explicitly connected `D` to `D.mirror_3d()`.
     """
 
     normal_euler_tuple: tuple[int, ...]
@@ -1379,6 +1676,8 @@ class SymmetryProfile:
     non_invertible_by_cocycle: bool
     constructive_so4_amphicheiral: bool
     symmetry_summary: str
+    constructive_plus_amphicheiral: bool = False
+    constructive_minus_amphicheiral: bool = False
 
     def invariant_flags(self) -> tuple[bool, bool, bool]:
         return (
@@ -1388,7 +1687,12 @@ class SymmetryProfile:
         )
 
 
-def _are_so4_move_connected(d1: MarkedDiagram, d2: MarkedDiagram, max_states: int = 250) -> bool:
+def _are_so4_move_connected_oriented(
+    d1: MarkedDiagram,
+    d2: MarkedDiagram,
+    max_states: int = 250,
+) -> bool:
+    """Fixed-time-axis Yoshikawa move connectivity (`up_to_mirror_and_reverse=False`)."""
     target_k = canonical_marked_key(d2, up_to_mirror_and_reverse=False)
     start_k = canonical_marked_key(d1, up_to_mirror_and_reverse=False)
     if start_k == target_k:
@@ -1408,59 +1712,111 @@ def _are_so4_move_connected(d1: MarkedDiagram, d2: MarkedDiagram, max_states: in
     return False
 
 
+def _are_so4_move_connected(d1: MarkedDiagram, d2: MarkedDiagram, max_states: int = 250) -> bool:
+    """Unoriented `SO(4)` move connectivity testing both fixed-time moves and `reverse_orientation_zt`
+    (`(x, y, z, t) -> (x, y, -z, -t)`, `det = +1 in SO(4)`).
+    """
+    if _are_so4_move_connected_oriented(d1, d2, max_states=max_states):
+        return True
+    return _are_so4_move_connected_oriented(d1.reverse_orientation_zt(), d2, max_states=max_states)
+
+
+def _conjugate_zp_state_sum(s_val: str, p: int) -> str:
+    if "u" not in s_val:
+        return s_val
+    parts = [pt.strip() for pt in s_val.split("+")]
+    coeff_map: dict[int, int] = {}
+    for pt in parts:
+        if "u" not in pt:
+            coeff_map[0] = int(pt)
+        else:
+            if "*" in pt:
+                c_str, u_part = pt.split("*", 1)
+                c_int = int(c_str)
+            else:
+                c_int, u_part = 1, pt
+            exp_int = 1 if u_part == "u" else int(u_part.split("^")[1])
+            coeff_map[exp_int] = c_int
+    conj_map = {((-k) % p): v for k, v in coeff_map.items()}
+    terms = []
+    if coeff_map.get(0, 0):
+        terms.append(str(coeff_map[0]))
+    for k_e in range(1, p):
+        cv = conj_map.get(k_e, 0)
+        if cv:
+            u_p = "u" if k_e == 1 else f"u^{k_e}"
+            terms.append(u_p if cv == 1 else f"{cv}*{u_p}")
+    return " + ".join(terms) if terms else "0"
+
+
 def symmetry_profile(d: MarkedDiagram, max_bfs_states: int = 250) -> SymmetryProfile:
     """Compute algebraic chirality/invertibility obstructions and constructive amphicheirality."""
     topo = d.surface_topology()
     e_pos = tuple(sorted(c.normal_euler for c in topo.components))
-    e_mir = tuple(sorted(-c.normal_euler for c in topo.components))
-    chiral_euler = e_pos != e_mir
+    ge_pos = tuple(sorted((c.genus_symbol, c.normal_euler) for c in topo.components))
+    ge_mir = tuple(sorted((c.genus_symbol, -c.normal_euler) for c in topo.components))
+    chiral_euler = ge_pos != ge_mir
 
     ori_chiral_cocycle = False
+    unori_chiral_cocycle = False
     non_inv_cocycle = False
     if topo.orientability_label == "Ori" and topo.num_components >= 1:
-        primes_to_test = (3, 5) if topo.num_components <= 2 else (3,)
+        primes_to_test = (3, 5, 7) if topo.num_components <= 2 else (3,)
         for p in primes_to_test:
-            tup = mochizuki_3cocycle_invariant(d, p=p, up_to_mirror=False)
-            if tup is None:
+            pairs = mochizuki_3cocycle_orientation_pairs(d, p=p)
+            if pairs is None:
                 continue
-            if len(set(tup)) > 1:
+            tup = tuple(sorted(s for pair in pairs for s in pair))
+            # Global non-invertibility (`+F != -F` for EVERY global orientation choice of `F`):
+            # requires `Phi(+o) != Phi(-o)` across every global-reversal pair `{+o, -o}`!
+            if pairs and all(s_pos != s_neg for s_pos, s_neg in pairs):
                 non_inv_cocycle = True
-            # Check single-orientation mirror conjugate (`u^k -> u^{p-k}`):
-            # If any orientation state-sum `s` in `tup` is not equal to its own conjugate `bar(s)`,
-            # then `(+F)*` has `Phi((+F)*) = bar(Phi(+F)) != Phi(+F)`, so oriented `+F` is chiral!
-            # And if the multiset `tup` != `tuple(sorted(bar(s) for s in tup))`, then `F` is EVEN
-            # UNORIENTED CHIRAL (`F != F*` ignoring surface orientation)!
-            for s_val in tup:
-                if "u" in s_val:
-                    # Check if `s_val` is invariant under `u^k <-> u^{p-k}`
-                    parts = [pt.strip() for pt in s_val.split("+")]
-                    coeff_map: dict[int, int] = {}
-                    for pt in parts:
-                        if "u" not in pt:
-                            coeff_map[0] = int(pt)
-                        else:
-                            if "*" in pt:
-                                c_str, u_part = pt.split("*", 1)
-                                c_int = int(c_str)
-                            else:
-                                c_int, u_part = 1, pt
-                            exp_int = 1 if u_part == "u" else int(u_part.split("^")[1])
-                            coeff_map[exp_int] = c_int
-                    conj_map = {((-k) % p): v for k, v in coeff_map.items()}
-                    if conj_map != coeff_map:
-                        ori_chiral_cocycle = True
+            conj_list = [_conjugate_zp_state_sum(s_val, p) for s_val in tup]
+            # Oriented chirality (`(+F)* != +F` for EVERY global orientation choice of `F`):
+            if tup and all(conj_s != s_val for s_val, conj_s in zip(tup, conj_list)):
+                ori_chiral_cocycle = True
+            if tuple(sorted(conj_list)) != tup:
+                unori_chiral_cocycle = True
 
     so4_amp = False
-    if not chiral_euler and max_bfs_states > 0:
-        so4_amp = _are_so4_move_connected(d, d.mirror_3d(), max_states=max_bfs_states)
+    plus_amp = False
+    minus_amp = False
+    if not chiral_euler and not unori_chiral_cocycle and max_bfs_states > 0:
+        d_mir = d.mirror_3d()
+        conn_direct = _are_so4_move_connected_oriented(d, d_mir, max_states=max_bfs_states)
+        conn_zt = _are_so4_move_connected_oriented(
+            d.reverse_orientation_zt(), d_mir, max_states=max_bfs_states
+        )
+        so4_amp = conn_direct or conn_zt
+        if topo.orientability_label == "Ori":
+            plus_amp = (not ori_chiral_cocycle) and conn_direct
+            minus_amp = conn_zt or (so4_amp and ori_chiral_cocycle and topo.num_components == 1)
 
     if chiral_euler:
         summary = "Chiral (normal Euler e != -e)"
+    elif unori_chiral_cocycle and non_inv_cocycle:
+        summary = "Unoriented-chiral & non-invertible (Mochizuki 3-cocycle)"
+    elif unori_chiral_cocycle:
+        summary = "Unoriented-chiral (F != F* by Mochizuki 3-cocycle)"
     elif ori_chiral_cocycle and non_inv_cocycle:
         if so4_amp:
-            summary = "Minus-amphicheiral, non-invertible (+F != -F, (+F)* ~= -F)"
+            summary = "Minus-amphicheiral & non-invertible (+F* ~= -F != +F; unoriented SO(4)-amphicheiral)"
         else:
             summary = "Oriented-chiral & non-invertible (Mochizuki 3-cocycle)"
+    elif ori_chiral_cocycle:
+        if so4_amp:
+            summary = "Oriented-chiral, unoriented SO(4)-amphicheiral"
+        else:
+            summary = "Oriented-chiral (Mochizuki 3-cocycle)"
+    elif non_inv_cocycle:
+        if plus_amp and minus_amp:
+            summary = "Amphicheiral & non-invertible (unoriented SO(4)-amphicheiral)"
+        elif plus_amp:
+            summary = "Plus-amphicheiral & non-invertible (+F* ~= +F != -F; unoriented SO(4)-amphicheiral)"
+        elif minus_amp or so4_amp:
+            summary = "Minus-amphicheiral & non-invertible (unoriented SO(4)-amphicheiral)"
+        else:
+            summary = "Non-invertible (+F != -F by Mochizuki 3-cocycle)"
     elif so4_amp:
         summary = "Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"
     else:
@@ -1473,4 +1829,6 @@ def symmetry_profile(d: MarkedDiagram, max_bfs_states: int = 250) -> SymmetryPro
         non_invertible_by_cocycle=non_inv_cocycle,
         constructive_so4_amphicheiral=so4_amp,
         symmetry_summary=summary,
+        constructive_plus_amphicheiral=plus_amp,
+        constructive_minus_amphicheiral=minus_amp,
     )

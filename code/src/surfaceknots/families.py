@@ -539,10 +539,28 @@ RIBBON_1FUSION_TABLE: tuple[RibbonWordSpec, ...] = (
         parse_ribbon_word("b^2 a b^-1 a"),
         "Non-monic non-reciprocal 1-fusion ribbon 2-knot (Delta = x^3 - 2x^2 + 2)",
     ),
+    RibbonWordSpec(
+        "R(b^-1*a*b*a^-1*b*a)",
+        "b^-1 a b a^-1 b a",
+        parse_ribbon_word("b^-1 a b a^-1 b a"),
+        "ch=12 asymmetric 1-fusion ribbon 2-knot (Delta = x^3 - 2x^2 + 3x - 1, Kanenobu-Takahashi 2021)",
+    ),
+    RibbonWordSpec(
+        "R(b^-2*a*b*a^-1)",
+        "b^-2 a b a^-1",
+        parse_ribbon_word("b^-2 a b a^-1"),
+        "4-syllable 1-fusion ribbon 2-knot (Kanenobu-Takahashi 2021)",
+    ),
+    RibbonWordSpec(
+        "R(b^-1*a^2*b^-1*a^-1)",
+        "b^-1 a^2 b^-1 a^-1",
+        parse_ribbon_word("b^-1 a^2 b^-1 a^-1"),
+        "4-syllable 1-fusion ribbon 2-knot (Kanenobu-Takahashi 2021)",
+    ),
 )
 
 
-def simplify_compiled_diagram(d: MarkedDiagram, max_bfs_states: int = 6) -> MarkedDiagram:
+def simplify_compiled_diagram(d: MarkedDiagram, max_bfs_states: int = 32) -> MarkedDiagram:
     """Simplify an admissible planar `MarkedDiagram` via greedy Yoshikawa reduction, bounded
     level-move exploration, and deduplicated 4D Tait flypes.
     """
@@ -567,9 +585,9 @@ def simplify_compiled_diagram(d: MarkedDiagram, max_bfs_states: int = 6) -> Mark
         if g_fl.ch_index < best.ch_index:
             best = simplify_and_explore_yoshikawa(g_fl, max_states=max_bfs_states)[0]
             continue
-        if best.ch_index <= 12 and checked_flypes < 2:
+        if best.ch_index <= 16 and checked_flypes < 8:
             checked_flypes += 1
-            cand = simplify_and_explore_yoshikawa(g_fl, max_states=4)[0]
+            cand = simplify_and_explore_yoshikawa(g_fl, max_states=16)[0]
             if cand.ch_index < best.ch_index:
                 best = cand
     return best
@@ -699,29 +717,92 @@ def _enumerate_spoke_specs() -> list[dict[str, object]]:
 
 
 def _is_certified_nonsplit_multi_component(rec: dict[str, object]) -> bool:
-    """Certify that a multi-component surface-link record cannot be a nontrivial split union."""
+    """Certify that a multi-component surface-link record cannot be a nontrivial split union.
+
+    Soundness requirements:
+    1. Nonzero `E_1` certifies non-splitness ONLY for orientable links with torsion-free `H_1`
+       (`orientability == "Ori"` and `not h1_torsion`), since `(t - 1)` is a zero divisor in
+       `Z[H_1]` when `H_1` has 2-torsion (`RP^2` / `K^2` split unions have `E_1 != (0)`!).
+    2. For `n_comp == 2`, any nonzero pairwise mod-2 double-linking entry certifies non-splitness.
+    3. By Seifert-van Kampen, any nontrivial split decomposition `F = F_A u F_B` satisfies
+       `pi_1(S^4 \\ F) = pi_1(S^4 \\ F_A) * pi_1(S^4 \\ F_B)`, so `|Hom(pi_1(F), G)|` MUST equal
+       `|Hom(pi_1(F_A), G)| * |Hom(pi_1(F_B), G)|` for every finite group `G`. Rejecting every
+       nontrivial bipartition `(A, B)` via extracted subsurface diagrams certifies non-splitness
+       unconditionally across Orientable, Non-orientable, and Mixed links.
+    """
     n_comp = int(rec["num_components"])  # type: ignore[arg-type]
     if n_comp <= 1:
         return True
-    # Any split union `F_1 u F_2` of orientable components with `b_1 >= 2` has `E_1(F) = (0)`.
-    e1 = list(rec["e1_generators"])  # type: ignore[arg-type]
-    if e1 != ["0"]:
+    if rec.get("orientability") == "Ori" and not rec.get("h1_torsion"):
+        e1 = list(rec["e1_generators"])  # type: ignore[arg-type]
+        if e1 != ["0"]:
+            return True
+    if n_comp == 2 and rec.get("double_linking_mod2"):
         return True
-    # For 3-component Brunnian links (where E_1 = (0)), compare |Hom(pi_1, G)| against free-product
-    # factorization across proper sublinks if available (`L6a4` has non-free-product S_4 / SL(2,F_3) / A_4 counts!).
+
     hc = rec["hom_counts"]  # type: ignore[assignment]
+    epd = rec.get("epd")
+    if isinstance(epd, str) and epd:
+        from itertools import combinations
+        from surfaceknots.invariants.fundamental_group import (
+            finite_quotient_profile,
+            tietze_simplify,
+            wirtinger_presentation,
+        )
+        from surfaceknots.invariants.linking import extract_subsurface_diagram
+
+        d_full = MarkedDiagram.from_epd(epd)
+        target_groups = tuple(str(g) for g in hc.keys())  # type: ignore[attr-defined]
+        sub_hom_cache: dict[tuple[int, ...], dict[str, int]] = {}
+
+        def _get_sub_hom(subset: tuple[int, ...]) -> dict[str, int]:
+            if subset not in sub_hom_cache:
+                ds = extract_subsurface_diagram(d_full, subset)
+                wp = tietze_simplify(wirtinger_presentation(ds))
+                sub_hom_cache[subset] = finite_quotient_profile(wp, target_groups)
+            return sub_hom_cache[subset]
+
+        all_idx = set(range(n_comp))
+        any_compatible_split = False
+        for r in range(1, n_comp // 2 + 1):
+            for comb in combinations(range(n_comp), r):
+                if n_comp % 2 == 0 and r == n_comp // 2 and comb[0] != 0:
+                    continue
+                comp_a = tuple(comb)
+                comp_b = tuple(sorted(all_idx - set(comb)))
+                ha = _get_sub_hom(comp_a)
+                hb = _get_sub_hom(comp_b)
+                if all(int(hc[g]) == int(ha[g]) * int(hb[g]) for g in target_groups):  # type: ignore[index]
+                    any_compatible_split = True
+                    break
+            if any_compatible_split:
+                break
+        if not any_compatible_split:
+            return True
+
     if n_comp == 3 and tuple(sorted(str(x) for x in rec["component_types"])) in (  # type: ignore[arg-type]
         ("S^2", "T^2", "T^2"),
         ("T^2", "T^2", "T^2"),
     ):
-        # Any split 3-component link of `S^2` and `T^2` at ch <= 11 has at least one unknotted component
-        # split off (`pi_1 = Z * G_2`), forcing `|Hom(pi_1, S_3)|` to be divisible by `|S_3| = 6`, AND if all
-        # 2-component sublinks are trivial unlinks (Brunnian), a split link would be the 3-component unlink
-        # (`|Hom(Z^3_free, S_3)| = 6^3 = 216`, `|Hom(Z^3_free, A_4)| = 12^3 = 1728`), whereas Borromean differs!
         sub = rec.get("sublinks")
         if isinstance(sub, dict) and sub.get("is_brunnian") and hc["A4"] != 12**3:  # type: ignore[index]
             return True
     return False
+
+
+def _eval_spoke_worker(args: tuple[str, str]) -> tuple[str, dict[str, object]]:
+    fid, raw_epd = args
+    raw_d = MarkedDiagram.from_epd(raw_epd)
+    simp_d = simplify_compiled_diagram(raw_d, max_bfs_states=32)
+    compiled_ch = simp_d.ch_index
+    need_sublinks = simp_d.surface_topology().num_components >= 3
+    inv_rec = compute_full_invariant_record(
+        simp_d,
+        label=fid,
+        include_sublinks=need_sublinks,
+        compute_so4_symmetry_bfs=(compiled_ch <= 12),
+    )
+    return simp_d.to_epd(), inv_rec
 
 
 def build_family_catalog(data_dir: Path) -> dict[str, object]:
@@ -741,10 +822,21 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
     ch11_entries: list[dict[str, object]] = ch11_payload["entries"]  # type: ignore[assignment]
     ch11_residuals: list[dict[str, object]] = ch11_payload["residual_collisions"]  # type: ignore[assignment]
 
+    ch12_path = data_dir / "expanded_ch12.json"
+    ch12_entries: list[dict[str, object]] = []
+    ch12_residuals: list[dict[str, object]] = []
+    hub_max_ch = 11
+    if ch12_path.exists():
+        ch12_payload: dict[str, object] = json.loads(ch12_path.read_text())
+        ch12_entries = ch12_payload.get("entries", [])  # type: ignore[assignment]
+        ch12_residuals = ch12_payload.get("residual_collisions", [])  # type: ignore[assignment]
+        if ch12_entries:
+            hub_max_ch = 12
+
     # Index Hub entries by invariant_discrimination_key AND by canonical_marked_key of known EPDs:
     hub_by_inv: dict[tuple, dict[str, object]] = {}
     hub_epd_keys: dict[str, set[tuple]] = {}
-    for he in yosh_entries + ch11_entries:
+    for he in yosh_entries + ch11_entries + ch12_entries:
         lbl = str(he["label"])
         hub_by_inv[invariant_discrimination_key(he)] = he
         epd_set: set[tuple] = set()
@@ -757,32 +849,33 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
         hub_epd_keys[lbl] = epd_set
 
     residual_by_inv: dict[tuple, list[str]] = defaultdict(list)
-    for re_rec in ch11_residuals:
+    for re_rec in ch11_residuals + ch12_residuals:
         rk = invariant_discrimination_key(re_rec)
         for m_tag in re_rec.get("collision_matches", []):  # type: ignore[union-attr]
             if str(m_tag) not in residual_by_inv[rk]:
                 residual_by_inv[rk].append(str(m_tag))
 
-    ref_catalog = build_reference_catalog(max_composite_ch=12)
+    ref_catalog = build_reference_catalog(max_composite_ch=max(12, hub_max_ch + 1), num_workers=16)
 
     spoke_specs = _enumerate_spoke_specs()
     entries_out: list[dict[str, object]] = []
     hub_realizations: dict[str, list[dict[str, object]]] = defaultdict(list)
 
-    for sp_item in spoke_specs:
+    from concurrent.futures import ProcessPoolExecutor
+    import multiprocessing
+
+    worker_args = [(str(sp["family_id"]), sp["diagram"].to_epd()) for sp in spoke_specs]  # type: ignore[union-attr]
+    with ProcessPoolExecutor(
+        max_workers=24, mp_context=multiprocessing.get_context("forkserver")
+    ) as pool:
+        spoke_results = list(pool.map(_eval_spoke_worker, worker_args, chunksize=2))
+
+    for sp_item, (simp_epd, inv_rec) in zip(spoke_specs, spoke_results):
         fid = str(sp_item["family_id"])
         raw_d: MarkedDiagram = sp_item["diagram"]  # type: ignore[assignment]
         raw_ch = raw_d.ch_index
-        simp_d = simplify_compiled_diagram(raw_d, max_bfs_states=6)
+        simp_d = MarkedDiagram.from_epd(simp_epd)
         compiled_ch = simp_d.ch_index
-
-        need_sublinks = simp_d.surface_topology().num_components >= 3
-        inv_rec = compute_full_invariant_record(
-            simp_d,
-            label=fid,
-            include_sublinks=need_sublinks,
-            compute_so4_symmetry_bfs=(compiled_ch <= 12),
-        )
 
         # Verify Fox's 1-fusion Alexander polynomial formula on every Spoke 2 word!
         params = sp_item["parameters"]  # type: ignore[assignment]
@@ -795,7 +888,11 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
 
         dkey = invariant_discrimination_key(inv_rec)
         hub_hit = hub_by_inv.get(dkey)
-        ref_hits = [t for t in ref_catalog.get(dkey, []) if not t.startswith("ch<=10:")]
+        ref_hits = [
+            t
+            for t in ref_catalog.get(dkey, [])
+            if not (t.startswith("ch<=10:") or t.startswith("ch=11:") or t.startswith("ch=12:"))
+        ]
         res_hits = residual_by_inv.get(dkey, [])
 
         hub_match: str | None = None
@@ -832,17 +929,25 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
                                 bfs_q.append(nb_d)
                                 if len(simp_keys) >= 24:
                                     break
-                if not move_matched and 3 <= compiled_ch <= 11 and simp_d.free_loops == 0:
-                    from surfaceknots.fast_enum import tunnel_diagrams_c
+                if not move_matched and 3 <= compiled_ch <= hub_max_ch and simp_d.free_loops == 0:
+                    from surfaceknots.move_search import are_prime_diagrams_tunnel_merged_c
 
                     dh = MarkedDiagram.from_epd(str(hub_hit["epd"]))
-                    t_merged = tunnel_diagrams_c(
-                        compiled_ch, [simp_d, dh], depth_plus1=16, depth_plus2=8, max_bfs_states=512
-                    )
-                    if len(t_merged) == 1:
+                    if are_prime_diagrams_tunnel_merged_c(
+                        compiled_ch,
+                        simp_d,
+                        dh,
+                        depth_plus1=16,
+                        depth_plus2=8,
+                        max_bfs_states=512,
+                    ):
                         move_matched = True
 
-            other_res = [r for r in res_hits if r != f"ch<=10:{hub_match}"]
+            other_res = [
+                r
+                for r in res_hits
+                if r not in (f"ch<=10:{hub_match}", f"ch=11:{hub_match}", f"ch=12:{hub_match}")
+            ]
             if move_matched:
                 hub_match_mode = "MOVE_CERTIFIED"
                 ch_lower = hub_ch
@@ -873,7 +978,7 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
                 }
             )
         elif ref_hits or res_hits:
-            # Collides with a known unknot / split / composite (`ch <= 12`) or ch=11 residual shadow:
+            # Collides with a known unknot / split / composite (`ch <= hub_max_ch + 1`) or residual shadow:
             ch_lower = 0
             ch_upper = compiled_ch
             exact_ch_certified = compiled_ch == 0
@@ -881,22 +986,22 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
                 f"Invariant collides with non-prime/residual reference(s): {ref_hits + res_hits}."
             )
         else:
-            # Disjoint from ALL ch <= 11 prime entries, ch=11 residual collisions, AND ch <= 12
-            # unknot / split (`ch <= 11`) / composite (`ch <= 12`) references!
+            # Disjoint from ALL ch <= hub_max_ch prime entries, residual collisions, AND
+            # ch <= hub_max_ch + 1 unknot / split / composite references!
             nonsplit_ok = _is_certified_nonsplit_multi_component(inv_rec)
             if nonsplit_ok:
-                ch_lower = 12
+                ch_lower = hub_max_ch + 1
                 ch_upper = compiled_ch
                 exact_ch_certified = ch_lower == ch_upper
                 if exact_ch_certified:
                     complexity_reason = (
-                        "PROVEN EXACT ch = 12: constructive diagram has ch = 12 and full invariant "
-                        "key is disjoint from the exhaustive ch <= 11 prime census, residual shadows, "
-                        "and all ch <= 12 composite/split/unknot classes."
+                        f"PROVEN EXACT ch = {ch_lower}: constructive diagram has ch = {ch_lower} and full invariant "
+                        f"key is disjoint from the exhaustive ch <= {hub_max_ch} prime census, residual shadows, "
+                        f"and all ch <= {ch_lower} composite/split/unknot classes."
                     )
                 else:
                     complexity_reason = (
-                        f"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and "
+                        f"Certified ch >= {ch_lower} (disjoint from exhaustive ch <= {hub_max_ch} prime, residual, and "
                         f"composite/split catalogs); constructive diagram gives ch <= {compiled_ch}."
                     )
             else:
@@ -927,10 +1032,23 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
             record["nearest_separating_witness"] = hub_hit["nearest_separating_witness"]
         entries_out.append(record)
 
-    # Assign nearest separating witnesses across the union of the 33-entry Hub + new `ch >= 12` Spoke entries:
+    # Also verify Yoshikawa Def. 5.1 weak primality at `hub_max_ch + 1` on unmatched Spoke candidates:
+    unmatched_cands = [e for e in entries_out if e["hub_match"] is None and not e["reference_collisions"] and int(e["ch_lower"]) >= 12]  # type: ignore[arg-type]
+    if unmatched_cands and hub_max_ch >= 11:
+        from surfaceknots.ch12_census import build_def5_1_high_composite_matches
+
+        def5_1_spoke = build_def5_1_high_composite_matches(hub_max_ch + 1, unmatched_cands, data_dir, num_workers=16)
+        for e in unmatched_cands:
+            dk = invariant_discrimination_key(e)
+            if dk in def5_1_spoke:
+                tags = def5_1_spoke[dk]
+                e["reference_collisions"] = tags
+                e["ch_lower"] = 0
+                e["exact_ch_certified"] = False
+                e["complexity_certification_reason"] = f"Invariant collides with Def. 5.1 composite/split reference(s): {tags}."
+
+    # Assign nearest separating witnesses across the union of the Hub + new Spoke entries:
     new_spoke_pool = [e for e in entries_out if e["hub_match"] is None and not e["reference_collisions"]]
-    # Deduplicate `new_spoke_pool` by invariant key so distinct Spoke constructions of the SAME `ch >= 12`
-    # surface (e.g. if a ribbon word equals a spun/symmetric-union knot) don't self-collide in witness pool:
     unique_new_by_inv: dict[tuple, dict[str, object]] = {}
     for e in new_spoke_pool:
         k = invariant_discrimination_key(e)
@@ -938,7 +1056,7 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
             e["label"] = e["family_id"]
             unique_new_by_inv[k] = e
 
-    combined_pool = yosh_entries + ch11_entries + list(unique_new_by_inv.values())
+    combined_pool = yosh_entries + ch11_entries + ch12_entries + list(unique_new_by_inv.values())
     assign_nearest_separating_witnesses(list(unique_new_by_inv.values()), reference_pool=combined_pool)
     for e in entries_out:
         k = invariant_discrimination_key(e)
@@ -950,15 +1068,22 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
         for e in entries_out
         if e["exact_ch_certified"] and e["ch_lower"] == 12 and e["ch_upper"] == 12
     ]
+    exact_ch13_entries = [
+        e["family_id"]
+        for e in entries_out
+        if e["exact_ch_certified"] and e["ch_lower"] == 13 and e["ch_upper"] == 13
+    ]
 
     return {
-        "hub_max_ch": 11,
+        "hub_max_ch": hub_max_ch,
         "total_family_instances": len(entries_out),
         "hub_matched_instances": sum(1 for e in entries_out if e["hub_match"] is not None),
         "distinct_hub_entries_realized": len(hub_realizations),
-        "certified_ch_ge_12_instances": sum(1 for e in entries_out if e["ch_lower"] >= 12),
+        "certified_ch_ge_12_instances": sum(1 for e in entries_out if int(e["ch_lower"]) >= 12),  # type: ignore[arg-type]
+        "certified_ch_ge_13_instances": sum(1 for e in entries_out if int(e["ch_lower"]) >= 13),  # type: ignore[arg-type]
         "distinct_ch_ge_12_invariant_classes": len(unique_new_by_inv),
         "exact_ch_12_certified_instances": exact_ch12_entries,
+        "exact_ch_13_certified_instances": exact_ch13_entries,
         "hub_realizations": {k: hub_realizations[k] for k in sorted(hub_realizations)},
         "entries": entries_out,
     }

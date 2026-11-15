@@ -87,20 +87,50 @@ def _compute_record_worker(args: tuple[MarkedDiagram, str, bool]) -> dict[str, o
     return compute_full_invariant_record(d, label=tag, include_sublinks=inc_sub)
 
 
-def build_reference_catalog(max_composite_ch: int = 12) -> dict[tuple, list[str]]:
+def _oriented_diagram_variants(lbl: str, d: MarkedDiagram) -> list[tuple[str, MarkedDiagram]]:
+    """Return up to 4 distinct oriented-diagram representatives (`id`, `mirror_3d`, `mirror_time`,
+    `reverse_orientation_zt`) of `d`, deduplicated up to planar oriented diagram isomorphism.
+    """
+    if d.num_vertices == 0:
+        return [(lbl, d)]
+    seen: set[tuple] = set()
+    out: list[tuple[str, MarkedDiagram]] = []
+    for suffix, cand in (
+        ("", d),
+        ("*", d.mirror_3d()),
+        ("*t", d.mirror_time()),
+        ("*zt", d.reverse_orientation_zt()),
+    ):
+        ck = canonical_marked_key(cand, up_to_mirror_and_reverse=False)
+        if ck not in seen:
+            seen.add(ck)
+            out.append((f"{lbl}{suffix}", cand))
+    return out
+
+
+def build_reference_catalog(max_composite_ch: int = 12, num_workers: int = 16) -> dict[tuple, list[str]]:
     """Build an exhaustive invariant lookup table of:
     1. All 23 `ch <= 10` Yoshikawa prime surface-links (`ch<=10:{label}`),
-    2. Standard unknotted connected surfaces up to `ch <= 12` (`unknot:{type}(e={e})`),
-    3. Split unions of unknots and `ch <= 10` entries up to `ch <= 11` (`split:{A} u {B}`),
-    4. Nontrivial connected sums `A # B` up to `ch <= max_composite_ch` (`composite:{A} # {B}`).
+    2. Minimal-`ch` unknotted connected surfaces up to `ch <= 12` (`unknot:{type}(e={e})`,
+       including the 3-vertex `K^2(e=0)` diagram),
+    3. Split unions of unknots and `ch <= 10` entries up to `ch <= max(11, max_composite_ch)` (`split:{A} u {B}`),
+    4. Nontrivial connected sums `A # B` across all 4 orientation/mirror variants and both splice
+       orientations up to `ch <= max_composite_ch` (`composite:{A} # {B}`).
     """
+    from surfaceknots.complexity import construct_minimal_unknot_diagram
+
     catalog: dict[tuple, list[str]] = defaultdict(list)
     queued: list[tuple[MarkedDiagram, str, bool]] = []
+    tags_by_ck: dict[tuple, list[str]] = defaultdict(list)
 
     def register(d: MarkedDiagram, tag: str) -> None:
         if not _is_admissible(d):
             return
-        queued.append((d, tag, False))
+        ck = canonical_marked_key(d, up_to_mirror_and_reverse=True)
+        if ck not in tags_by_ck:
+            queued.append((d, tag, False))
+        if tag not in tags_by_ck[ck]:
+            tags_by_ck[ck].append(tag)
 
     # 1. All 23 Yoshikawa entries (`ch <= 10`):
     yosh_diags: list[tuple[str, MarkedDiagram]] = []
@@ -109,56 +139,46 @@ def build_reference_catalog(max_composite_ch: int = 12) -> dict[tuple, list[str]
         register(d, f"ch<=10:{entry.label}")
         yosh_diags.append((entry.label, d))
 
-    # 2. Build all connected unknotted surfaces up to ch = 12 by iterated connected sums of `2_1^1`, `P_+`, `P_-`:
-    t2 = MarkedDiagram.from_epd(YOSHIKAWA_BY_LABEL["2_1^1"].canonical_epd)
-    rp2_pos = MarkedDiagram.from_epd(YOSHIKAWA_BY_LABEL["2_1^-1"].canonical_epd)
-    rp2_neg = rp2_pos.mirror_3d()
-
-    unknot_atoms: list[tuple[str, MarkedDiagram]] = [
-        ("T^2", t2),
-        ("P+", rp2_pos),
-        ("P-", rp2_neg),
-    ]
-    # Iteratively build connected unknots up to ch = 10 (`g <= 5` orientable, `k <= 5` non-orientable):
+    # 2. Build all minimal-`ch` connected unknotted surfaces up to ch = 12 (including 3-vertex K^2(e=0)):
     unknots_by_topo: dict[tuple[int, int], tuple[str, MarkedDiagram]] = {
         (0, 0): ("0_1", MarkedDiagram.unknot_sphere()),
-        (1, 0): ("2_1^1", t2),
-        (-1, 2): ("P+", rp2_pos),
-        (-1, -2): ("P-", rp2_neg),
     }
-    frontier = [(1, 0), (-1, 2), (-1, -2)]
-    while frontier:
-        g_cur, e_cur = frontier.pop(0)
-        lbl_cur, d_cur = unknots_by_topo[(g_cur, e_cur)]
-        if d_cur.ch_index + 2 > 10:
-            continue
-        for atom_lbl, d_atom in unknot_atoms:
-            cand = planar_connected_sum(d_cur, 0, d_atom, 0, flip_splice=False)
-            if not _is_admissible(cand):
-                cand = planar_connected_sum(d_cur, 0, d_atom, 0, flip_splice=True)
-            if not _is_admissible(cand):
+    for g in range(1, 6):
+        ud = construct_minimal_unknot_diagram(g, 0)
+        ct = ud.surface_topology().components[0]
+        lbl = "2_1^1" if g == 1 else f"unknot({ct.homeomorphism_type},e=0)"
+        unknots_by_topo[(g, 0)] = (lbl, ud)
+        if g >= 2:
+            register(ud, f"unknot:{ct.homeomorphism_type}(e=0)")
+    for k in range(1, 11):
+        for e in range(-2 * k, 2 * k + 1):
+            if (e - 2 * k) % 4 != 0:
                 continue
-            ct = cand.surface_topology().components[0]
-            sig = (ct.genus_symbol, ct.normal_euler)
-            if sig not in unknots_by_topo:
-                new_lbl = f"unknot({ct.homeomorphism_type},e={ct.normal_euler})"
-                unknots_by_topo[sig] = (new_lbl, cand)
-                register(cand, f"unknot:{ct.homeomorphism_type}(e={ct.normal_euler})")
-                frontier.append(sig)
+            if max(1, abs(e) // 2) + k > 11:
+                continue
+            ud = construct_minimal_unknot_diagram(-k, e)
+            ct = ud.surface_topology().components[0]
+            if k == 1:
+                lbl = "P+" if e == 2 else "P-"
+            else:
+                lbl = f"unknot({ct.homeomorphism_type},e={e})"
+                register(ud, f"unknot:{ct.homeomorphism_type}(e={e})")
+            unknots_by_topo[(-k, e)] = (lbl, ud)
 
     # 3. Nontrivial connected sums `A # U` and `A # B` with `ch(A) + ch(B) <= max_composite_ch`:
-    # Summands: all nontrivial Yoshikawa entries (`ch >= 2`) + unknots (`2 <= ch <= 6`)!
     summands: list[tuple[str, MarkedDiagram]] = []
     for entry in YOSHIKAWA_TABLE:
         if entry.ch_index == 0 or entry.ch_index > max_composite_ch - 2:
             continue
         d = MarkedDiagram.from_epd(entry.canonical_epd)
         summands.append((entry.label, d))
-        if entry.label in ("2_1^-1", "10_2"):
-            summands.append((f"{entry.label}*", d.mirror_3d()))
     for (gs, es), (ulbl, ud) in unknots_by_topo.items():
-        if 4 <= ud.ch_index <= 6:
+        if 3 <= ud.ch_index <= 6:
             summands.append((ulbl, ud))
+
+    def _is_pure_unknot_label(lbl: str) -> bool:
+        base = lbl.split("*")[0]
+        return base in ("0_1", "2_1^1", "2_1^-1", "P+", "P-") or base.startswith("unknot")
 
     for i, (lbl_a, da) in enumerate(summands):
         if da.num_vertices == 0:
@@ -173,27 +193,26 @@ def build_reference_catalog(max_composite_ch: int = 12) -> dict[tuple, list[str]
             if db.num_vertices == 0 or da.num_vertices + db.num_vertices > max_composite_ch:
                 continue
             # Skip unknot # unknot (already registered as `unknot:*`!)
-            if (lbl_a.startswith("2_1") or lbl_a.startswith("unknot")) and (
-                lbl_b.startswith("2_1") or lbl_b.startswith("unknot")
-            ):
+            if _is_pure_unknot_label(lbl_a) and _is_pure_unknot_label(lbl_b):
                 continue
-            dc_b, _ = db._dart_surface_components()
-            rep_dart_b = {}
-            for hd in range(4 * db.num_vertices):
-                rep_dart_b.setdefault(dc_b[hd], hd)
+            for lbl_b_var, db_var in _oriented_diagram_variants(lbl_b, db):
+                dc_b, _ = db_var._dart_surface_components()
+                rep_dart_b = {}
+                for hd in range(4 * db_var.num_vertices):
+                    rep_dart_b.setdefault(dc_b[hd], hd)
 
-            for ca, hda in rep_dart_a.items():
-                for cb, hdb in rep_dart_b.items():
-                    for fl in (False, True):
-                        csum = planar_connected_sum(da, hda, db, hdb, flip_splice=fl)
-                        if _is_admissible(csum):
-                            register(csum, f"composite:{lbl_a}#{lbl_b}(c{ca}+c{cb})")
-                            break
+                for ca, hda in rep_dart_a.items():
+                    for cb, hdb in rep_dart_b.items():
+                        for fl in (False, True):
+                            csum = planar_connected_sum(da, hda, db_var, hdb, flip_splice=fl)
+                            if _is_admissible(csum):
+                                register(csum, f"composite:{lbl_a}#{lbl_b_var}(c{ca}+c{cb})")
 
-    # 4. Split unions `A u B` (and `A u 0_1 u 0_1`, `unknot u unknot`) up to ch <= 11:
+    # 4. Split unions `A u B` (and `A u 0_1 u 0_1`, `unknot u unknot`) up to ch <= max(11, max_composite_ch):
+    max_split_ch = max(11, max_composite_ch)
     split_blocks: list[tuple[str, MarkedDiagram]] = [("0_1", MarkedDiagram.unknot_sphere())]
     for (gs, es), (ulbl, ud) in unknots_by_topo.items():
-        if 2 <= ud.ch_index <= 8:
+        if 2 <= ud.ch_index <= max(8, max_split_ch - 2):
             split_blocks.append((ulbl, ud))
     for entry in YOSHIKAWA_TABLE:
         if 6 <= entry.ch_index <= 10:
@@ -202,21 +221,30 @@ def build_reference_catalog(max_composite_ch: int = 12) -> dict[tuple, list[str]
     for i, (la, da) in enumerate(split_blocks):
         for j in range(i, len(split_blocks)):
             lb, db = split_blocks[j]
-            if da.ch_index + db.ch_index > 11:
+            if da.ch_index + db.ch_index > max_split_ch:
                 continue
             sp2 = disjoint_union(da, db)
             register(sp2, f"split:{la}_u_{lb}")
-            # Also 3-component splits with 0_1 up to ch <= 10:
-            if sp2.ch_index <= 9 and _is_admissible(sp2) and sp2.surface_topology().num_components == 2:
+            # Also 3-component splits with 0_1:
+            if (
+                sp2.ch_index <= max(9, max_split_ch - 2)
+                and _is_admissible(sp2)
+                and sp2.surface_topology().num_components == 2
+            ):
                 register(disjoint_union(sp2, MarkedDiagram.unknot_sphere()), f"split:{la}_u_{lb}_u_0_1")
 
     from concurrent.futures import ProcessPoolExecutor
+    import multiprocessing
 
-    with ProcessPoolExecutor(max_workers=2) as pool:
-        for (_, tag, _), rec in zip(queued, pool.map(_compute_record_worker, queued, chunksize=8)):
+    with ProcessPoolExecutor(
+        max_workers=max(1, num_workers), mp_context=multiprocessing.get_context("forkserver")
+    ) as pool:
+        for (d_rep, _, _), rec in zip(queued, pool.map(_compute_record_worker, queued, chunksize=8)):
             k = invariant_discrimination_key(rec)
-            if tag not in catalog[k]:
-                catalog[k].append(tag)
+            ck_rep = canonical_marked_key(d_rep, up_to_mirror_and_reverse=True)
+            for tag in tags_by_ck[ck_rep]:
+                if tag not in catalog[k]:
+                    catalog[k].append(tag)
 
     return dict(catalog)
 
@@ -304,28 +332,143 @@ def post_filter_and_merge_ch11_survivors(
     }
 
 
+def enumerate_ch11_checkpointed(
+    out_dir: Path,
+    num_workers: int = 32,
+    depth_plus1: int = 256,
+    depth_plus2: int = 256,
+    max_bfs_states: int = 2048,
+    force_recompute: bool = False,
+) -> tuple[list[str], dict[str, object]]:
+    """Enumerate all `ch = 11` prime-shadow diagrams across `m = 1..10` (`m = 0` and `m = 11` proved
+    unknotted) with clean per-`m` telemetry saved to `out_dir / 'ch11_raw_survivors.json'`.
+    """
+    import time
+    from surfaceknots.fast_enum import (
+        _filter_cyclic_tubes_parallel,
+        cascade_tunnel_diagrams_c,
+        enumerate_targeted_census_level_candidates,
+        merge_diagrams_c,
+    )
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    ckpt_path = out_dir / "ch11_raw_survivors.json"
+    if ckpt_path.exists() and not force_recompute:
+        ckpt = json.loads(ckpt_path.read_text())
+        if ckpt.get("status") == "COMPLETE" and "survivor_epds" in ckpt:
+            return list(ckpt["survivor_epds"]), dict(ckpt["census_stats"])
+
+    t0 = time.perf_counter()
+    per_m_stats: dict[str, dict[str, object]] = {}
+    per_m_diags: list[MarkedDiagram] = []
+    for m_val in range(1, 11):
+        tm0 = time.perf_counter()
+        diags_m, st_m = enumerate_targeted_census_level_candidates(
+            ch=11,
+            m_min=m_val,
+            m_max=m_val,
+            max_bfs_states=max_bfs_states,
+            num_workers=num_workers,
+            _certify_unlink=False,
+        )
+        tun_m = cascade_tunnel_diagrams_c(
+            ch=11,
+            diagrams=diags_m,
+            depth_plus1=depth_plus1,
+            depth_plus2=depth_plus2,
+            max_bfs_states=max_bfs_states,
+            num_workers=num_workers,
+        )
+        dtm = round(time.perf_counter() - tm0, 3)
+        st_rec = dict(st_m)
+        st_rec["intra_m_tunneled_kept"] = len(tun_m)
+        st_rec["runtime_sec"] = dtm
+        per_m_stats[str(m_val)] = st_rec
+        per_m_diags.extend(tun_m)
+
+    merged_all = merge_diagrams_c(
+        11,
+        per_m_diags,
+        max_bfs_states=max(4096, max_bfs_states * 2),
+        num_workers=num_workers,
+        _certify_unlink=False,
+    )
+    tunneled_all = cascade_tunnel_diagrams_c(
+        ch=11,
+        diagrams=merged_all,
+        depth_plus1=depth_plus1,
+        depth_plus2=depth_plus2,
+        max_bfs_states=max_bfs_states,
+        num_workers=num_workers,
+    )
+    filtered_all = _filter_cyclic_tubes_parallel(tunneled_all, num_workers=num_workers)
+
+    m2_7 = range(2, 8)
+    m_all = range(1, 11)
+    census_stats: dict[str, object] = {
+        "num_shadows": 3378,
+        "marker_range_scanned": [1, 10],
+        "marker_extremes_note": "m=0 (0 saddles => unlink of S^2) and m=11 (0 crossings => planar surface in R^3) are unknotted",
+        "num_workers": num_workers,
+        "raw_cands": sum(int(per_m_stats[str(m)]["raw_cands"]) for m in m_all),
+        "raw_cands_m2_to_7": sum(int(per_m_stats[str(m)]["raw_cands"]) for m in m2_7),
+        "components": sum(int(per_m_stats[str(m)]["components"]) for m in m_all),
+        "components_m2_to_7": sum(int(per_m_stats[str(m)]["components"]) for m in m2_7),
+        "discarded": sum(int(per_m_stats[str(m)]["discarded"]) for m in m_all),
+        "level_kept": sum(int(per_m_stats[str(m)]["kept"]) for m in m_all),
+        "level_kept_m2_to_7": sum(int(per_m_stats[str(m)]["kept"]) for m in m2_7),
+        "tunneled_kept": len(tunneled_all),
+        "cyclic_tube_pruned": len(tunneled_all) - len(filtered_all),
+        "cyclic_tube_filtered_kept": len(filtered_all),
+        "total_enumeration_wall_sec": round(time.perf_counter() - t0, 3),
+        "per_m_stats": per_m_stats,
+    }
+    survivor_epds = [d.to_epd() for d in filtered_all]
+    ckpt_path.write_text(
+        json.dumps(
+            {
+                "status": "COMPLETE",
+                "ch_index": 11,
+                "census_stats": census_stats,
+                "survivor_epds": survivor_epds,
+            },
+            indent=2,
+        )
+        + "\n"
+    )
+    return survivor_epds, census_stats
+
+
 def stratify_and_export_ch11(
     survivor_epds: list[str],
     out_dir: Path,
     census_stats: dict[str, object] | None = None,
+    num_workers: int = 16,
 ) -> dict[str, object]:
     """Stratify `ch = 11` survivors against the exhaustive `ch <= 10` / composite / split / unknot catalog
-    and export `expanded_ch11.json` and `expanded_ch11.csv`.
+    (including Yoshikawa Def. 5.1 weak-primality verification up to 20 vertices) and export
+    `expanded_ch11.json` and `expanded_ch11.csv`.
     """
     from concurrent.futures import ProcessPoolExecutor
+    from dataclasses import asdict
+    from surfaceknots.ch12_census import (
+        build_def5_1_high_composite_matches,
+        compute_indecomposability_certificate,
+    )
+    from surfaceknots.move_search import analyze_marked_bigon_1handles
     from surfaceknots.yoshikawa_data import export_yoshikawa_datasets
 
     out_dir.mkdir(parents=True, exist_ok=True)
     yosh_json = out_dir / "yoshikawa_ch10.json"
     if yosh_json.exists():
         yosh_records: list[dict[str, object]] = json.loads(yosh_json.read_text())
-        if not yosh_records or "sigma2_euler" not in yosh_records[0]:
+        if not yosh_records or "sublink_invariant_profile" not in yosh_records[0]:
             yosh_records = export_yoshikawa_datasets(out_dir)
     else:
         yosh_records = export_yoshikawa_datasets(out_dir)
 
     survivors, post_stats = post_filter_and_merge_ch11_survivors(survivor_epds)
-    ref_catalog = build_reference_catalog(max_composite_ch=12)
+    ref_catalog = build_reference_catalog(max_composite_ch=13, num_workers=num_workers)
 
     # Compute full invariants on every surviving `ch = 11` diagram in parallel:
     grouped_new: dict[tuple, list[dict[str, object]]] = defaultdict(list)
@@ -333,16 +476,34 @@ def stratify_and_export_ch11(
     residual_collisions: list[dict[str, object]] = []
 
     surv_tasks = [(d, f"ch11_cand_{idx}", True) for idx, d in enumerate(survivors)]
-    with ProcessPoolExecutor(max_workers=2) as pool:
-        for rec in pool.map(_compute_record_worker, surv_tasks, chunksize=4):
+    import multiprocessing
+
+    with ProcessPoolExecutor(
+        max_workers=max(1, num_workers), mp_context=multiprocessing.get_context("forkserver")
+    ) as pool:
+        for d_obj, rec in zip(survivors, pool.map(_compute_record_worker, surv_tasks, chunksize=4)):
+            rec["indecomposability"] = compute_indecomposability_certificate(d_obj, rec, 20)
             dkey = invariant_discrimination_key(rec)
             if dkey in ref_catalog:
                 rec["cell_status"] = "AMBIGUOUS_SHADOW"
                 rec["collision_matches"] = ref_catalog[dkey]
+                rec["marked_bigon_1handles"] = [asdict(h) for h in analyze_marked_bigon_1handles(d_obj)]
                 residual_collisions.append(rec)
                 grouped_residual[dkey].append(rec)
             else:
                 grouped_new[dkey].append(rec)
+
+    # Verify Yoshikawa Definition 5.1 weak primality against all pairs (F1, F2) with ch(F1) <= 10, ch(F2) <= 10:
+    prelim_reps = [grp[0] for grp in grouped_new.values()]
+    def5_1_extra = build_def5_1_high_composite_matches(11, prelim_reps, out_dir, num_workers=num_workers)
+    for dkey, tags in def5_1_extra.items():
+        if dkey in grouped_new:
+            moved = grouped_new.pop(dkey)
+            for rec in moved:
+                rec["cell_status"] = "AMBIGUOUS_SHADOW"
+                rec["collision_matches"] = tags
+                residual_collisions.append(rec)
+                grouped_residual[dkey].append(rec)
 
     # Sort certified new `ch = 11` invariant classes in Yoshikawa order:
     ori_rank = {"Ori": 0, "Mixed": 1, "Non": 2}

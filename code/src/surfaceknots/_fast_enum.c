@@ -17,10 +17,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #define MOD_P 1000000007LL
 #define MAX_N 20
-#define MAX_STATES (1 << 14)
+#define MAX_STATES (1 << 15)
 
 typedef struct {
     uint32_t m_mask;
@@ -699,6 +702,8 @@ static int enumerate_shadow_candidates_ex(
     int max_out,
     ShadowScratch *ext_scratch
 ) {
+    if (n < 0 || n > MAX_N) return -1;
+    if (n == 0) return 0;
     const int64_t A_list[2] = {3LL, 5LL};
     int64_t A_inv_list[2];
     int64_t d_pows[2][2 * MAX_N + 2];
@@ -755,7 +760,10 @@ static int enumerate_shadow_candidates_ex(
         int m = __builtin_popcount(m_mask);
         if (m < m_min || m > m_max) continue;
         int c = n - m;
-        if ((1 << c) > MAX_STATES) continue;
+        if (c < 0 || c > 15 || (1 << c) > MAX_STATES) {
+            if (!ext_scratch) free(sc);
+            return (c < 0) ? -1 : -2;
+        }
 
         if (!passes_m_mask_topology_filter_c(n, orig_opp, m_mask, target_components, target_orientability)) {
             continue;
@@ -975,6 +983,7 @@ int enumerate_shadow_candidates(
     CandidateDiagram *out_buf,
     int max_out
 ) {
+    if (n < 0 || n > MAX_N) return -1;
     return enumerate_shadow_candidates_ex(
         n, orig_opp, m_min, m_max, prune_level, 0, -1, -1000, 1000, out_buf, max_out, NULL
     );
@@ -1016,8 +1025,11 @@ static inline uint64_t canon_key_hash(int n, const CanonKey *k) {
     return h;
 }
 
-/* Compute exact canonical spherical code across all 8 O(4)/reflection variants for connected (n, opp, vt) */
+/* Compute exact canonical spherical code across all 8 O(4)/reflection variants for (n, opp, vt).
+ * Memory-safe even on disconnected inputs (seeds smallest unvisited vertex with a component-break bit). */
 static void canonical_sym_key_c(int n, const int *opp, const int *vt, CanonKey *best) {
+    memset(best, 0, sizeof(CanonKey));
+    if (n <= 0 || n > MAX_N) return;
     int opp_refl[4 * MAX_N];
     static const int slot_refl[4] = {0, 3, 2, 1};
     int has_classical = 0;
@@ -1031,7 +1043,6 @@ static void canonical_sym_key_c(int n, const int *opp, const int *vt, CanonKey *
 
     const int *opps[2] = {opp, opp_refl};
     int has_best = 0;
-    memset(best, 0, sizeof(CanonKey));
 
     int ov2n[MAX_N];
     int slot_shift[MAX_N];
@@ -1054,6 +1065,16 @@ static void canonical_sym_key_c(int n, const int *opp, const int *vt, CanonKey *
                 int xor_y = -1;
 
                 for (int qi = 0; qi < n; qi++) {
+                    uint32_t comp_break = 0u;
+                    if (qi == qlen) {
+                        int uv = 0;
+                        while (uv < n && ov2n[uv] >= 0) uv++;
+                        if (uv >= n) goto next_start;
+                        ov2n[uv] = qlen;
+                        slot_shift[uv] = 0;
+                        q[qlen++] = uv;
+                        comp_break = (1u << 30);
+                    }
                     int v = q[qi];
                     int sh = slot_shift[v];
                     int vt_orig = vt[v];
@@ -1082,6 +1103,7 @@ static void canonical_sym_key_c(int n, const int *opp, const int *vt, CanonKey *
                         int od = cur_opp[cd];
                         int ov = od >> 2;
                         int os = od & 3;
+                        if (ov < 0 || ov >= n) goto next_start;
                         if (ov2n[ov] < 0) {
                             ov2n[ov] = qlen;
                             slot_shift[ov] = os;
@@ -1090,7 +1112,8 @@ static void canonical_sym_key_c(int n, const int *opp, const int *vt, CanonKey *
                         int rel_os = (os - slot_shift[ov]) & 3;
                         d_enc[k] = (ov2n[ov] << 2) | rel_os;
                     }
-                    uint32_t w = ((uint32_t)vt_rel << 28)
+                    uint32_t w = comp_break
+                               | ((uint32_t)vt_rel << 28)
                                | ((uint32_t)d_enc[0] << 21)
                                | ((uint32_t)d_enc[1] << 14)
                                | ((uint32_t)d_enc[2] << 7)
@@ -1109,6 +1132,24 @@ static void canonical_sym_key_c(int n, const int *opp, const int *vt, CanonKey *
             }
         }
     }
+}
+
+static int is_connected_c(int n, const int *opp) {
+    if (n <= 1) return 1;
+    uint32_t vis = 1u;
+    int q[MAX_N], qh = 0, qt = 0;
+    q[qt++] = 0;
+    while (qh < qt) {
+        int u = q[qh++];
+        for (int s = 0; s < 4; s++) {
+            int w = opp[4 * u + s] >> 2;
+            if (w >= 0 && w < n && !((vis >> w) & 1u)) {
+                vis |= (1u << w);
+                q[qt++] = w;
+            }
+        }
+    }
+    return (qt == n) ? 1 : 0;
 }
 
 static int has_0_or_2_edge_cut_c(int n, const int *opp) {
@@ -1735,7 +1776,9 @@ static int explore_single_component_c(
     int nbr_vts[128][MAX_N];
 
     int discarded = 0;
-    if (!start_is_prime_shadow) {
+    if (!is_connected_c(n, start_opp)) {
+        discarded = 1;
+    } else if (!start_is_prime_shadow) {
         if (has_immediate_reduction(n, start_opp, start_vt)) {
             discarded = 1;
         } else if (n >= 4 && has_0_or_2_edge_cut_c(n, start_opp)) {
@@ -1851,8 +1894,23 @@ int enumerate_targeted_census_level_c(
     int max_kept,
     int64_t *out_stats /* [0]=raw_cands, [1]=components, [2]=discarded, [3]=kept */
 ) {
+    if (n < 0 || n > MAX_N) return -1;
+    if (max_bfs_states <= 0) return -1;
+    if (num_shadows <= 0) {
+        if (out_stats) {
+            out_stats[0] = 0;
+            out_stats[1] = 0;
+            out_stats[2] = 0;
+            out_stats[3] = 0;
+        }
+        return 0;
+    }
     CanonHashSet visited;
-    hashset_init(&visited, 1ULL << 20);
+    size_t init_hs_cap = (num_shadows <= 16) ? (1ULL << 15)
+                       : (num_shadows <= 128) ? (1ULL << 17)
+                       : (num_shadows <= 1024) ? (1ULL << 19)
+                       : (1ULL << 20);
+    hashset_init(&visited, init_hs_cap);
 
     size_t cand_cap = 65536;
     CandidateDiagram *cand_buf = (CandidateDiagram *)malloc(cand_cap * sizeof(CandidateDiagram));
@@ -1869,11 +1927,23 @@ int enumerate_targeted_census_level_c(
 
     for (int sh_idx = 0; sh_idx < num_shadows; sh_idx++) {
         const int *sh_opp = all_shadows_opp + sh_idx * (4 * n);
+        if (!is_connected_c(n, sh_opp)) {
+            continue;
+        }
         int cnt = enumerate_shadow_candidates_ex(
             n, sh_opp, m_min, m_max, 3,
             target_components, target_orientability, target_chi_min, target_chi_max,
             cand_buf, (int)cand_cap, shared_scratch
         );
+        if (cnt < 0) {
+            free(q_keys);
+            free(q_opp);
+            free(q_vt);
+            free(shared_scratch);
+            free(cand_buf);
+            hashset_free(&visited);
+            return cnt;
+        }
         if (cnt > (int)cand_cap) {
             cand_cap = (size_t)cnt + 1024;
             free(cand_buf);
@@ -1883,6 +1953,15 @@ int enumerate_targeted_census_level_c(
                 target_components, target_orientability, target_chi_min, target_chi_max,
                 cand_buf, (int)cand_cap, shared_scratch
             );
+            if (cnt < 0) {
+                free(q_keys);
+                free(q_opp);
+                free(q_vt);
+                free(shared_scratch);
+                free(cand_buf);
+                hashset_free(&visited);
+                return cnt;
+            }
         }
         total_cands += cnt;
 
@@ -1953,6 +2032,7 @@ int enumerate_census_level_c(
     int max_kept,
     int64_t *out_stats
 ) {
+    if (n < 0 || n > MAX_N) return -1;
     return enumerate_targeted_census_level_c(
         n, num_shadows, all_shadows_opp, m_min, m_max,
         0, -1, -1000, 1000,
@@ -1970,8 +2050,14 @@ int merge_and_filter_diagrams_c(
     int *out_vt,
     int max_kept
 ) {
+    if (n < 0 || n > MAX_N) return -1;
+    if (num_in <= 0) return 0;
+    if (max_bfs_states <= 0) return -1;
     CanonHashSet visited;
-    hashset_init(&visited, 1ULL << 18);
+    size_t init_hs_cap = (num_in <= 64) ? (1ULL << 14)
+                       : (num_in <= 512) ? (1ULL << 16)
+                       : (1ULL << 18);
+    hashset_init(&visited, init_hs_cap);
 
     int (*q_opp)[4 * MAX_N] = malloc((size_t)max_bfs_states * sizeof(*q_opp));
     int (*q_vt)[MAX_N] = malloc((size_t)max_bfs_states * sizeof(*q_vt));
@@ -1981,6 +2067,9 @@ int merge_and_filter_diagrams_c(
     for (int i = 0; i < num_in; i++) {
         const int *d_opp = in_opp + i * (4 * n);
         const int *d_vt = in_vt + i * n;
+        if (!is_connected_c(n, d_opp)) {
+            continue;
+        }
         CanonKey k0;
         canonical_sym_key_c(n, d_opp, d_vt, &k0);
         if (hashset_lookup(&visited, n, &k0) != 0) {
@@ -2136,24 +2225,6 @@ static int greedy_reduce_c(
     memcpy(vt_out, cur_vt, sizeof(int) * cur_n);
     *extra_loops_out = loops;
     return cur_n;
-}
-
-static int is_connected_c(int n, const int *opp) {
-    if (n <= 1) return 1;
-    uint32_t vis = 1u;
-    int q[MAX_N], qh = 0, qt = 0;
-    q[qt++] = 0;
-    while (qh < qt) {
-        int u = q[qh++];
-        for (int s = 0; s < 4; s++) {
-            int w = opp[4 * u + s] >> 2;
-            if (!((vis >> w) & 1u)) {
-                vis |= (1u << w);
-                q[qt++] = w;
-            }
-        }
-    }
-    return (qt == n) ? 1 : 0;
 }
 
 /* Check if an (n+2)-vertex 1-gon-free connected diagram has a certifying 2-edge cut:
@@ -2430,6 +2501,7 @@ static int run_single_probe_stabilizations_c(
     int *num_bridges,
     int max_bridges
 ) {
+    if (n <= 0 || n > MAX_N) return 0;
     if (depth_plus1 >= 1 && n + 1 <= MAX_N) {
         for (int d1 = 0; d1 < 4 * n; d1++) {
             int d2 = po[d1];
@@ -2463,7 +2535,7 @@ static int run_single_probe_stabilizations_c(
 
     if (depth_plus2 >= 1 && n + 2 <= MAX_N) {
         uint8_t vis_d[4 * MAX_N];
-        memset(vis_d, 0, 4 * n);
+        memset(vis_d, 0, (size_t)(4 * n));
         for (int sd = 0; sd < 4 * n; sd++) {
             if (vis_d[sd]) continue;
             int f_darts[4 * MAX_N], flen = 0;
@@ -2514,7 +2586,7 @@ static int run_single_probe_stabilizations_c(
  * - Discards any component that reduces to `< n` vertices, splits, or exposes a nontrivial 2-edge cut!
  * - Merges components connected via `+1/+2` mountain-pass bridges + level moves!
  */
-int tunnel_and_merge_diagrams_c(
+int tunnel_and_merge_diagrams_omp_c(
     int n,
     int num_in,
     const int *in_opp,
@@ -2524,16 +2596,22 @@ int tunnel_and_merge_diagrams_c(
     int max_bfs_states,
     int *out_opp,
     int *out_vt,
-    int max_kept
+    int max_kept,
+    int num_threads
 ) {
+    if (n < 0 || n > MAX_N) return -1;
     if (num_in <= 0) return 0;
+    if (max_bfs_states <= 0) return -1;
     if (n <= 2) {
         return merge_and_filter_diagrams_c(n, num_in, in_opp, in_vt, max_bfs_states, out_opp, out_vt, max_kept);
     }
 
     /* Step 1: Map every input representative `i` (`0..num_in-1`) and its level-BFS states to `i`! */
     CanonHashSet key_to_comp;
-    hashset_init(&key_to_comp, 1ULL << 19);
+    size_t init_kc_cap = (num_in <= 16) ? (1ULL << 13)
+                       : (num_in <= 128) ? (1ULL << 16)
+                       : (1ULL << 19);
+    hashset_init(&key_to_comp, init_kc_cap);
 
     size_t q_alloc = (max_bfs_states < 512) ? 512 : (size_t)max_bfs_states;
     int (*q_opp)[4 * MAX_N] = malloc(q_alloc * sizeof(*q_opp));
@@ -2599,6 +2677,10 @@ int tunnel_and_merge_diagrams_c(
         parent[i] = i;
         const int *d_opp = in_opp + i * (4 * n);
         const int *d_vt = in_vt + i * n;
+        int conn = is_connected_c(n, d_opp);
+        if (!conn || has_immediate_reduction(n, d_opp, d_vt) || (n >= 4 && has_0_or_2_edge_cut_c(n, d_opp))) {
+            dead[i] = 1;
+        }
         canonical_sym_key_c(n, d_opp, d_vt, &best_keys[i]);
         memcpy(best_opps[i], d_opp, sizeof(int) * 4 * n);
         memcpy(best_vts[i], d_vt, sizeof(int) * n);
@@ -2607,6 +2689,9 @@ int tunnel_and_merge_diagrams_c(
     for (int i = 0; i < num_in; i++) {
         const int *d_opp = in_opp + i * (4 * n);
         const int *d_vt = in_vt + i * n;
+        if (!is_connected_c(n, d_opp)) {
+            continue;
+        }
 
         memcpy(q_opp[0], d_opp, sizeof(int) * 4 * n);
         memcpy(q_vt[0], d_vt, sizeof(int) * n);
@@ -2684,161 +2769,492 @@ int tunnel_and_merge_diagrams_c(
     }
 
     /* Step 2: Tunnel from level-states of each surviving root `i`, plus 2nd-hop probes on new n-vertex bridges! */
-    const int max_bridges = 1024;
-    CanonKey *bridge_keys = (CanonKey *)malloc((size_t)max_bridges * sizeof(CanonKey));
-    int (*bridge_opps)[4 * MAX_N] = malloc((size_t)max_bridges * sizeof(*bridge_opps));
-    int (*bridge_vts)[MAX_N] = malloc((size_t)max_bridges * sizeof(*bridge_vts));
-    int (*sq_opp)[4 * MAX_N] = malloc(512 * sizeof(*sq_opp));
-    int (*sq_vt)[MAX_N] = malloc(512 * sizeof(*sq_vt));
-    int *sq_n = (int *)malloc(512 * sizeof(int));
     CanonKey *b_seen = (CanonKey *)malloc(256 * sizeof(CanonKey));
-
     const int max_probes = (depth_plus1 <= 32 && depth_plus2 <= 32) ? 1 : 8;
     const int max_extra = (depth_plus1 <= 32 && depth_plus2 <= 32) ? 0 : 8;
 
-    for (int i = 0; i < num_in; i++) {
-        int ri;
-        FIND_ROOT(i, ri);
-        if (dead[ri]) continue;
+#ifdef _OPENMP
+    if (num_threads > 1 && num_in >= 2) {
+        const int max_b_per_i = 256;
+        uint8_t *active_r1 = (uint8_t *)calloc((size_t)num_in, 1);
+        for (int i = 0; i < num_in; i++) {
+            int ri; FIND_ROOT(i, ri);
+            if (!dead[ri]) active_r1[i] = 1;
+        }
+        int *r1_killed = (int *)calloc((size_t)num_in, sizeof(int));
+        int *r1_nb = (int *)calloc((size_t)num_in, sizeof(int));
+        CanonKey *r1_bkeys = (CanonKey *)malloc((size_t)num_in * (size_t)max_b_per_i * sizeof(CanonKey));
+        int (*r1_bopps)[4 * MAX_N] = malloc((size_t)num_in * (size_t)max_b_per_i * sizeof(*r1_bopps));
+        int (*r1_bvts)[MAX_N] = malloc((size_t)num_in * (size_t)max_b_per_i * sizeof(*r1_bvts));
 
-        int probe_opps[8][4 * MAX_N];
-        int probe_vts[8][MAX_N];
-        memcpy(probe_opps[0], in_opp + i * (4 * n), sizeof(int) * 4 * n);
-        memcpy(probe_vts[0], in_vt + i * n, sizeof(int) * n);
-        int n_probes = 1;
-        if (max_probes > 1) {
-            int nn0 = list_all_level_neighbors_c(n, probe_opps[0], probe_vts[0], nbr_opps, nbr_vts, 64);
-            for (int p_i = 0; p_i < nn0 && n_probes < max_probes; p_i++) {
-                if (!has_immediate_reduction(n, nbr_opps[p_i], nbr_vts[p_i]) && is_connected_c(n, nbr_opps[p_i])) {
-                    memcpy(probe_opps[n_probes], nbr_opps[p_i], sizeof(int) * 4 * n);
-                    memcpy(probe_vts[n_probes], nbr_vts[p_i], sizeof(int) * n);
-                    n_probes++;
+        #pragma omp parallel num_threads(num_threads)
+        {
+            int (*t_sq_opp)[4 * MAX_N] = malloc(512 * sizeof(*t_sq_opp));
+            int (*t_sq_vt)[MAX_N] = malloc(512 * sizeof(*t_sq_vt));
+            int *t_sq_n = (int *)malloc(512 * sizeof(int));
+            int t_nbr_opps[128][4 * MAX_N];
+            int t_nbr_vts[128][MAX_N];
+            int t_probe_opps[8][4 * MAX_N];
+            int t_probe_vts[8][MAX_N];
+
+            #pragma omp for schedule(dynamic, 1)
+            for (int i = 0; i < num_in; i++) {
+                if (!active_r1[i]) continue;
+                memcpy(t_probe_opps[0], in_opp + i * (4 * n), sizeof(int) * 4 * n);
+                memcpy(t_probe_vts[0], in_vt + i * n, sizeof(int) * n);
+                int n_probes = 1;
+                if (max_probes > 1) {
+                    int nn0 = list_all_level_neighbors_c(n, t_probe_opps[0], t_probe_vts[0], t_nbr_opps, t_nbr_vts, 64);
+                    for (int p_i = 0; p_i < nn0 && n_probes < max_probes; p_i++) {
+                        if (!has_immediate_reduction(n, t_nbr_opps[p_i], t_nbr_vts[p_i]) && is_connected_c(n, t_nbr_opps[p_i])) {
+                            memcpy(t_probe_opps[n_probes], t_nbr_opps[p_i], sizeof(int) * 4 * n);
+                            memcpy(t_probe_vts[n_probes], t_nbr_vts[p_i], sizeof(int) * n);
+                            n_probes++;
+                        }
+                    }
+                }
+                int nb = 0;
+                int killed = 0;
+                size_t off = (size_t)i * (size_t)max_b_per_i;
+                for (int pr = 0; pr < n_probes && !killed; pr++) {
+                    if (run_single_probe_stabilizations_c(
+                        n, t_probe_opps[pr], t_probe_vts[pr], depth_plus1, depth_plus2,
+                        t_sq_opp, t_sq_vt, t_sq_n,
+                        r1_bkeys + off, r1_bopps + off, r1_bvts + off, &nb, max_b_per_i
+                    )) {
+                        killed = 1;
+                    }
+                }
+                r1_killed[i] = killed;
+                r1_nb[i] = nb;
+            }
+            free(t_sq_n);
+            free(t_sq_vt);
+            free(t_sq_opp);
+        }
+
+        for (int i = 0; i < num_in; i++) {
+            if (r1_killed[i]) {
+                int ri; FIND_ROOT(i, ri); dead[ri] = 1;
+            }
+        }
+
+        size_t h2_cap = (size_t)num_in * (size_t)(max_extra > 0 ? max_extra : 1) + 16;
+        int *h2_owner = (int *)malloc(h2_cap * sizeof(int));
+        int (*h2_opp)[4 * MAX_N] = malloc(h2_cap * sizeof(*h2_opp));
+        int (*h2_vt)[MAX_N] = malloc(h2_cap * sizeof(*h2_vt));
+        int num_h2 = 0;
+
+        for (int i = 0; i < num_in; i++) {
+            int ri; FIND_ROOT(i, ri);
+            if (dead[ri]) continue;
+            int killed = 0;
+            int extra_done = 0;
+            size_t off = (size_t)i * (size_t)max_b_per_i;
+            for (int b_i = 0; b_i < r1_nb[i] && !killed; b_i++) {
+                CanonKey bk = r1_bkeys[off + (size_t)b_i];
+                const int *bo_src = r1_bopps[off + (size_t)b_i];
+                const int *bv_src = r1_bvts[off + (size_t)b_i];
+                size_t msk = key_to_comp.cap - 1;
+                size_t idx = (size_t)canon_key_hash(n, &bk) & msk;
+                int found_owner = -1;
+                while (key_to_comp.slots[idx].used) {
+                    if (canon_key_eq(n, &key_to_comp.slots[idx].key, &bk)) {
+                        found_owner = slot_owner[idx];
+                        break;
+                    }
+                    idx = (idx + 1) & msk;
+                }
+                if (found_owner >= 0) {
+                    UNION_OWNERS(i, found_owner);
+                    FIND_ROOT(i, ri);
+                    if (dead[ri]) { killed = 1; break; }
+                    continue;
+                }
+                memcpy(q_opp[0], bo_src, sizeof(int) * 4 * n);
+                memcpy(q_vt[0], bv_src, sizeof(int) * n);
+                b_seen[0] = bk;
+                int bqh = 0, bqt = 1;
+                while (bqh < bqt && !killed && found_owner < 0) {
+                    const int *bo = q_opp[bqh];
+                    const int *bv = q_vt[bqh];
+                    bqh++;
+                    int bnn = list_all_level_neighbors_c(n, bo, bv, nbr_opps, nbr_vts, 128);
+                    for (int ni = 0; ni < bnn; ni++) {
+                        if (has_immediate_reduction(n, nbr_opps[ni], nbr_vts[ni]) || !is_connected_c(n, nbr_opps[ni])) {
+                            killed = 1; break;
+                        }
+                        if (n >= 4 && has_0_or_2_edge_cut_c(n, nbr_opps[ni])) {
+                            killed = 1; break;
+                        }
+                        CanonKey nk;
+                        canonical_sym_key_c(n, nbr_opps[ni], nbr_vts[ni], &nk);
+                        size_t nidx = (size_t)canon_key_hash(n, &nk) & msk;
+                        while (key_to_comp.slots[nidx].used) {
+                            if (canon_key_eq(n, &key_to_comp.slots[nidx].key, &nk)) {
+                                found_owner = slot_owner[nidx]; break;
+                            }
+                            nidx = (nidx + 1) & msk;
+                        }
+                        if (found_owner >= 0) break;
+                        int dup = 0;
+                        for (int s = 0; s < bqt; s++) {
+                            if (canon_key_eq(n, &b_seen[s], &nk)) { dup = 1; break; }
+                        }
+                        if (!dup && bqt < 256) {
+                            memcpy(q_opp[bqt], nbr_opps[ni], sizeof(int) * 4 * n);
+                            memcpy(q_vt[bqt], nbr_vts[ni], sizeof(int) * n);
+                            b_seen[bqt] = nk;
+                            bqt++;
+                        }
+                    }
+                }
+                if (killed) {
+                    FIND_ROOT(i, ri); dead[ri] = 1; break;
+                }
+                if (found_owner >= 0) {
+                    UNION_OWNERS(i, found_owner);
+                    FIND_ROOT(i, ri);
+                    if (dead[ri]) { killed = 1; break; }
+                } else {
+                    for (int s = 0; s < bqt; s++) {
+                        ENSURE_HASH_CAP();
+                        msk = key_to_comp.cap - 1;
+                        size_t sidx = (size_t)canon_key_hash(n, &b_seen[s]) & msk;
+                        int ex = 0;
+                        while (key_to_comp.slots[sidx].used) {
+                            if (canon_key_eq(n, &key_to_comp.slots[sidx].key, &b_seen[s])) { ex = 1; break; }
+                            sidx = (sidx + 1) & msk;
+                        }
+                        if (!ex) {
+                            key_to_comp.slots[sidx].used = 1;
+                            key_to_comp.slots[sidx].key = b_seen[s];
+                            slot_owner[sidx] = i;
+                            key_to_comp.count++;
+                        }
+                    }
+                    if (extra_done < max_extra && (size_t)num_h2 < h2_cap) {
+                        extra_done++;
+                        h2_owner[num_h2] = i;
+                        memcpy(h2_opp[num_h2], bo_src, sizeof(int) * 4 * n);
+                        memcpy(h2_vt[num_h2], bv_src, sizeof(int) * n);
+                        num_h2++;
+                    }
                 }
             }
         }
 
-        int num_bridges = 0;
-        int killed = 0;
-        for (int pr = 0; pr < n_probes && !killed; pr++) {
-            if (run_single_probe_stabilizations_c(
-                n, probe_opps[pr], probe_vts[pr], depth_plus1, depth_plus2,
-                sq_opp, sq_vt, sq_n, bridge_keys, bridge_opps, bridge_vts, &num_bridges, max_bridges
-            )) {
-                killed = 1;
+        if (num_h2 > 0) {
+            const int max_b_h2 = 128;
+            uint8_t *active_h2 = (uint8_t *)calloc((size_t)num_h2, 1);
+            for (int h = 0; h < num_h2; h++) {
+                int rh; FIND_ROOT(h2_owner[h], rh);
+                if (!dead[rh]) active_h2[h] = 1;
             }
-        }
+            int *h2_killed = (int *)calloc((size_t)num_h2, sizeof(int));
+            int *h2_nb = (int *)calloc((size_t)num_h2, sizeof(int));
+            CanonKey *h2_bkeys = (CanonKey *)malloc((size_t)num_h2 * (size_t)max_b_h2 * sizeof(CanonKey));
+            int (*h2_bopps)[4 * MAX_N] = malloc((size_t)num_h2 * (size_t)max_b_h2 * sizeof(*h2_bopps));
+            int (*h2_bvts)[MAX_N] = malloc((size_t)num_h2 * (size_t)max_b_h2 * sizeof(*h2_bvts));
 
-        FIND_ROOT(i, ri);
-        if (killed) {
-            dead[ri] = 1;
-            continue;
-        }
+            #pragma omp parallel num_threads(num_threads)
+            {
+                int (*t_sq_opp)[4 * MAX_N] = malloc(512 * sizeof(*t_sq_opp));
+                int (*t_sq_vt)[MAX_N] = malloc(512 * sizeof(*t_sq_vt));
+                int *t_sq_n = (int *)malloc(512 * sizeof(int));
 
-        /* Process discovered n-vertex bridges; if a bridge lands in a brand-new n-vertex level component,
-         * register that level component into key_to_comp and run up to max_extra second-hop probes! */
-        int extra_probes_done = 0;
-        for (int b_i = 0; b_i < num_bridges && !killed; b_i++) {
-            CanonKey bk = bridge_keys[b_i];
-            size_t msk = key_to_comp.cap - 1;
-            size_t idx = (size_t)canon_key_hash(n, &bk) & msk;
-            int found_owner = -1;
-            while (key_to_comp.slots[idx].used) {
-                if (canon_key_eq(n, &key_to_comp.slots[idx].key, &bk)) {
-                    found_owner = slot_owner[idx];
-                    break;
+                #pragma omp for schedule(dynamic, 1)
+                for (int h = 0; h < num_h2; h++) {
+                    if (!active_h2[h]) continue;
+                    int nb = 0;
+                    size_t off = (size_t)h * (size_t)max_b_h2;
+                    int killed = run_single_probe_stabilizations_c(
+                        n, h2_opp[h], h2_vt[h], depth_plus1, depth_plus2,
+                        t_sq_opp, t_sq_vt, t_sq_n,
+                        h2_bkeys + off, h2_bopps + off, h2_bvts + off, &nb, max_b_h2
+                    );
+                    h2_killed[h] = killed;
+                    h2_nb[h] = nb;
                 }
-                idx = (idx + 1) & msk;
+                free(t_sq_n);
+                free(t_sq_vt);
+                free(t_sq_opp);
             }
-            if (found_owner >= 0) {
-                UNION_OWNERS(i, found_owner);
-                FIND_ROOT(i, ri);
-                if (dead[ri]) { killed = 1; break; }
+
+            for (int h = 0; h < num_h2; h++) {
+                if (h2_killed[h]) {
+                    int rh; FIND_ROOT(h2_owner[h], rh); dead[rh] = 1;
+                }
+            }
+
+            for (int h = 0; h < num_h2; h++) {
+                int i = h2_owner[h];
+                int ri; FIND_ROOT(i, ri);
+                if (dead[ri]) continue;
+                int killed = 0;
+                size_t off = (size_t)h * (size_t)max_b_h2;
+                for (int b_i = 0; b_i < h2_nb[h] && !killed; b_i++) {
+                    CanonKey bk = h2_bkeys[off + (size_t)b_i];
+                    const int *bo_src = h2_bopps[off + (size_t)b_i];
+                    const int *bv_src = h2_bvts[off + (size_t)b_i];
+                    size_t msk = key_to_comp.cap - 1;
+                    size_t idx = (size_t)canon_key_hash(n, &bk) & msk;
+                    int found_owner = -1;
+                    while (key_to_comp.slots[idx].used) {
+                        if (canon_key_eq(n, &key_to_comp.slots[idx].key, &bk)) {
+                            found_owner = slot_owner[idx];
+                            break;
+                        }
+                        idx = (idx + 1) & msk;
+                    }
+                    if (found_owner >= 0) {
+                        UNION_OWNERS(i, found_owner);
+                        FIND_ROOT(i, ri);
+                        if (dead[ri]) { killed = 1; break; }
+                        continue;
+                    }
+                    memcpy(q_opp[0], bo_src, sizeof(int) * 4 * n);
+                    memcpy(q_vt[0], bv_src, sizeof(int) * n);
+                    b_seen[0] = bk;
+                    int bqh = 0, bqt = 1;
+                    while (bqh < bqt && !killed && found_owner < 0) {
+                        const int *bo = q_opp[bqh];
+                        const int *bv = q_vt[bqh];
+                        bqh++;
+                        int bnn = list_all_level_neighbors_c(n, bo, bv, nbr_opps, nbr_vts, 128);
+                        for (int ni = 0; ni < bnn; ni++) {
+                            if (has_immediate_reduction(n, nbr_opps[ni], nbr_vts[ni]) || !is_connected_c(n, nbr_opps[ni])) {
+                                killed = 1; break;
+                            }
+                            if (n >= 4 && has_0_or_2_edge_cut_c(n, nbr_opps[ni])) {
+                                killed = 1; break;
+                            }
+                            CanonKey nk;
+                            canonical_sym_key_c(n, nbr_opps[ni], nbr_vts[ni], &nk);
+                            size_t nidx = (size_t)canon_key_hash(n, &nk) & msk;
+                            while (key_to_comp.slots[nidx].used) {
+                                if (canon_key_eq(n, &key_to_comp.slots[nidx].key, &nk)) {
+                                    found_owner = slot_owner[nidx]; break;
+                                }
+                                nidx = (nidx + 1) & msk;
+                            }
+                            if (found_owner >= 0) break;
+                            int dup = 0;
+                            for (int s = 0; s < bqt; s++) {
+                                if (canon_key_eq(n, &b_seen[s], &nk)) { dup = 1; break; }
+                            }
+                            if (!dup && bqt < 256) {
+                                memcpy(q_opp[bqt], nbr_opps[ni], sizeof(int) * 4 * n);
+                                memcpy(q_vt[bqt], nbr_vts[ni], sizeof(int) * n);
+                                b_seen[bqt] = nk;
+                                bqt++;
+                            }
+                        }
+                    }
+                    if (killed) {
+                        FIND_ROOT(i, ri); dead[ri] = 1; break;
+                    }
+                    if (found_owner >= 0) {
+                        UNION_OWNERS(i, found_owner);
+                        FIND_ROOT(i, ri);
+                        if (dead[ri]) { killed = 1; break; }
+                    } else {
+                        for (int s = 0; s < bqt; s++) {
+                            ENSURE_HASH_CAP();
+                            msk = key_to_comp.cap - 1;
+                            size_t sidx = (size_t)canon_key_hash(n, &b_seen[s]) & msk;
+                            int ex = 0;
+                            while (key_to_comp.slots[sidx].used) {
+                                if (canon_key_eq(n, &key_to_comp.slots[sidx].key, &b_seen[s])) { ex = 1; break; }
+                                sidx = (sidx + 1) & msk;
+                            }
+                            if (!ex) {
+                                key_to_comp.slots[sidx].used = 1;
+                                key_to_comp.slots[sidx].key = b_seen[s];
+                                slot_owner[sidx] = i;
+                                key_to_comp.count++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            free(h2_bvts);
+            free(h2_bopps);
+            free(h2_bkeys);
+            free(h2_nb);
+            free(h2_killed);
+            free(active_h2);
+        }
+
+        free(h2_vt);
+        free(h2_opp);
+        free(h2_owner);
+        free(r1_bvts);
+        free(r1_bopps);
+        free(r1_bkeys);
+        free(r1_nb);
+        free(r1_killed);
+        free(active_r1);
+    } else
+#endif
+    {
+        (void)num_threads;
+        const int max_bridges = 1024;
+        CanonKey *bridge_keys = (CanonKey *)malloc((size_t)max_bridges * sizeof(CanonKey));
+        int (*bridge_opps)[4 * MAX_N] = malloc((size_t)max_bridges * sizeof(*bridge_opps));
+        int (*bridge_vts)[MAX_N] = malloc((size_t)max_bridges * sizeof(*bridge_vts));
+        int (*sq_opp)[4 * MAX_N] = malloc(512 * sizeof(*sq_opp));
+        int (*sq_vt)[MAX_N] = malloc(512 * sizeof(*sq_vt));
+        int *sq_n = (int *)malloc(512 * sizeof(int));
+
+        for (int i = 0; i < num_in; i++) {
+            int ri;
+            FIND_ROOT(i, ri);
+            if (dead[ri]) continue;
+
+            int probe_opps[8][4 * MAX_N];
+            int probe_vts[8][MAX_N];
+            memcpy(probe_opps[0], in_opp + i * (4 * n), sizeof(int) * 4 * n);
+            memcpy(probe_vts[0], in_vt + i * n, sizeof(int) * n);
+            int n_probes = 1;
+            if (max_probes > 1) {
+                int nn0 = list_all_level_neighbors_c(n, probe_opps[0], probe_vts[0], nbr_opps, nbr_vts, 64);
+                for (int p_i = 0; p_i < nn0 && n_probes < max_probes; p_i++) {
+                    if (!has_immediate_reduction(n, nbr_opps[p_i], nbr_vts[p_i]) && is_connected_c(n, nbr_opps[p_i])) {
+                        memcpy(probe_opps[n_probes], nbr_opps[p_i], sizeof(int) * 4 * n);
+                        memcpy(probe_vts[n_probes], nbr_vts[p_i], sizeof(int) * n);
+                        n_probes++;
+                    }
+                }
+            }
+
+            int num_bridges = 0;
+            int killed = 0;
+            for (int pr = 0; pr < n_probes && !killed; pr++) {
+                if (run_single_probe_stabilizations_c(
+                    n, probe_opps[pr], probe_vts[pr], depth_plus1, depth_plus2,
+                    sq_opp, sq_vt, sq_n, bridge_keys, bridge_opps, bridge_vts, &num_bridges, max_bridges
+                )) {
+                    killed = 1;
+                }
+            }
+
+            FIND_ROOT(i, ri);
+            if (killed) {
+                dead[ri] = 1;
                 continue;
             }
 
-            /* Bridge missed `key_to_comp`: explore up to 256 level states from `bridge_opps[b_i]`! */
-            memcpy(q_opp[0], bridge_opps[b_i], sizeof(int) * 4 * n);
-            memcpy(q_vt[0], bridge_vts[b_i], sizeof(int) * n);
-            b_seen[0] = bk;
-            int bqh = 0, bqt = 1;
-            while (bqh < bqt && !killed && found_owner < 0) {
-                const int *bo = q_opp[bqh];
-                const int *bv = q_vt[bqh];
-                bqh++;
-                int bnn = list_all_level_neighbors_c(n, bo, bv, nbr_opps, nbr_vts, 128);
-                for (int ni = 0; ni < bnn; ni++) {
-                    if (has_immediate_reduction(n, nbr_opps[ni], nbr_vts[ni]) || !is_connected_c(n, nbr_opps[ni])) {
-                        killed = 1;
+            int extra_probes_done = 0;
+            for (int b_i = 0; b_i < num_bridges && !killed; b_i++) {
+                CanonKey bk = bridge_keys[b_i];
+                size_t msk = key_to_comp.cap - 1;
+                size_t idx = (size_t)canon_key_hash(n, &bk) & msk;
+                int found_owner = -1;
+                while (key_to_comp.slots[idx].used) {
+                    if (canon_key_eq(n, &key_to_comp.slots[idx].key, &bk)) {
+                        found_owner = slot_owner[idx];
                         break;
                     }
-                    if (n >= 4 && has_0_or_2_edge_cut_c(n, nbr_opps[ni])) {
-                        killed = 1;
-                        break;
-                    }
-                    CanonKey nk;
-                    canonical_sym_key_c(n, nbr_opps[ni], nbr_vts[ni], &nk);
-                    size_t nidx = (size_t)canon_key_hash(n, &nk) & msk;
-                    while (key_to_comp.slots[nidx].used) {
-                        if (canon_key_eq(n, &key_to_comp.slots[nidx].key, &nk)) {
-                            found_owner = slot_owner[nidx];
+                    idx = (idx + 1) & msk;
+                }
+                if (found_owner >= 0) {
+                    UNION_OWNERS(i, found_owner);
+                    FIND_ROOT(i, ri);
+                    if (dead[ri]) { killed = 1; break; }
+                    continue;
+                }
+
+                memcpy(q_opp[0], bridge_opps[b_i], sizeof(int) * 4 * n);
+                memcpy(q_vt[0], bridge_vts[b_i], sizeof(int) * n);
+                b_seen[0] = bk;
+                int bqh = 0, bqt = 1;
+                while (bqh < bqt && !killed && found_owner < 0) {
+                    const int *bo = q_opp[bqh];
+                    const int *bv = q_vt[bqh];
+                    bqh++;
+                    int bnn = list_all_level_neighbors_c(n, bo, bv, nbr_opps, nbr_vts, 128);
+                    for (int ni = 0; ni < bnn; ni++) {
+                        if (has_immediate_reduction(n, nbr_opps[ni], nbr_vts[ni]) || !is_connected_c(n, nbr_opps[ni])) {
+                            killed = 1;
                             break;
                         }
-                        nidx = (nidx + 1) & msk;
+                        if (n >= 4 && has_0_or_2_edge_cut_c(n, nbr_opps[ni])) {
+                            killed = 1;
+                            break;
+                        }
+                        CanonKey nk;
+                        canonical_sym_key_c(n, nbr_opps[ni], nbr_vts[ni], &nk);
+                        size_t nidx = (size_t)canon_key_hash(n, &nk) & msk;
+                        while (key_to_comp.slots[nidx].used) {
+                            if (canon_key_eq(n, &key_to_comp.slots[nidx].key, &nk)) {
+                                found_owner = slot_owner[nidx];
+                                break;
+                            }
+                            nidx = (nidx + 1) & msk;
+                        }
+                        if (found_owner >= 0) break;
+                        int dup = 0;
+                        for (int s = 0; s < bqt; s++) {
+                            if (canon_key_eq(n, &b_seen[s], &nk)) { dup = 1; break; }
+                        }
+                        if (!dup && bqt < 256) {
+                            memcpy(q_opp[bqt], nbr_opps[ni], sizeof(int) * 4 * n);
+                            memcpy(q_vt[bqt], nbr_vts[ni], sizeof(int) * n);
+                            b_seen[bqt] = nk;
+                            bqt++;
+                        }
                     }
-                    if (found_owner >= 0) break;
-                    int dup = 0;
+                }
+                if (killed) {
+                    FIND_ROOT(i, ri);
+                    dead[ri] = 1;
+                    break;
+                }
+                if (found_owner >= 0) {
+                    UNION_OWNERS(i, found_owner);
+                    FIND_ROOT(i, ri);
+                    if (dead[ri]) { killed = 1; break; }
+                } else {
                     for (int s = 0; s < bqt; s++) {
-                        if (canon_key_eq(n, &b_seen[s], &nk)) { dup = 1; break; }
+                        ENSURE_HASH_CAP();
+                        msk = key_to_comp.cap - 1;
+                        size_t sidx = (size_t)canon_key_hash(n, &b_seen[s]) & msk;
+                        int ex = 0;
+                        while (key_to_comp.slots[sidx].used) {
+                            if (canon_key_eq(n, &key_to_comp.slots[sidx].key, &b_seen[s])) { ex = 1; break; }
+                            sidx = (sidx + 1) & msk;
+                        }
+                        if (!ex) {
+                            key_to_comp.slots[sidx].used = 1;
+                            key_to_comp.slots[sidx].key = b_seen[s];
+                            slot_owner[sidx] = i;
+                            key_to_comp.count++;
+                        }
                     }
-                    if (!dup && bqt < 256) {
-                        memcpy(q_opp[bqt], nbr_opps[ni], sizeof(int) * 4 * n);
-                        memcpy(q_vt[bqt], nbr_vts[ni], sizeof(int) * n);
-                        b_seen[bqt] = nk;
-                        bqt++;
-                    }
-                }
-            }
-            if (killed) {
-                FIND_ROOT(i, ri);
-                dead[ri] = 1;
-                break;
-            }
-            if (found_owner >= 0) {
-                UNION_OWNERS(i, found_owner);
-                FIND_ROOT(i, ri);
-                if (dead[ri]) { killed = 1; break; }
-            } else {
-                /* Register all `bqt` states in `key_to_comp` owned by `i`, and run a 2nd-hop probe! */
-                for (int s = 0; s < bqt; s++) {
-                    ENSURE_HASH_CAP();
-                    msk = key_to_comp.cap - 1;
-                    size_t sidx = (size_t)canon_key_hash(n, &b_seen[s]) & msk;
-                    int ex = 0;
-                    while (key_to_comp.slots[sidx].used) {
-                        if (canon_key_eq(n, &key_to_comp.slots[sidx].key, &b_seen[s])) { ex = 1; break; }
-                        sidx = (sidx + 1) & msk;
-                    }
-                    if (!ex) {
-                        key_to_comp.slots[sidx].used = 1;
-                        key_to_comp.slots[sidx].key = b_seen[s];
-                        slot_owner[sidx] = i;
-                        key_to_comp.count++;
-                    }
-                }
-                if (extra_probes_done < max_extra) {
-                    extra_probes_done++;
-                    if (run_single_probe_stabilizations_c(
-                        n, bridge_opps[b_i], bridge_vts[b_i], depth_plus1, depth_plus2,
-                        sq_opp, sq_vt, sq_n, bridge_keys, bridge_opps, bridge_vts, &num_bridges, max_bridges
-                    )) {
-                        killed = 1;
-                        FIND_ROOT(i, ri);
-                        dead[ri] = 1;
-                        break;
+                    if (extra_probes_done < max_extra) {
+                        extra_probes_done++;
+                        if (run_single_probe_stabilizations_c(
+                            n, bridge_opps[b_i], bridge_vts[b_i], depth_plus1, depth_plus2,
+                            sq_opp, sq_vt, sq_n, bridge_keys, bridge_opps, bridge_vts, &num_bridges, max_bridges
+                        )) {
+                            killed = 1;
+                            FIND_ROOT(i, ri);
+                            dead[ri] = 1;
+                            break;
+                        }
                     }
                 }
             }
         }
+
+        free(sq_n);
+        free(sq_vt);
+        free(sq_opp);
+        free(bridge_vts);
+        free(bridge_opps);
+        free(bridge_keys);
     }
 
     int kept_cnt = 0;
@@ -2856,12 +3272,6 @@ int tunnel_and_merge_diagrams_c(
     #undef ENSURE_HASH_CAP
     #undef FIND_ROOT
     free(b_seen);
-    free(sq_n);
-    free(sq_vt);
-    free(sq_opp);
-    free(bridge_vts);
-    free(bridge_opps);
-    free(bridge_keys);
     free(slot_owner);
     free(best_vts);
     free(best_opps);
@@ -2872,6 +3282,23 @@ int tunnel_and_merge_diagrams_c(
     free(q_opp);
     hashset_free(&key_to_comp);
     return kept_cnt;
+}
+
+int tunnel_and_merge_diagrams_c(
+    int n,
+    int num_in,
+    const int *in_opp,
+    const int *in_vt,
+    int depth_plus1,
+    int depth_plus2,
+    int max_bfs_states,
+    int *out_opp,
+    int *out_vt,
+    int max_kept
+) {
+    return tunnel_and_merge_diagrams_omp_c(
+        n, num_in, in_opp, in_vt, depth_plus1, depth_plus2, max_bfs_states, out_opp, out_vt, max_kept, 1
+    );
 }
 
 /* =========================================================================
@@ -3550,16 +3977,17 @@ void batch_check_tangle_pairs_c(
  * ========================================================================= */
 
 typedef struct {
-    uint8_t tau[8];
-    uint8_t is_entry_mask;
-    uint8_t nxings;
-    uint8_t xing_pL[6];
-    uint8_t xing_pR[6];
-    int8_t  xing_bs[6];
-    uint8_t cap_len[4];
-    int8_t  cap_words[4][32];
-    uint8_t w3_len[8];
-    int8_t  w3_words[8][160];
+    uint8_t  tau[12];
+    uint16_t is_entry_mask;
+    uint8_t  nxings;
+    uint8_t  pad_hdr;
+    uint8_t  xing_pL[10];
+    uint8_t  xing_pR[10];
+    int8_t   xing_bs[10];
+    uint8_t  cap_len[6];
+    int8_t   cap_words[6][64];
+    uint16_t w3_len[12];
+    int8_t   w3_words[12][640];
 } TangleFastMeta;
 
 typedef struct {
@@ -3608,7 +4036,7 @@ static int64_t floor_div_i64(int64_t a, int64_t b) {
     return q;
 }
 
-static void int_snf_8x4_c(int m_rows, int ncols, int64_t a[8][4], int *out_nullity, int64_t out_tors[4]) {
+static void int_snf_12x6_c(int m_rows, int ncols, int64_t a[12][6], int *out_nullity, int64_t out_tors[6]) {
     int k = 0;
     while (k < m_rows && k < ncols) {
         int64_t best_val = 0;
@@ -3691,7 +4119,7 @@ static void int_snf_8x4_c(int m_rows, int ncols, int64_t a[8][4], int *out_nulli
 
     int nz = 0;
     int nt = 0;
-    out_tors[0] = out_tors[1] = out_tors[2] = out_tors[3] = 0;
+    for (int i = 0; i < 6; i++) out_tors[i] = 0;
     for (int i = 0; i < k; i++) {
         int64_t d = i64_abs(a[i][i]);
         if (d > 0) {
@@ -3723,10 +4151,10 @@ static int eval_fast_triple_c(
     uint64_t *out_lo
 ) {
     int w_count = 2 * b;
-    int port_scomp[8];
-    int port_sign[8];
-    int orb_sizes[4];
-    int ori_flags[4];
+    int port_scomp[12];
+    int port_sign[12];
+    int orb_sizes[6];
+    int ori_flags[6];
     for (int p = 0; p < w_count; p++) {
         port_scomp[p] = -1;
         port_sign[p] = 0;
@@ -3740,7 +4168,7 @@ static int eval_fast_triple_c(
         int is_ori = 1;
         port_scomp[sp_start] = sc;
         port_sign[sp_start] = 1;
-        int stk[8];
+        int stk[12];
         int sp = 0;
         stk[sp++] = sp_start;
         while (sp > 0) {
@@ -3763,9 +4191,12 @@ static int eval_fast_triple_c(
         ori_flags[sc] = is_ori;
         if (!is_ori) all_ori = 0;
     }
+    if (num_sc > 4) {
+        return 1;
+    }
 
-    int p_sum[4] = {0, 0, 0, 0};
-    int e_sc[4]  = {0, 0, 0, 0};
+    int p_sum[6] = {0, 0, 0, 0, 0, 0};
+    int e_sc[6]  = {0, 0, 0, 0, 0, 0};
     const TangleFastMeta *pair_a[3] = {m1, m2, m3};
     const TangleFastMeta *pair_b[3] = {m2, m3, m1};
 
@@ -3773,15 +4204,15 @@ static int eval_fast_triple_c(
         for (int pi = 0; pi < 3; pi++) {
             const uint8_t *ta = pair_a[pi]->tau;
             const uint8_t *tb = pair_b[pi]->tau;
-            uint8_t seen = 0;
+            uint16_t seen = 0;
             for (int p = 0; p < w_count; p++) {
                 if ((seen >> p) & 1u) continue;
                 p_sum[port_scomp[p]]++;
                 int cur = p;
                 while (!((seen >> cur) & 1u)) {
-                    seen |= (uint8_t)(1u << cur);
+                    seen |= (uint16_t)(1u << cur);
                     int nxt = ta[cur];
-                    seen |= (uint8_t)(1u << nxt);
+                    seen |= (uint16_t)(1u << nxt);
                     cur = tb[nxt];
                 }
             }
@@ -3792,22 +4223,22 @@ static int eval_fast_triple_c(
             const TangleFastMeta *mb = pair_b[pi];
             const uint8_t *ta = ma->tau;
             const uint8_t *tb = mb->tau;
-            uint8_t ie_a = ma->is_entry_mask;
-            uint8_t ie_b = mb->is_entry_mask;
-            uint8_t seen = 0;
-            int cid_a[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
-            int dir_a[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-            int cid_b[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
-            int dir_b[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+            uint16_t ie_a = ma->is_entry_mask;
+            uint16_t ie_b = mb->is_entry_mask;
+            uint16_t seen = 0;
+            int cid_a[12] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+            int dir_a[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            int cid_b[12] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+            int dir_b[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
             int cid = 0;
             for (int p = 0; p < w_count; p++) {
                 if ((seen >> p) & 1u) continue;
                 p_sum[port_scomp[p]]++;
                 int cur = p;
                 while (!((seen >> cur) & 1u)) {
-                    seen |= (uint8_t)(1u << cur);
+                    seen |= (uint16_t)(1u << cur);
                     int nxt = ta[cur];
-                    seen |= (uint8_t)(1u << nxt);
+                    seen |= (uint16_t)(1u << nxt);
                     if ((ie_a >> cur) & 1u) {
                         cid_a[cur] = cid; dir_a[cur] = 1;
                     } else {
@@ -3842,8 +4273,10 @@ static int eval_fast_triple_c(
     int sum_e = 0;
     for (int sc = 0; sc < num_sc; sc++) {
         int chi = p_sum[sc] - (orb_sizes[sc] >> 1);
+        if (chi < -16 || chi > 15) return 1;
         uint32_t chi_enc = (uint32_t)(chi + 16) & 31u;
         int ae = e_sc[sc] < 0 ? -e_sc[sc] : e_sc[sc];
+        if (ae > 31) return 1;
         sum_e += e_sc[sc];
         comp_packed[sc] = ((uint32_t)ori_flags[sc] << 10) | (chi_enc << 5) | ((uint32_t)ae & 31u);
     }
@@ -3857,10 +4290,11 @@ static int eval_fast_triple_c(
         comp_packed[j + 1] = v;
     }
     int abs_e_sum = sum_e < 0 ? -sum_e : sum_e;
+    if (abs_e_sum > 31) return 1;
 
     /* Substitute m3->w3_words into m1->cap_words and m2->cap_words */
-    int8_t rels[8][1024];
-    int rlen[8];
+    int8_t rels[12][4096];
+    int rlen[12];
     int n_rels = 0;
     const TangleFastMeta *cap_src[2] = {m1, m2};
     for (int si = 0; si < 2; si++) {
@@ -3868,23 +4302,24 @@ static int eval_fast_triple_c(
         for (int r = 0; r < b; r++) {
             int cl = ms->cap_len[r];
             if (cl == 0) continue;
-            int8_t buf[1024];
+            if (cl == 0xFF) return 1;
+            int8_t buf[4096];
             int bl = 0;
             for (int idx = 0; idx < cl; idx++) {
                 int lit = ms->cap_words[r][idx];
+                int p = (lit > 0 ? lit : -lit) - 1;
+                int wl = (int)m3->w3_len[p];
+                if (wl == 0xFFFF || bl + wl >= 4096) {
+                    return 1;
+                }
+                const int8_t *ww = m3->w3_words[p];
                 if (lit > 0) {
-                    int p = lit - 1;
-                    int wl = m3->w3_len[p];
-                    const int8_t *ww = m3->w3_words[p];
                     for (int q = 0; q < wl; q++) {
                         int8_t x = ww[q];
                         if (bl > 0 && buf[bl - 1] == (int8_t)(-x)) bl--;
                         else buf[bl++] = x;
                     }
                 } else {
-                    int p = (-lit) - 1;
-                    int wl = m3->w3_len[p];
-                    const int8_t *ww = m3->w3_words[p];
                     for (int q = wl - 1; q >= 0; q--) {
                         int8_t x = (int8_t)(-ww[q]);
                         if (bl > 0 && buf[bl - 1] == (int8_t)(-x)) bl--;
@@ -3906,10 +4341,10 @@ static int eval_fast_triple_c(
         }
     }
 
-    int64_t a_snf[8][4];
+    int64_t a_snf[12][6];
     int n_snf_rows = 0;
     for (int r = 0; r < n_rels; r++) {
-        int64_t vec[4] = {0, 0, 0, 0};
+        int64_t vec[6] = {0, 0, 0, 0, 0, 0};
         int sgn = 1;
         int rl = rlen[r];
         for (int pos = 0; pos < rl; pos++) {
@@ -3918,15 +4353,20 @@ static int eval_fast_triple_c(
             vec[ab - 1] += sgn;
             sgn = -sgn;
         }
-        if ((vec[0] | vec[1] | vec[2] | vec[3]) != 0) {
+        int64_t any_nz = 0;
+        for (int c = 0; c < b; c++) any_nz |= vec[c];
+        if (any_nz != 0) {
             for (int c = 0; c < b; c++) a_snf[n_snf_rows][c] = vec[c];
             n_snf_rows++;
         }
     }
     int r_null = b;
-    int64_t tors[4] = {0, 0, 0, 0};
+    int64_t tors[6] = {0, 0, 0, 0, 0, 0};
     if (n_snf_rows > 0) {
-        int_snf_8x4_c(n_snf_rows, b, a_snf, &r_null, tors);
+        int_snf_12x6_c(n_snf_rows, b, a_snf, &r_null, tors);
+    }
+    if (tors[4] != 0 || tors[0] > 0xFFF || tors[1] > 0xFFF || tors[2] > 0xFFF || tors[3] > 0xFFF) {
+        return 1;
     }
 
     /* Fast inline generator elimination (len == 1 and len == 2 distinct generators) */
@@ -4038,12 +4478,8 @@ static int eval_fast_triple_c(
     return 1;
 }
 
-#define TP_HT_SIZE 8192
+#define TP_HT_SIZE 1048576
 #define TP_HT_MASK (TP_HT_SIZE - 1)
-
-typedef struct {
-    int32_t slot_to_bkt[TP_HT_SIZE];
-} TpLevelHashTable;
 
 static inline uint32_t tp_hash_128(uint64_t hi, uint64_t lo) {
     uint64_t h = hi ^ (lo * 0x9e3779b97f4a7c15ULL);
@@ -4061,18 +4497,18 @@ static void tp_record_resolved(
     int k_idx,
     int is_conc_level,
     int cm_val,
-    TpLevelHashTable *ht,
+    int32_t *ht_slots,
     TriplaneBucketOut *buckets_out,
     int max_buckets,
     int *io_num_buckets
 ) {
     uint32_t pos = tp_hash_128(hi, lo) & TP_HT_MASK;
     for (;;) {
-        int b_idx = ht->slot_to_bkt[pos];
+        int b_idx = ht_slots[pos];
         if (b_idx == -1) {
             int nb = *io_num_buckets;
             if (nb < max_buckets) {
-                ht->slot_to_bkt[pos] = nb;
+                ht_slots[pos] = nb;
                 TriplaneBucketOut *bo = &buckets_out[nb];
                 bo->key_hi = hi;
                 bo->key_lo = lo;
@@ -4105,6 +4541,8 @@ static void tp_record_resolved(
                     bo->best_comp_k = -1;
                 }
                 bo->pad0 = 0;
+            }
+            if (nb < INT32_MAX) {
                 *io_num_buckets = nb + 1;
             }
             return;
@@ -4131,7 +4569,7 @@ static void tp_record_resolved(
     }
 }
 
-void scan_triplane_level_c(
+int scan_triplane_level_c(
     int b,
     int c1,
     int c2,
@@ -4168,16 +4606,28 @@ void scan_triplane_level_c(
     int max_overflow,
     int *out_num_overflow
 ) {
-    TpLevelHashTable ht;
-    for (int s = 0; s < TP_HT_SIZE; s++) ht.slot_to_bkt[s] = -1;
+    if (b < 1 || b > 6 || max_buckets < 0 || max_buckets > (TP_HT_SIZE / 2)) {
+        if (out_stats) {
+            out_stats[0] = 0;
+            out_stats[1] = 0;
+            out_stats[2] = 0;
+            out_stats[3] = 0;
+        }
+        if (out_num_buckets) *out_num_buckets = (max_buckets >= 0 && max_buckets < INT32_MAX) ? (max_buckets + 1) : -1;
+        if (out_num_overflow) *out_num_overflow = 0;
+        return -1;
+    }
+    int32_t *ht_slots = (int32_t *)malloc(TP_HT_SIZE * sizeof(int32_t));
+    memset(ht_slots, 0xFF, TP_HT_SIZE * sizeof(int32_t));
     int num_buckets = 0;
     int num_overflow = 0;
     uint64_t st_valid = 0, st_double = 0, st_ht = 0, st_arch = 0;
     int is_conc_level = (c1 == 0 && c2 == 0) ? 1 : 0;
 
-    uint64_t ck_buf[1536];
-    uint64_t ht_pmk[1536];
-    uint64_t arch_pmk[1536];
+    size_t w3_alloc = (words3 > 0) ? (size_t)words3 : 1;
+    uint64_t *ck_buf = (uint64_t *)malloc(w3_alloc * sizeof(uint64_t));
+    uint64_t *ht_pmk = (uint64_t *)malloc(w3_alloc * sizeof(uint64_t));
+    uint64_t *arch_pmk = (uint64_t *)malloc(w3_alloc * sizeof(uint64_t));
 
     for (int i = 0; i < n1; i++) {
         const uint64_t *row12 = r12 + (size_t)i * (size_t)words2;
@@ -4319,7 +4769,7 @@ void scan_triplane_level_c(
                         if (!need_py) {
                             tp_record_resolved(
                                 hi, lo, i, j, k_idx, is_conc_level, cm_val,
-                                &ht, buckets_out, max_buckets, &num_buckets
+                                ht_slots, buckets_out, max_buckets, &num_buckets
                             );
                         } else {
                             if (num_overflow < max_overflow) {
@@ -4335,15 +4785,21 @@ void scan_triplane_level_c(
         }
     }
 
+    free(arch_pmk);
+    free(ht_pmk);
+    free(ck_buf);
+    free(ht_slots);
+
     out_stats[0] = st_valid;
     out_stats[1] = st_double;
     out_stats[2] = st_ht;
     out_stats[3] = st_arch;
     *out_num_buckets = num_buckets;
     *out_num_overflow = num_overflow;
+    return 0;
 }
 
-void eval_triplane_triples_list_c(
+int eval_triplane_triples_list_c(
     int b,
     int n0,
     const TangleFastMeta *meta0,
@@ -4358,8 +4814,13 @@ void eval_triplane_triples_list_c(
     int max_overflow,
     int *out_num_overflow
 ) {
-    TpLevelHashTable ht;
-    for (int s = 0; s < TP_HT_SIZE; s++) ht.slot_to_bkt[s] = -1;
+    if (b < 1 || b > 6 || max_buckets < 0 || max_buckets > (TP_HT_SIZE / 2)) {
+        if (out_num_buckets) *out_num_buckets = (max_buckets >= 0 && max_buckets < INT32_MAX) ? (max_buckets + 1) : -1;
+        if (out_num_overflow) *out_num_overflow = 0;
+        return -1;
+    }
+    int32_t *ht_slots = (int32_t *)malloc(TP_HT_SIZE * sizeof(int32_t));
+    memset(ht_slots, 0xFF, TP_HT_SIZE * sizeof(int32_t));
     int num_buckets = 0;
     int num_overflow = 0;
 
@@ -4373,7 +4834,7 @@ void eval_triplane_triples_list_c(
         if (!need_py) {
             tp_record_resolved(
                 hi, lo, mi, mj, k6, 1, cm_val,
-                &ht, buckets_out, max_buckets, &num_buckets
+                ht_slots, buckets_out, max_buckets, &num_buckets
             );
         } else {
             if (num_overflow < max_overflow) {
@@ -4382,8 +4843,10 @@ void eval_triplane_triples_list_c(
             num_overflow++;
         }
     }
+    free(ht_slots);
     *out_num_buckets = num_buckets;
     *out_num_overflow = num_overflow;
+    return 0;
 }
 
 

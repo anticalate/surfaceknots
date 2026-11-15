@@ -10,20 +10,25 @@ Implements:
    (`24` representations with `|rho(P_0)| = 6 > 3 = |<rho(mu_0)>|`) from `8_1` and `8_1 # 2_1^1` (`0`).
 3. `mod2_triple_linking_profile`: Carter-Saito-Satoh mod-2 triple point linking invariants
    `t_{ijk}(F) in Z_2` (`|{i, j, k}| = 3`) extracted from explicit Reidemeister unlink movies `(M_-, M_+)`.
-4. `double_linking_mod2`: Sanderson / Carter-Saito-Satoh / Takase-Tanaka mod-2 double linking invariant
-   `Dlk_{ij}(F) in Z_2` via backward sky-potential transport of `lambda_{ij}: H_1(F_i; Z_2) -> Z_2`
-   and Rokhlin's spin quadratic form `q_i: H_1(F_i; Z_2) -> Z_2`, separating `8_1^{1,1}` (`(0, 0)`)
-   from the 1-twist-spun Hopf link `10_1^{1,1}` (`(1, 1)`).
+4. `double_linking_mod2`: Rohlin-Matsumoto / Carter-Saito-Sato mod-2 torus-linking invariant
+   `q_{F_i}(PD(lambda_{ij})) in {0, 1}` evaluating the pin^- membrane quadratic form on the unique
+   nonzero class `PD(lambda_{ij}) in ker(lambda_{ij}) subset H_1(F_i; Z_2)` across mixed saddle slices,
+   separating `8_1^{1,1}` (`(0, 0)`) from the 1-twist-spun Hopf link `10_1^{1,1}` (`(1, 1)`).
+5. `exact_sublink_invariant_profile`: presentation- and BFS-independent `O(4)`-invariant profile of
+   all 1-component (and, for `c >= 3`, 2-component) proper sublinks, separating links with unknotted
+   components (such as `11_2^{0,1}` and `11_1^{0,-2}`) from connected sums sharing the same ambient
+   link group and `E_1` ideal (such as `6_1^{0,1} # 8_1` and `7_1^{0,-2} # 8_1`).
 """
 
 from __future__ import annotations
 
-from itertools import combinations, permutations
+from itertools import combinations, permutations, product
+import math
 import sympy as sp
 
 from surfaceknots.diagrams import ClassicalLinkDiagram, MarkedDiagram
 from surfaceknots.invariants.fundamental_group import cyclically_reduce_word
-from surfaceknots.moves import simplify_and_explore_yoshikawa
+from surfaceknots.moves import connected_diagram_components, simplify_and_explore_yoshikawa
 from surfaceknots.unlink import UnlinkMovieStep, _is_over, find_unlink_movie
 
 
@@ -110,10 +115,10 @@ def _is_certified_standard_unknot_single(d: MarkedDiagram) -> bool:
     if c.orientable:
         # Standard unknotted Sigma_g has ch = 2*g and 0 classical crossings!
         return d.num_classical == 0 and d.num_vertices == 2 * c.genus_symbol
-    # Standard unknotted #_k RP^2 with normal Euler e has ch = 2*k (minimal ch = 2 for RP^2, 4 for K^2)
-    # and cyclic Z_2 fundamental group!
+    # Standard unknotted #_k RP^2 with normal Euler e has minimal ch = k + max(1, |e|/2)
+    # (e.g. ch = 2 for RP^2, ch = 3 for K^2(e=0), ch = 4 for K^2(e=+-4)) and cyclic group!
     k_non = abs(c.genus_symbol)
-    if d.num_vertices == 2 * k_non:
+    if d.num_vertices <= max(2 * k_non, k_non + max(1, abs(c.normal_euler) // 2)):
         from surfaceknots.invariants.fundamental_group import wirtinger_presentation
 
         wp = wirtinger_presentation(d)
@@ -156,16 +161,13 @@ def sublink_summary(d: MarkedDiagram, max_states: int = 256) -> dict[str, object
                     }
                 )
             else:
-                # For r_sz >= 2, check if completely split into unknotted singletons!
-                completely_trivial = False
-                if is_split or best.num_vertices == 0:
-                    # Check each singleton of `comb`
-                    completely_trivial = all(
-                        _is_certified_standard_unknot_single(
-                            simplify_and_explore_yoshikawa(extract_subsurface_diagram(d, (idx_i,)), max_states=max_states)[0]
-                        )
-                        for idx_i in comb
-                    )
+                # For r_sz >= 2, check if `best` decomposes into `r_sz` certified unknotted singletons!
+                pieces = connected_diagram_components(best)
+                completely_trivial = bool(pieces) and all(
+                    p.surface_topology().num_components == 1
+                    and _is_certified_standard_unknot_single(p)
+                    for p in pieces
+                )
                 if not completely_trivial:
                     all_proper_trivial_or_split = False
                 records.append(
@@ -611,6 +613,14 @@ def _transport_component_tags_forward(
             for vo, vn in o2n.items():
                 for s in range(4):
                     nxt_sc[4 * vn + s] = cur_sc[4 * vo + s]
+        elif step.kind == "R1+":
+            n = bef.num_crossings
+            for hd in range(4 * n):
+                nxt_sc[hd] = cur_sc[hd]
+            d_ext = next(aft.opp[4 * n + s] for s in range(4) if aft.opp[4 * n + s] < 4 * n)
+            c_kink = cur_sc[d_ext]
+            for s in range(4):
+                nxt_sc[4 * n + s] = c_kink
         elif step.kind == "R2+":
             n = bef.num_crossings
             for hd in range(4 * n):
@@ -683,23 +693,68 @@ def mod2_triple_linking_profile(d: MarkedDiagram) -> tuple[tuple[str, str, str],
     if not nonzero:
         return ()
 
-    # Canonicalize under permutations preserving `(homeomorphism_type, normal_euler)` if c <= 6:
-    comp_labels = [f"{ct.homeomorphism_type}(e={ct.normal_euler})" for ct in topo.components]
-    if c <= 6:
-        best = None
-        for perm in permutations(range(c)):
-            if any(comp_labels[i] != comp_labels[perm[i]] for i in range(c)):
-                continue
+    # Restrict to active components participating in nonzero triples (invariant under free_loops!)
+    # and canonicalize over label-preserving permutations AND O(4) mirror flip `e -> -e`:
+    active_comps = sorted({u for trip in nonzero for u in trip})
+    out_deg = {u: sum(1 for (a, _, _) in nonzero if a == u) for u in active_comps}
+    mid_deg = {u: sum(1 for (_, b, _) in nonzero if b == u) for u in active_comps}
+    in_deg = {u: sum(1 for (_, _, cc) in nonzero if cc == u) for u in active_comps}
+
+    best: tuple[tuple[str, str, str], ...] | None = None
+    for sgn in (1, -1):
+        lbl_map = {
+            u: f"{topo.components[u].homeomorphism_type}(e={sgn * topo.components[u].normal_euler})"
+            for u in active_comps
+        }
+        unique_lbls = sorted(set(lbl_map.values()))
+        buckets = [[u for u in active_comps if lbl_map[u] == lb] for lb in unique_lbls]
+        total_perms = math.prod(math.factorial(len(b)) for b in buckets)
+        if total_perms > 5040:
+            # Refine buckets canonically by directed incidence degree triple `(out, mid, in)`
+            refined: list[list[int]] = []
+            for b in buckets:
+                by_deg: dict[tuple[int, int, int], list[int]] = {}
+                for u in b:
+                    by_deg.setdefault((out_deg[u], mid_deg[u], in_deg[u]), []).append(u)
+                for dk in sorted(by_deg):
+                    refined.append(by_deg[dk])
+            buckets = refined
+            total_perms = math.prod(math.factorial(len(b)) for b in buckets)
+
+        if total_perms <= 5040:
+            bucket_iters = [permutations(b) for b in buckets]
+            for p_buckets in product(*bucket_iters):
+                order = [u for grp in p_buckets for u in grp]
+                u_to_r = {u: r for r, u in enumerate(order)}
+                cand = tuple(
+                    sorted(
+                        (
+                            f"{u_to_r[i]}:{lbl_map[i]}",
+                            f"{u_to_r[j]}:{lbl_map[j]}",
+                            f"{u_to_r[k]}:{lbl_map[k]}",
+                        )
+                        for (i, j, k) in nonzero
+                    )
+                )
+                if best is None or cand < best:
+                    best = cand
+        else:
+            order = [u for b in buckets for u in b]
+            u_to_r = {u: r for r, u in enumerate(order)}
             cand = tuple(
                 sorted(
-                    (comp_labels[perm[i]], comp_labels[perm[j]], comp_labels[perm[k]])
+                    (
+                        f"{u_to_r[i]}:{lbl_map[i]}",
+                        f"{u_to_r[j]}:{lbl_map[j]}",
+                        f"{u_to_r[k]}:{lbl_map[k]}",
+                    )
                     for (i, j, k) in nonzero
                 )
             )
             if best is None or cand < best:
                 best = cand
-        return best if best is not None else ()
-    return tuple(sorted((comp_labels[i], comp_labels[j], comp_labels[k]) for (i, j, k) in nonzero))
+
+    return best if best is not None else ()
 
 
 def classical_knot_arf(c_diag: ClassicalLinkDiagram) -> int:
@@ -900,37 +955,75 @@ def _sky_potential_mod2_on_marked(
 
 
 def compute_torus_dlk_pair(d: MarkedDiagram, comp_i: int, comp_j: int) -> int | None:
-    """Compute Sanderson's mod-2 double linking `Dlk_{ij}(F) in {0, 1}` when `F_i` is an `e = 0` torus."""
+    """Compute the Rohlin-Matsumoto / Carter-Saito-Sato mod-2 torus-linking invariant `q_{F_i}(PD(lambda_{ij}))`
+    in `{0, 1}` when `F_i` is an `e = 0` torus and the mod-2 linking class `lambda_{ij} in H^1(F_i; Z_2)`
+    with `F_j` is non-zero.
+
+    Mathematical proof of ambient isotopy invariance:
+    1. By Alexander duality in `S^4`, mod-2 linking with `F_j` defines a canonical ambient-isotopy-invariant
+       linear functional `lambda_{ij} : H_1(F_i; Z_2) -> Z_2`. Because `L_-` and `L_+` are classical unlinks
+       (all pairwise linking numbers zero), the indicator cochain of under-crossings of `F_i` beneath `F_j`
+       vanishes on every `L_-` circle, `L_+` circle, and marked-vertex 4-cycle, so it is an exact cellular
+       1-cocycle representing `lambda_{ij}`.
+    2. When `F_i ~ T^2` and `lambda_{ij} != 0`, `ker(lambda_{ij}) subset H_1(F_i; Z_2) ~ Z_2^2` is 1-dimensional
+       and contains a unique non-zero class `alpha_0 = PD(lambda_{ij})` (the homology class of the double-point
+       curve `F_i cap W_j` for any mod-2 3-chain `W_j` with `partial W_j = F_j`, since the mod-2 intersection
+       form on `T^2` is alternating).
+    3. On an orientable surface `F_i subset R^4`, the Rohlin-Matsumoto pin^- membrane quadratic form
+       `q_{F_i} : H_1(F_i; Z_2) -> Z_2` satisfies `q(x + y) = q(x) + q(y) + (x . y) mod 2`. For any circle `C`
+       in a regular horizontal cross-section `F_i cap (R^3 x {t_0}) = C sqcup C'_1 sqcup ... sqcup C'_r`, an
+       embedded Seifert surface `M subset R^3 x {t_0}` for `C` has zero interior self-intersections and zero
+       normal framing obstruction relative to `partial/partial t in T F_i`, so
+       `q_{F_i}([C]) = sum_{s=1}^r lk_{R^3}(C, C'_s) mod 2` (using signed 3D linking numbers, with no Arf term).
+    4. When `lambda_{ij} == 0` (an ambient-isotopy-invariant condition, e.g. on `9_1^{0,1}`, `10_1^{0,1}`,
+       `10_2^{0,1}`, and `11_1^{1,-2}`), `ker(lambda_{ij}) = H_1(F_i; Z_2)` has no distinguished non-zero class,
+       so this function returns `None` by design and the pair is omitted from `double_linking_mod2`.
+    """
     topo = d.surface_topology()
     ci = topo.components[comp_i]
     if not (ci.orientable and ci.genus_symbol == 1 and ci.normal_euler == 0):
         return None
 
-    pot_minus = _sky_potential_mod2_on_marked(d, -1, comp_i, comp_j)
-    pot_plus = _sky_potential_mod2_on_marked(d, 1, comp_i, comp_j)
-    if pot_minus is None or pot_plus is None:
-        return None
-
     dc, _ = d._dart_surface_components()
     nd = d.num_vertices
-    edge_id_of_dart: dict[int, int] = {}
-    num_e = 0
-    for hd in range(4 * nd):
-        if dc[hd] == comp_i and hd not in edge_id_of_dart:
-            od = d.opp[hd]
-            edge_id_of_dart[hd] = num_e
-            edge_id_of_dart[od] = num_e
-            num_e += 1
-    if num_e == 0:
+    darts_i = [hd for hd in range(4 * nd) if dc[hd] == comp_i]
+    if not darts_i:
         return None
 
-    def trace_res_circles(sgn: int) -> list[list[tuple[int, int]]]:
-        seen = set()
-        cycs = []
-        for hd in range(4 * nd):
-            if dc[hd] != comp_i or hd in seen:
+    eidx: dict[tuple[int, int, str], int] = {}
+
+    def get_edge(a: int, b: int, tag: str) -> int:
+        key = (a, b, tag) if a <= b else (b, a, tag)
+        res = eidx.get(key)
+        if res is None:
+            res = len(eidx)
+            eidx[key] = res
+        return res
+
+    lam: dict[int, int] = {}
+    for hd in darts_i:
+        get_edge(hd, d.opp[hd], "e")
+    for v in range(nd):
+        vt = d.vtype[v]
+        if vt in ("X0", "X1"):
+            for s in (0, 1):
+                if dc[4 * v + s] == comp_i:
+                    ei = get_edge(4 * v + s, 4 * v + s + 2, "c")
+                    is_und_j = (not _is_over(vt, s)) and (dc[4 * v + ((s + 1) & 3)] == comp_j)
+                    lam[ei] = 1 if is_und_j else 0
+        elif dc[4 * v] == comp_i:
+            for s in range(4):
+                get_edge(4 * v + s, 4 * v + ((s + 1) & 3), "m")
+
+    marked_vs = [v for v in range(nd) if d.vtype[v] in ("Y", "Z") and dc[4 * v] == comp_i]
+
+    def slice_cycles(s_plus: set[int]) -> list[list[tuple[int, int]]]:
+        seen: set[int] = set()
+        cycs: list[list[tuple[int, int]]] = []
+        for hd in darts_i:
+            if hd in seen:
                 continue
-            c = []
+            cyc: list[tuple[int, int]] = []
             cur = hd
             while cur not in seen:
                 seen.add(cur)
@@ -939,298 +1032,205 @@ def compute_torus_dlk_pair(d: MarkedDiagram, comp_i: int, comp_j: int) -> int | 
                 if vt in ("X0", "X1"):
                     ex = (v << 2) | (s ^ 2)
                 else:
+                    sgn = 1 if v in s_plus else -1
                     p03 = (vt == "Y" and sgn > 0) or (vt == "Z" and sgn < 0)
                     ex = (v << 2) | ((3 - s) if p03 else (s ^ 1))
                 seen.add(ex)
-                c.append((cur, ex))
+                cyc.append((cur, ex))
                 cur = d.opp[ex]
-            cycs.append(c)
+            cycs.append(cyc)
         return cycs
 
-    cycs_minus = trace_res_circles(-1)
-    cycs_plus = trace_res_circles(1)
-    v_minus_0 = num_e
-    v_plus_0 = num_e + len(cycs_minus)
-    num_kv = v_plus_0 + len(cycs_plus)
+    def cyc_mask(cyc: list[tuple[int, int]]) -> int:
+        m = 0
+        for a, b in cyc:
+            v = a >> 2
+            tag = "c" if d.vtype[v] in ("X0", "X1") else "m"
+            m ^= 1 << get_edge(a, b, tag)
+            m ^= 1 << get_edge(b, d.opp[b], "e")
+        return m
 
-    k_edges: list[tuple[int, int, int]] = []
-    transition_cell: dict[tuple[int, int], list[int]] = {}
+    boundaries: list[int] = []
+    for s_plus in (set(), set(marked_vs)):
+        for cyc in slice_cycles(s_plus):
+            boundaries.append(cyc_mask(cyc))
+    for v in marked_vs:
+        m_sq = 0
+        for s in range(4):
+            m_sq ^= 1 << get_edge(4 * v + s, 4 * v + ((s + 1) & 3), "m")
+        boundaries.append(m_sq)
 
-    def add_k_edge(u: int, w: int, wt: int) -> int:
-        idx = len(k_edges)
-        k_edges.append((u, w, wt & 1))
-        return idx
-
-    for v in range(nd):
-        vt = d.vtype[v]
-        if vt in ("X0", "X1"):
-            for s0, s2 in ((0, 2), (1, 3)):
-                if dc[4 * v + s0] == comp_i:
-                    u = edge_id_of_dart[4 * v + s0]
-                    w = edge_id_of_dart[4 * v + s2]
-                    is_und_j = (not _is_over(vt, s0)) and (dc[4 * v + ((s0 + 1) & 3)] == comp_j)
-                    ce = add_k_edge(u, w, 1 if is_und_j else 0)
-                    transition_cell[(4 * v + s0, 4 * v + s2)] = [ce]
-                    transition_cell[(4 * v + s2, 4 * v + s0)] = [ce]
-        else:
-            if dc[4 * v] == comp_i:
-                for s in range(4):
-                    u = edge_id_of_dart[4 * v + s]
-                    w = edge_id_of_dart[4 * v + ((s + 1) & 3)]
-                    ce = add_k_edge(u, w, 0)
-                    transition_cell[(4 * v + s, 4 * v + ((s + 1) & 3))] = [ce]
-                    transition_cell[(4 * v + ((s + 1) & 3), 4 * v + s)] = [ce]
-
-    spokes_minus: list[list[int]] = []
-    for r, cyc in enumerate(cycs_minus):
-        spokes_minus.append(
-            [add_k_edge(edge_id_of_dart[d_in], v_minus_0 + r, pot_minus[d_in]) for d_in, _ in cyc]
-        )
-
-    spokes_plus: list[list[int]] = []
-    for s_idx, cyc in enumerate(cycs_plus):
-        spokes_plus.append(
-            [add_k_edge(edge_id_of_dart[d_in], v_plus_0 + s_idx, pot_plus[d_in]) for d_in, _ in cyc]
-        )
-
-    num_ke = len(k_edges)
-    two_cells: list[list[int]] = []
-    for v in range(nd):
-        if d.vtype[v] in ("Y", "Z") and dc[4 * v] == comp_i:
-            two_cells.append([transition_cell[(4 * v + s, 4 * v + ((s + 1) & 3))][0] for s in range(4)])
-    for r, cyc in enumerate(cycs_minus):
-        sp_r = spokes_minus[r]
-        m_len = len(cyc)
-        for k in range(m_len):
-            d_in, d_out = cyc[k]
-            two_cells.append([sp_r[k]] + transition_cell[(d_in, d_out)] + [sp_r[(k + 1) % m_len]])
-    for s_idx, cyc in enumerate(cycs_plus):
-        sp_s = spokes_plus[s_idx]
-        m_len = len(cyc)
-        for k in range(m_len):
-            d_in, d_out = cyc[k]
-            two_cells.append([sp_s[k]] + transition_cell[(d_in, d_out)] + [sp_s[(k + 1) % m_len]])
-
-    for fc in two_cells:
-        w_sum = 0
-        for ce in fc:
-            w_sum ^= k_edges[ce][2]
-        assert w_sum == 0, "1-cocycle boundary check failed on K_i!"
-
-    parent_v = [-1] * num_kv
-    parent_e = [-1] * num_kv
-    parent_v[0] = 0
-    q_bfs = [0]
-    tree_edges = set()
-    for u in q_bfs:
-        for ei, (a, b, _) in enumerate(k_edges):
-            nb = b if a == u else (a if b == u else -1)
-            if nb != -1 and parent_v[nb] == -1:
-                parent_v[nb] = u
-                parent_e[nb] = ei
-                tree_edges.add(ei)
-                q_bfs.append(nb)
-
-    def path_to_root_mask(v: int) -> int:
-        mask = 0
-        cur = v
-        while cur != 0:
-            mask ^= 1 << parent_e[cur]
-            cur = parent_v[cur]
-        return mask
-
-    z1_cycles = [
-        (1 << ei) ^ path_to_root_mask(a) ^ path_to_root_mask(b)
-        for ei, (a, b, _) in enumerate(k_edges)
-        if ei not in tree_edges
-    ]
-
-    def gf2_rref(vecs: list[int]) -> dict[int, int]:
-        basis: dict[int, int] = {}
-        for v in vecs:
-            x = v
-            while x:
-                hb = x.bit_length() - 1
-                if hb in basis:
-                    x ^= basis[hb]
-                else:
-                    basis[hb] = x
-                    break
-        return basis
-
-    def gf2_reduce(x: int, basis: dict[int, int]) -> int:
+    basis: dict[int, int] = {}
+    for b_vec in boundaries:
+        x = b_vec
         while x:
             hb = x.bit_length() - 1
             if hb in basis:
                 x ^= basis[hb]
             else:
+                basis[hb] = x
                 break
+
+    pivots_desc = sorted(basis.keys(), reverse=True)
+
+    def canon_class(x: int) -> int:
+        for hb in pivots_desc:
+            if (x >> hb) & 1:
+                x ^= basis[hb]
         return x
 
-    b1_vecs = []
-    for fc in two_cells:
-        m_fc = 0
-        for ce in fc:
-            m_fc ^= 1 << ce
-        b1_vecs.append(m_fc)
-    b1_basis = gf2_rref(b1_vecs)
-
-    h1_reps: list[int] = []
-    aug_basis = dict(b1_basis)
-    for cyc in z1_cycles:
-        rem = gf2_reduce(cyc, aug_basis)
-        if rem:
-            aug_basis[rem.bit_length() - 1] = rem
-            h1_reps.append(cyc)
-    if len(h1_reps) != 2:
-        return None
-
-    def h1_coords(cycle_mask: int) -> tuple[int, int]:
-        for c0 in (0, 1):
-            for c1 in (0, 1):
-                cand = cycle_mask ^ (h1_reps[0] if c0 else 0) ^ (h1_reps[1] if c1 else 0)
-                if gf2_reduce(cand, b1_basis) == 0:
-                    return (c0, c1)
-        raise AssertionError("Cycle not in Z_1!")
-
-    def eval_lambda(cycle_mask: int) -> int:
+    def eval_lam(m: int) -> int:
         tot = 0
-        for ei in range(num_ke):
-            if (cycle_mask >> ei) & 1:
-                tot ^= k_edges[ei][2]
+        for ei, w in lam.items():
+            if w and ((m >> ei) & 1):
+                tot ^= 1
         return tot
 
-    l0 = eval_lambda(h1_reps[0])
-    l1 = eval_lambda(h1_reps[1])
-    if (l0, l1) == (0, 0):
-        return None
+    for b_vec in boundaries:
+        if eval_lam(b_vec) != 0:
+            return None
 
-    ker_vec = next(
-        (c0, c1)
-        for c0 in (0, 1)
-        for c1 in (0, 1)
-        if (c0, c1) != (0, 0) and ((c0 * l0) ^ (c1 * l1)) == 0
-    )
+    subsets: list[set[int]] = []
+    if len(marked_vs) <= 12:
+        for r_sz in range(len(marked_vs) + 1):
+            for comb in combinations(marked_vs, r_sz):
+                subsets.append(set(comb))
+    else:
+        # Exact O(m) spanning-tree + co-tree fundamental cycle construction over G_- and G_+:
+        # Merging all L_- disks along a spanning tree `tree_minus` leaves a single disk D_0 subset T^2,
+        # and each co-tree saddle `e not in tree_minus` attaches a 1-handle whose boundary curves
+        # represent its fundamental homology class in H_1(T^2; F_2) (surjective onto F_2^2!).
+        cycs_0 = slice_cycles(set())
+        which_0: dict[int, int] = {}
+        for idx_c, cyc in enumerate(cycs_0):
+            for a, b in cyc:
+                which_0[a] = idx_c
+                which_0[b] = idx_c
+        uf_p = list(range(len(cycs_0)))
 
-    marked_vs = [v for v in range(nd) if d.vtype[v] in ("Y", "Z") and dc[4 * v] == comp_i]
+        def _find_u(x: int) -> int:
+            while uf_p[x] != x:
+                uf_p[x] = uf_p[uf_p[x]]
+                x = uf_p[x]
+            return x
+
+        tree_minus: set[int] = set()
+        for v in marked_vs:
+            cs_v = list({which_0[4 * v + s] for s in range(4)})
+            if len(cs_v) == 2:
+                ra, rb = _find_u(cs_v[0]), _find_u(cs_v[1])
+                if ra != rb:
+                    uf_p[ra] = rb
+                    tree_minus.add(v)
+        subsets.append(set(tree_minus))
+        cotree_minus = [v for v in marked_vs if v not in tree_minus]
+        for v in cotree_minus:
+            subsets.append(tree_minus | {v})
+
+        # Dual spanning tree `tree_plus` on L_+ disks as redundant cross-check:
+        all_mk = set(marked_vs)
+        cycs_p = slice_cycles(all_mk)
+        which_p: dict[int, int] = {}
+        for idx_c, cyc in enumerate(cycs_p):
+            for a, b in cyc:
+                which_p[a] = idx_c
+                which_p[b] = idx_c
+        uf_pp = list(range(len(cycs_p)))
+
+        def _find_up(x: int) -> int:
+            while uf_pp[x] != x:
+                uf_pp[x] = uf_pp[uf_pp[x]]
+                x = uf_pp[x]
+            return x
+
+        tree_plus: set[int] = set()
+        for v in marked_vs:
+            cs_v = list({which_p[4 * v + s] for s in range(4)})
+            if len(cs_v) == 2:
+                ra, rb = _find_up(cs_v[0]), _find_up(cs_v[1])
+                if ra != rb:
+                    uf_pp[ra] = rb
+                    tree_plus.add(v)
+        for v in marked_vs:
+            if v not in tree_plus:
+                subsets.append(all_mk - (tree_plus | {v}))
+
     self_class_vs = [
         v
         for v in range(nd)
         if d.vtype[v] in ("X0", "X1") and dc[4 * v] == comp_i and dc[4 * v + 1] == comp_i
     ]
 
-    q_vals: dict[tuple[int, int], int] = {(0, 0): 0}
-    subsets: list[set[int]] = []
-    if len(marked_vs) <= 8:
-        for r_sz in range(len(marked_vs) + 1):
-            for comb in combinations(marked_vs, r_sz):
-                subsets.append(set(comb))
-    else:
-        for r_sz in (0, 1, 2):
-            for comb in combinations(marked_vs, r_sz):
-                subsets.append(set(comb))
-                subsets.append(set(marked_vs) - set(comb))
+    qvals: dict[int, set[int]] = {}
+    lamvals: dict[int, set[int]] = {}
 
-    for S_plus in subsets:
-        seen_d = set()
-        slice_cycs: list[list[tuple[int, int]]] = []
-        dart_to_scyc: dict[int, int] = {}
-        for hd in range(4 * nd):
-            if dc[hd] != comp_i or hd in seen_d:
-                continue
-            sc_idx = len(slice_cycs)
-            c = []
-            cur = hd
-            while cur not in seen_d:
-                seen_d.add(cur)
-                v, s = cur >> 2, cur & 3
-                vt = d.vtype[v]
-                if vt in ("X0", "X1"):
-                    ex = (v << 2) | (s ^ 2)
-                else:
-                    sgn = 1 if v in S_plus else -1
-                    p03 = (vt == "Y" and sgn > 0) or (vt == "Z" and sgn < 0)
-                    ex = (v << 2) | ((3 - s) if p03 else (s ^ 1))
-                seen_d.add(ex)
-                dart_to_scyc[cur] = sc_idx
-                dart_to_scyc[ex] = sc_idx
-                c.append((cur, ex))
-                cur = d.opp[ex]
-            slice_cycs.append(c)
-
-        cross_ab: dict[tuple[int, int], int] = {}
+    for s_plus in subsets:
+        cycs = slice_cycles(s_plus)
+        which: dict[int, int] = {}
+        indart: set[int] = set()
+        for k_idx, cyc in enumerate(cycs):
+            for a, b in cyc:
+                which[a] = k_idx
+                which[b] = k_idx
+                indart.add(a)
+        lk2: dict[tuple[int, int], int] = {}
         for v in self_class_vs:
-            ca = dart_to_scyc[4 * v]
-            cb = dart_to_scyc[4 * v + 1]
-            if ca != cb:
-                key = (ca, cb) if ca < cb else (cb, ca)
-                cross_ab[key] = cross_ab.get(key, 0) + 1
-
-        for sc_idx, cyc in enumerate(slice_cycs):
-            cmask = 0
-            for d_in, d_out in cyc:
-                for ce in transition_cell[(d_in, d_out)]:
-                    cmask ^= 1 << ce
-            coords = h1_coords(cmask)
-            if coords == (0, 0) or coords in q_vals:
+            ka = which[4 * v]
+            kb = which[4 * v + 1]
+            if ka == kb:
                 continue
+            vt = d.vtype[v]
+            us = (0, 2) if vt == "X0" else (1, 3)
+            os_ = (1, 3) if vt == "X0" else (0, 2)
+            u_in = us[0] if (4 * v + us[0]) in indart else us[1]
+            o_in = os_[0] if (4 * v + os_[0]) in indart else os_[1]
+            sgn = 1 if ((o_in - u_in) & 3) == 3 else -1
+            key = (ka, kb) if ka < kb else (kb, ka)
+            lk2[key] = lk2.get(key, 0) + sgn
 
-            c_self_vs = [
-                v for v in self_class_vs if dart_to_scyc[4 * v] == sc_idx and dart_to_scyc[4 * v + 1] == sc_idx
-            ]
-            if len(c_self_vs) <= 2:
-                arf_c = 0
-            else:
-                v2n = {v: idx for idx, v in enumerate(c_self_vs)}
-                c_opp = [0] * (4 * len(c_self_vs))
-                c_vt = tuple(d.vtype[v] for v in c_self_vs)
-                for v in c_self_vs:
-                    nv = v2n[v]
-                    for s in range(4):
-                        cur = d.opp[4 * v + s]
-                        while (cur >> 2) not in v2n:
-                            wv, ws = cur >> 2, cur & 3
-                            wvt = d.vtype[wv]
-                            if wvt in ("X0", "X1"):
-                                ex = (wv << 2) | (ws ^ 2)
-                            else:
-                                sgn = 1 if wv in S_plus else -1
-                                p03 = (wvt == "Y" and sgn > 0) or (wvt == "Z" and sgn < 0)
-                                ex = (wv << 2) | ((3 - ws) if p03 else (ws ^ 1))
-                            cur = d.opp[ex]
-                        c_opp[4 * nv + s] = (v2n[cur >> 2] << 2) | (cur & 3)
-                arf_c = classical_knot_arf(ClassicalLinkDiagram(len(c_self_vs), tuple(c_opp), c_vt, 0))
+        for k_idx, cyc in enumerate(cycs):
+            raw_m = cyc_mask(cyc)
+            cl = canon_class(raw_m)
+            if cl == 0:
+                continue
+            q_val = 0
+            for (ca, cb), val2 in lk2.items():
+                if k_idx == ca or k_idx == cb:
+                    q_val ^= (val2 // 2) & 1
+            qvals.setdefault(cl, set()).add(q_val)
+            lamvals.setdefault(cl, set()).add(eval_lam(raw_m))
 
-            lk_sum = 0
-            for o_idx in range(len(slice_cycs)):
-                if o_idx != sc_idx:
-                    key = (sc_idx, o_idx) if sc_idx < o_idx else (o_idx, sc_idx)
-                    lk_sum ^= (cross_ab.get(key, 0) // 2) & 1
-
-            q_vals[coords] = (arf_c ^ lk_sum) & 1
-            if len(q_vals) == 3:
-                break
-        if len(q_vals) >= 3:
-            break
-
-    nonzero = [(1, 0), (0, 1), (1, 1)]
-    known_nz = [x for x in nonzero if x in q_vals]
-    if len(known_nz) < 2:
+    if not qvals:
         return None
-    if len(known_nz) == 2:
-        a, b = known_nz[0], known_nz[1]
-        c_vec = (a[0] ^ b[0], a[1] ^ b[1])
-        q_vals[c_vec] = q_vals[a] ^ q_vals[b] ^ 1
-    return q_vals[ker_vec]
+    if not (all(len(s) == 1 for s in qvals.values()) and all(len(s) == 1 for s in lamvals.values())):
+        return None
+
+    ker_classes = [cl for cl in qvals if lamvals[cl] == {0}]
+    nonker_classes = [cl for cl in qvals if lamvals[cl] == {1}]
+    if not nonker_classes:
+        return None
+    if len(ker_classes) == 1:
+        return next(iter(qvals[ker_classes[0]]))
+    if len(ker_classes) == 0 and len(nonker_classes) == 2:
+        a_cl, b_cl = nonker_classes
+        return next(iter(qvals[a_cl])) ^ next(iter(qvals[b_cl])) ^ 1
+    return None
 
 
 def double_linking_mod2(d: MarkedDiagram) -> tuple[tuple[str, str, int], ...]:
-    """Return sorted `(type_i, type_j, Dlk_{ij})` across all component pairs `(i, j)` with `F_i ~ T^2`."""
+    """Return sorted `(type_i, type_j, Dlk_{ij})` across all component pairs `(i, j)` with `F_i ~ T^2`
+    whose mod-2 linking functional `lambda_{ij}: H_1(F_i; F_2) -> F_2` with `F_j` is non-zero.
+
+    By design, pairs `(i, j)` where `lambda_{ij} == 0` on `H_1(T^2; F_2)` (such as `9_1^{0,1}`,
+    `10_1^{0,1}`, `10_2^{0,1}`, `11_1^{1,-2}`, or split unions) have no distinguished non-zero kernel
+    line `ker(lambda_{ij}) \\ {0}` and are omitted (`compute_torus_dlk_pair` returns `None`), which is
+    itself a topological invariant of the surface-link.
+    """
     topo = d.surface_topology()
     c = topo.num_components
     if c < 2:
         return ()
-    out: list[tuple[str, str, int]] = []
+    raw: list[tuple[str, str, int, int]] = []
     for i in range(c):
         ci = topo.components[i]
         if not (ci.orientable and ci.genus_symbol == 1 and ci.normal_euler == 0):
@@ -1241,6 +1241,56 @@ def double_linking_mod2(d: MarkedDiagram) -> tuple[tuple[str, str, int], ...]:
             val = compute_torus_dlk_pair(d, i, j)
             if val is not None:
                 cj = topo.components[j]
-                out.append((ci.homeomorphism_type, f"{cj.homeomorphism_type}(e={cj.normal_euler})", val))
-    out.sort()
-    return tuple(out)
+                raw.append((ci.homeomorphism_type, cj.homeomorphism_type, cj.normal_euler, val))
+    if not raw:
+        return ()
+    prof_pos = tuple(sorted((ti, f"{tj}(e={ej})", v) for ti, tj, ej, v in raw))
+    prof_neg = tuple(sorted((ti, f"{tj}(e={-ej})", v) for ti, tj, ej, v in raw))
+    return min(prof_pos, prof_neg)
+
+
+def exact_sublink_invariant_profile(d: MarkedDiagram) -> tuple:
+    """Return an exact, BFS-free `O(4)`-invariant tuple of proper sublink invariants `(1-comp, 2-comp)`.
+
+    For `c <= 1` components returns `()`. For `c >= 2`, computes the sorted multiset of 1-component
+    profiles `(homeomorphism_type, abs(normal_euler), hom_counts, e1_hash)` over `0 <= i < c`; for
+    `c >= 3`, also includes the sorted multiset of 2-component profiles over `0 <= i < j < c`.
+    """
+    import hashlib
+    from surfaceknots.invariants.alexander import compute_alexander_invariants
+    from surfaceknots.invariants.fundamental_group import finite_quotient_profile, wirtinger_presentation
+
+    topo = d.surface_topology()
+    c = topo.num_components
+    if c <= 1:
+        return ()
+
+    singles: list[tuple] = []
+    for i in range(c):
+        di = extract_subsurface_diagram(d, (i,))
+        cti = topo.components[i]
+        wpi = wirtinger_presentation(di)
+        fqpi = tuple(sorted(finite_quotient_profile(wpi).items()))
+        ali = compute_alexander_invariants(di)
+        e1i = hashlib.sha256(repr(ali.evaluation_fingerprint).encode("utf-8")).hexdigest()[:16]
+        singles.append((cti.homeomorphism_type, abs(cti.normal_euler), fqpi, e1i))
+    singles.sort()
+
+    if c == 2:
+        return (tuple(singles),)
+
+    pairs: list[tuple] = []
+    for i, j in combinations(range(c), 2):
+        dij = extract_subsurface_diagram(d, (i, j))
+        st_ij = dij.surface_topology()
+        ge_pos = tuple(sorted((ct.genus_symbol, ct.normal_euler) for ct in st_ij.components))
+        ge_neg = tuple(sorted((ct.genus_symbol, -ct.normal_euler) for ct in st_ij.components))
+        t_key = min(ge_pos, ge_neg)
+        wpij = wirtinger_presentation(dij)
+        fqpij = tuple(sorted(finite_quotient_profile(wpij).items()))
+        alij = compute_alexander_invariants(dij)
+        e1ij = hashlib.sha256(repr(alij.evaluation_fingerprint).encode("utf-8")).hexdigest()[:16]
+        pairs.append((t_key, fqpij, e1ij))
+    pairs.sort()
+    return (tuple(singles), tuple(pairs))
+

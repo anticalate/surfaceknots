@@ -1,13 +1,14 @@
 """Certified classical unlink recognition via explicit Reidemeister move sequences.
 
-Every positive acceptance returns an `UnlinkCertificate` witnessing a constructive sequence of
-Reidemeister moves (`R1-`, `R2-`, `R3`, `R1+`, `R2+`) reducing the classical link diagram `L`
-to `k` crossing-free circles:
+Every positive acceptance returns an `UnlinkCertificate` (`is_unlink=True, is_decided=True`)
+witnessing a constructive sequence of Reidemeister moves (`R1-`, `R2-`, `R3`, `R1+`, `R2+`)
+reducing the classical link diagram `L` to `k` crossing-free circles:
 - Zero false positives: every accepted unlink is constructively reduced to 0 crossings.
-- Zero false negatives up to 12 crossings: combines greedy monotonic `R1-/R2-`, `R3` BFS,
-  fast linking-number + Kauffman bracket / Jones polynomial rejection of knotted links, and
-  `R1+/R2+` / overpass-rerouting search for hard classical unknot/unlink diagrams (Jablonowski
-  Theorem 8: first prime hard classical unlink appears at 8 crossings, first hard unknot at 9).
+- Tri-state outcome (`is_decided`): negative verdicts proved by non-zero pairwise linking numbers
+  or non-trivial Kauffman bracket / Jones polynomial carry `is_decided=True`; diagrams with trivial
+  linking numbers and trivial Jones polynomial whose bounded stabilization + `R3` search does not
+  reach 0 crossings carry `is_unlink=False, is_decided=False, reason="unlinkedness_not_certified"`,
+  allowing census pipelines to count and retain any undecided candidates explicitly.
 """
 
 from __future__ import annotations
@@ -20,13 +21,14 @@ from surfaceknots.diagrams import ClassicalLinkDiagram
 
 @dataclass(frozen=True)
 class UnlinkCertificate:
-    """Constructive witness that a `ClassicalLinkDiagram` is a classical unlink."""
+    """Tri-state constructive certificate for classical unlink recognition."""
 
     is_unlink: bool
     num_components: int
     moves: tuple[str, ...] = ()
     r3_count: int = 0
     reason: str = ""
+    is_decided: bool = True
 
 
 def _is_over(vtype: str, slot: int) -> bool:
@@ -44,8 +46,10 @@ def _canonical_classical_key(d: ClassicalLinkDiagram) -> tuple:
     best = None
     for d0 in range(4 * n):
         old_v_to_new = [-1] * n
+        slot_shift = [0] * n
         queue = [d0]
         old_v_to_new[d0 >> 2] = 0
+        slot_shift[d0 >> 2] = d0 & 3
         next_vid = 1
         code: list[int] = []
         idx = 0
@@ -53,7 +57,7 @@ def _canonical_classical_key(d: ClassicalLinkDiagram) -> tuple:
             start_dart = queue[idx]
             idx += 1
             v = start_dart >> 2
-            s0 = start_dart & 3
+            s0 = slot_shift[v]
             # Encode whether slot s0 is over (1) or under (0)
             code.append(1 if _is_over(d.vtype[v], s0) else 0)
             for k in range(4):
@@ -63,9 +67,10 @@ def _canonical_classical_key(d: ClassicalLinkDiagram) -> tuple:
                 os = od & 3
                 if old_v_to_new[ov] == -1:
                     old_v_to_new[ov] = next_vid
+                    slot_shift[ov] = os
                     next_vid += 1
                     queue.append(od)
-                code.append((old_v_to_new[ov] << 2) | os)
+                code.append((old_v_to_new[ov] << 2) | ((os - slot_shift[ov]) & 3))
         # Handle disconnected components if any
         if next_vid < n:
             # Fallback tuple for disconnected classical link diagrams
@@ -87,16 +92,16 @@ def _canonical_classical_key(d: ClassicalLinkDiagram) -> tuple:
                     for s in range(4):
                         st.append(d.opp[4 * cv + s] >> 2)
                 for cd0 in (4 * x + s for x in comp_vs for s in range(4)):
-                    ov2n = {}
+                    ov2n = {cd0 >> 2: 0}
+                    slot_shift2 = {cd0 >> 2: cd0 & 3}
                     q2 = [cd0]
-                    ov2n[cd0 >> 2] = 0
                     sc = []
                     qi = 0
                     while qi < len(q2):
                         sd = q2[qi]
                         qi += 1
                         vv = sd >> 2
-                        ss0 = sd & 3
+                        ss0 = slot_shift2[vv]
                         sc.append(1 if _is_over(d.vtype[vv], ss0) else 0)
                         for kk in range(4):
                             ccd = (vv << 2) | ((ss0 + kk) & 3)
@@ -105,8 +110,9 @@ def _canonical_classical_key(d: ClassicalLinkDiagram) -> tuple:
                             oos = ood & 3
                             if oov not in ov2n:
                                 ov2n[oov] = len(ov2n)
+                                slot_shift2[oov] = oos
                                 q2.append(ood)
-                            sc.append((ov2n[oov] << 2) | oos)
+                            sc.append((ov2n[oov] << 2) | ((oos - slot_shift2[oov]) & 3))
                     tc = tuple(sc)
                     if sub_best is None or tc < sub_best:
                         sub_best = tc
@@ -662,23 +668,23 @@ def certify_classical_unlink(
                 visited.add(k)
                 queue.append((nbr_red, new_path, r3c + 1))
 
-    # 4. If `red.num_crossings <= 7`, Jablonowski Theorem 8 proves NO hard classical unlink exists!
-    if red.num_crossings <= 7:
-        return UnlinkCertificate(
-            is_unlink=False,
-            num_components=num_comps,
-            reason="no_monotonic_reduction_c<=7",
-        )
-
-    # 5. For c >= 8, check Kauffman bracket / Jones polynomial BEFORE attempting stabilization!
-    if not is_trivial_jones_polynomial(red):
+    # 4. Exact Kauffman bracket / Jones polynomial test BEFORE attempting stabilization (capped at c <= 18)!
+    if red.num_crossings <= 18 and not is_trivial_jones_polynomial(red):
         return UnlinkCertificate(
             is_unlink=False,
             num_components=num_comps,
             reason="nontrivial_jones_polynomial",
+            is_decided=True,
+        )
+    if red.num_crossings > 18:
+        return UnlinkCertificate(
+            is_unlink=False,
+            num_components=num_comps,
+            reason="unlinkedness_not_certified",
+            is_decided=False,
         )
 
-    # 6. Hard unlink search: apply 1 R-II+ poke (or R-I+ kink) followed by R-III + greedy R-I/R-II!
+    # 5. Hard unlink search: apply 1 R-II+ poke (or R-I+ kink) followed by R-III + greedy R-I/R-II!
     for stab_move, gen_fn in (("R2+", list_r2_plus_pokes), ("R1+", list_r1_plus_stabilizations)):
         for poked in gen_fn(red):
             # Immediately try 1 or 2 R-III steps from `poked` followed by greedy R-I/R-II
@@ -718,6 +724,7 @@ def certify_classical_unlink(
         is_unlink=False,
         num_components=num_comps,
         reason="unlinkedness_not_certified",
+        is_decided=False,
     )
 
 
@@ -975,6 +982,50 @@ def _list_r2_plus_steps(d: ClassicalLinkDiagram) -> list[UnlinkMovieStep]:
     return out
 
 
+def _list_r1_plus_steps(d: ClassicalLinkDiagram) -> list[UnlinkMovieStep]:
+    n = d.num_crossings
+    out: list[UnlinkMovieStep] = []
+    seen_edges: set[int] = set()
+    for d1 in range(4 * n):
+        d2 = d.opp[d1]
+        ekey = min(d1, d2)
+        if ekey in seen_edges:
+            continue
+        seen_edges.add(ekey)
+        for kink_side in (0, 1):
+            for vt in ("X0", "X1"):
+                new_opp = list(d.opp) + [0, 0, 0, 0]
+                if kink_side == 0:
+                    new_opp[4 * n + 0] = 4 * n + 1
+                    new_opp[4 * n + 1] = 4 * n + 0
+                    new_opp[4 * n + 2] = d1
+                    new_opp[d1] = 4 * n + 2
+                    new_opp[4 * n + 3] = d2
+                    new_opp[d2] = 4 * n + 3
+                else:
+                    new_opp[4 * n + 1] = 4 * n + 2
+                    new_opp[4 * n + 2] = 4 * n + 1
+                    new_opp[4 * n + 3] = d1
+                    new_opp[d1] = 4 * n + 3
+                    new_opp[4 * n + 0] = d2
+                    new_opp[d2] = 4 * n + 0
+                nxt = ClassicalLinkDiagram(
+                    num_crossings=n + 1,
+                    opp=tuple(new_opp),
+                    vtype=d.vtype + (vt,),  # type: ignore[operator]
+                    free_loops=d.free_loops,
+                )
+                out.append(
+                    UnlinkMovieStep(
+                        kind="R1+",
+                        before=d,
+                        after=nxt,
+                        meta={"d1": d1, "d2": d2, "kink_side": kink_side, "vt": vt},
+                    )
+                )
+    return out
+
+
 def find_unlink_movie(
     d: ClassicalLinkDiagram,
     max_r3_states: int = 512,
@@ -1005,13 +1056,13 @@ def find_unlink_movie(
                 visited.add(k)
                 queue.append((nbr_red, npath))
 
-    if red.num_crossings <= 7 or not is_trivial_jones_polynomial(red):
+    if red.num_crossings > 18 or not is_trivial_jones_polynomial(red):
         return None
 
-    for poke_step in _list_r2_plus_steps(red):
-        sub_vis = {_canonical_classical_key(poke_step.after)}
+    for stab_step in (*_list_r2_plus_steps(red), *_list_r1_plus_steps(red)):
+        sub_vis = {_canonical_classical_key(stab_step.after)}
         sub_q: deque[tuple[ClassicalLinkDiagram, list[UnlinkMovieStep], int]] = deque(
-            [(poke_step.after, steps0 + [poke_step], 0)]
+            [(stab_step.after, steps0 + [stab_step], 0)]
         )
         while sub_q and len(sub_vis) < 256:
             scur, spath, depth = sub_q.popleft()

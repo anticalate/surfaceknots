@@ -167,34 +167,76 @@ def _verify_ccw_cyclic_order(
     return abs(total - 2.0 * math.pi) < 1e-3
 
 
-def _layout_connected_block(
+def _find_self_loop(m: int, local_opp: list[int]) -> tuple[int, int] | None:
+    """If `m >= 2` and some vertex `v` has an adjacent self-loop `(s0, (s0 + 1) & 3)`, return `(v, s0)`."""
+    if m < 2:
+        return None
+    for v in range(m):
+        for s0 in range(4):
+            if local_opp[4 * v + s0] == 4 * v + ((s0 + 1) & 3):
+                return (v, s0)
+    return None
+
+
+def _find_cut_split(m: int, local_opp: list[int]) -> tuple[int, int, list[int], list[int]] | None:
+    """If a loop-free connected `m`-vertex (`m >= 3`) 4-regular planar block has a cut-vertex `v`,
+    return `(v, s0, verts_a, verts_b)` where `verts_a` attaches to `(s0, (s0 + 1) & 3)` and `verts_b`
+    attaches to `((s0 + 2) & 3, (s0 + 3) & 3)` with `len(verts_a) >= len(verts_b) >= 1`.
+    """
+    if m < 3:
+        return None
+    for v in range(m):
+        rem = [u for u in range(m) if u != v]
+        seen = {v}
+        comps: list[list[int]] = []
+        for start in rem:
+            if start in seen:
+                continue
+            comp: list[int] = []
+            stack = [start]
+            seen.add(start)
+            while stack:
+                u = stack.pop()
+                comp.append(u)
+                for s in range(4):
+                    w = local_opp[4 * u + s] >> 2
+                    if w not in seen:
+                        seen.add(w)
+                        stack.append(w)
+            comps.append(sorted(comp))
+        if len(comps) <= 1:
+            continue
+        v_of_slot = [local_opp[4 * v + s] >> 2 for s in range(4)]
+        comp_id_of = {u: cid for cid, cverts in enumerate(comps) for u in cverts}
+        for s0 in range(4):
+            s1, s2, s3 = (s0 + 1) & 3, (s0 + 2) & 3, (s0 + 3) & 3
+            ca = {comp_id_of[v_of_slot[s]] for s in (s0, s1)}
+            cb = {comp_id_of[v_of_slot[s]] for s in (s2, s3)}
+            if ca and cb and ca.isdisjoint(cb):
+                verts_a = sorted(u for cid in ca for u in comps[cid])
+                verts_b = sorted(u for cid in range(len(comps)) if cid not in ca for u in comps[cid])
+                if len(verts_a) >= len(verts_b):
+                    return (v, s0, verts_a, verts_b)
+                return (v, s2, verts_b, verts_a)
+    return None
+
+
+def _layout_2connected_loopfree_block(
     m: int,
     local_opp: list[int],
     local_vtype: list[str],
-    local_dart_scomp: list[int],
-) -> tuple[
-    list[tuple[float, float]],
-    list[float],
-    list[CubicBezierSegment],
-    list[SaddleMarkerBar],
-]:
-    """Compute crossing-free planar coordinates and smooth cubic Bezier curves for a connected
-    `m`-vertex 4-regular planar block (`m >= 1`).
+    forced_outer_dart: int | None = None,
+) -> list[tuple[float, float]]:
+    """Compute crossing-free planar coordinates `sub_pos[0..5*m-1]` (`pos_v + pos_u`) for a base
+    `m == 1` block or a 2-vertex-connected loop-free `m >= 2` 4-regular planar block.
     """
     if m == 1:
         # 1-vertex figure-eight / double-loop block (`4` darts paired in `local_opp`)
-        pos_v = [(0.0, 0.0)]
-        phi = 0.0
-        # Check whether pairing is adjacent `(0,1),(2,3)` or `(0,3),(1,2)` (planar!).
         if local_opp[0] == 2:
             raise ValueError("Non-planar 1-vertex crossing loop opp=(2,3,0,1)")
-        pos_u: list[tuple[float, float]] = []
-        for s in range(4):
-            ang = phi + s * (0.5 * math.pi) + 0.25 * math.pi * 0.0
-            pos_u.append((0.65 * math.cos(ang), 0.65 * math.sin(ang)))
-        # Push loop midpoints out cleanly
-        all_pos = pos_v + pos_u
-        return _build_splines_from_positions(m, local_opp, local_vtype, local_dart_scomp, all_pos)
+        pos_v = [(0.0, 0.0)]
+        pos_u = [(0.65 * math.cos(0.5 * math.pi * s), 0.65 * math.sin(0.5 * math.pi * s)) for s in range(4)]
+        return pos_v + pos_u
 
     # 1. Extract combinatorial left-faces (`next_dart(hd) = (opp[hd] & ~3) | (((opp[hd] & 3) - 1) & 3)`)
     visited = [False] * (4 * m)
@@ -227,22 +269,16 @@ def _layout_connected_block(
             w_f.append(m + local_opp[hd])
         face_walks.append(w_f)
 
-    # 3. Select outer face maximizing `(is_simple_cycle, degree, marked_count, -f_idx)`
-    def _face_score(f_idx: int) -> tuple[int, int, int, int]:
+    # 3. Select outer face maximizing `(has_forced, is_simple_cycle, degree, marked_count, -f_idx)`
+    def _face_score(f_idx: int) -> tuple[int, int, int, int, int]:
         w_f = face_walks[f_idx]
+        has_forced = 1 if (forced_outer_dart is not None and forced_outer_dart in faces[f_idx]) else 0
         is_simple = 1 if len(set(w_f)) == len(w_f) else 0
         marked_cnt = sum(1 for hd in faces[f_idx] if local_vtype[hd >> 2] in ("Y", "Z"))
-        return (is_simple, len(faces[f_idx]), marked_cnt, -f_idx)
+        return (has_forced, is_simple, len(faces[f_idx]), marked_cnt, -f_idx)
 
     outer_f_idx = max(range(len(faces)), key=_face_score)
-    w_out_raw = face_walks[outer_f_idx]
-    # Deduplicate while preserving order if cut-vertex ever repeats
-    seen_out: set[int] = set()
-    w_out: list[int] = []
-    for nd in w_out_raw:
-        if nd not in seen_out:
-            seen_out.add(nd)
-            w_out.append(nd)
+    w_out = list(dict.fromkeys(face_walks[outer_f_idx]))
 
     interior_faces = [fi for fi in range(len(faces)) if fi != outer_f_idx]
     total_aug_nodes = 5 * m + len(interior_faces)
@@ -254,8 +290,7 @@ def _layout_connected_block(
         theta = math.pi - (2.0 * math.pi * j) / l_out
         fixed_pos[nd] = (math.cos(theta), math.sin(theta))
 
-    # Build base weighted edge list of `G_aug`
-    # `(u, v, base_weight, is_primal)`
+    # Build base weighted edge list of `G_aug`: `(u, v, base_weight, is_primal)`
     aug_edges: list[tuple[int, int, float, bool]] = []
     for hd in range(4 * m):
         aug_edges.append((hd >> 2, m + hd, 1.35, True))
@@ -318,9 +353,6 @@ def _layout_connected_block(
             cur_y[nd] = sy[i]
 
     # 5. Exterior polar puffing of outer-face subdivision nodes into `r > 1`:
-    # All interior nodes satisfy `r < 1`; pushing outer-face subdivision nodes `m + hd`, `m + opp[hd]`
-    # along their existing polar rays to `r_puff` opens natural ~90-degree X-crossings on the boundary
-    # without intersecting any `r < 1` interior edge or disjoint polar sector!
     cos_step = max(math.cos((2.0 * math.pi) / max(l_out, 6)), 0.68)
     r_puff = min(1.58, 1.14 / cos_step)
     for hd in faces[outer_f_idx]:
@@ -330,15 +362,237 @@ def _layout_connected_block(
                 cur_y[nd] *= r_puff
 
     sub_pos = [(cur_x[i], cur_y[i]) for i in range(5 * m)]
-
-    # Verify strict CCW dart order `(0, 1, 2, 3)` at every vertex!
     for v in range(m):
         vx, vy = sub_pos[v]
         qs = [sub_pos[m + 4 * v + s] for s in range(4)]
         if not _verify_ccw_cyclic_order(vx, vy, qs):
             raise RuntimeError(f"CCW cyclic dart order violated at vertex {v}")
-
     return sub_pos
+
+
+def _layout_connected_block(
+    m: int,
+    local_opp: list[int],
+    local_vtype: list[str],
+    local_dart_scomp: list[int],
+    forced_outer_dart: int | None = None,
+) -> list[tuple[float, float]]:
+    """Compute crossing-free planar coordinates `sub_pos[0..5*m-1]` (`pos_v + pos_u`) for any
+    connected `m`-vertex 4-regular planar block (`m >= 1`), handling 1-vertex diagrams, R1/marked
+    self-loop monogons, and arbitrary planar cut-vertex trees via block-cut sector decomposition.
+    """
+    if m >= 2:
+        # Euler characteristic check upfront so non-planar blocks fail immediately even with self-loops/cut-vertices:
+        visited_chk = [False] * (4 * m)
+        face_cnt = 0
+        for start in range(4 * m):
+            if visited_chk[start]:
+                continue
+            face_cnt += 1
+            cur = start
+            while not visited_chk[cur]:
+                visited_chk[cur] = True
+                od = local_opp[cur]
+                cur = (od & ~3) | (((od & 3) - 1) & 3)
+        if face_cnt != m + 2:
+            raise ValueError(
+                f"Connected 4-regular block is non-planar: V={m}, E={2 * m}, F={face_cnt} (expected F={m + 2})"
+            )
+
+    # 1. Peel any adjacent self-loop `(s0, s1)` on `m >= 2`:
+    sl = _find_self_loop(m, local_opp)
+    if sl is not None:
+        v_sl, s0 = sl
+        s1, s2, s3 = (s0 + 1) & 3, (s0 + 2) & 3, (s0 + 3) & 3
+        od2 = local_opp[4 * v_sl + s2]
+        od3 = local_opp[4 * v_sl + s3]
+        rem_nodes = [u for u in range(m) if u != v_sl]
+        idx_r = {u: i for i, u in enumerate(rem_nodes)}
+        mr = m - 1
+        opp_r = [0] * (4 * mr)
+        vt_r = [local_vtype[u] for u in rem_nodes]
+        od2_r = 4 * idx_r[od2 >> 2] + (od2 & 3)
+        od3_r = 4 * idx_r[od3 >> 2] + (od3 & 3)
+        for u in rem_nodes:
+            iu = idx_r[u]
+            for s in range(4):
+                od = local_opp[4 * u + s]
+                if od == 4 * v_sl + s2:
+                    opp_r[4 * iu + s] = od3_r
+                elif od == 4 * v_sl + s3:
+                    opp_r[4 * iu + s] = od2_r
+                else:
+                    opp_r[4 * iu + s] = 4 * idx_r[od >> 2] + (od & 3)
+
+        forced_r: int | None = None
+        if forced_outer_dart is not None:
+            fv, fs = forced_outer_dart >> 2, forced_outer_dart & 3
+            if fv != v_sl:
+                forced_r = 4 * idx_r[fv] + fs
+            else:
+                forced_r = od2_r if fs in (s1, s3) else od3_r
+
+        pos_r = _layout_connected_block(mr, opp_r, vt_r, [], forced_outer_dart=forced_r)
+        p2x, p2y = pos_r[mr + od2_r]
+        p3x, p3y = pos_r[mr + od3_r]
+        if math.hypot(p2x - p3x, p2y - p3y) < 1e-6:
+            v2x, v2y = pos_r[od2_r >> 2]
+            p2x, p2y = 0.5 * (v2x + p2x), 0.5 * (v2y + p2y)
+
+        pvx, pvy = 0.5 * (p2x + p3x), 0.5 * (p2y + p3y)
+        seg_half = 0.5 * math.hypot(p2x - p3x, p2y - p3y)
+        theta2 = math.atan2(p2y - pvy, p2x - pvx)
+        theta_n = theta2 - 0.5 * math.pi
+        nx, ny = math.cos(theta_n), math.sin(theta_n)
+
+        r_loop = min(0.85 * seg_half, 0.42)
+        probe_x, probe_y = pvx + r_loop * nx, pvy + r_loop * ny
+        for idx_pt in range(5 * mr):
+            if idx_pt in (mr + od2_r, mr + od3_r):
+                continue
+            qx, qy = pos_r[idx_pt]
+            r_loop = min(
+                r_loop,
+                0.45 * math.hypot(qx - pvx, qy - pvy),
+                0.6 * math.hypot(qx - probe_x, qy - probe_y),
+            )
+        r_loop = max(r_loop, 0.12 * seg_half)
+
+        out_v = [(0.0, 0.0)] * m
+        out_u = [(0.0, 0.0)] * (4 * m)
+        for u in rem_nodes:
+            iu = idx_r[u]
+            out_v[u] = pos_r[iu]
+            for s in range(4):
+                out_u[4 * u + s] = pos_r[mr + 4 * iu + s]
+
+        v2_pos = pos_r[od2_r >> 2]
+        v3_pos = pos_r[od3_r >> 2]
+        out_u[od2] = (0.35 * v2_pos[0] + 0.65 * p2x, 0.35 * v2_pos[1] + 0.65 * p2y)
+        out_u[od3] = (0.35 * v3_pos[0] + 0.65 * p3x, 0.35 * v3_pos[1] + 0.65 * p3y)
+
+        out_v[v_sl] = (pvx, pvy)
+        out_u[4 * v_sl + s2] = (pvx + 0.45 * (p2x - pvx), pvy + 0.45 * (p2y - pvy))
+        out_u[4 * v_sl + s3] = (pvx + 0.45 * (p3x - pvx), pvy + 0.45 * (p3y - pvy))
+        ang0 = theta2 - (2.0 * math.pi / 3.0)
+        ang1 = theta2 - (1.0 * math.pi / 3.0)
+        out_u[4 * v_sl + s0] = (pvx + r_loop * math.cos(ang0), pvy + r_loop * math.sin(ang0))
+        out_u[4 * v_sl + s1] = (pvx + r_loop * math.cos(ang1), pvy + r_loop * math.sin(ang1))
+
+        sub_pos = out_v + out_u
+        for v in range(m):
+            vx, vy = sub_pos[v]
+            qs = [sub_pos[m + 4 * v + s] for s in range(4)]
+            if not _verify_ccw_cyclic_order(vx, vy, qs):
+                raise RuntimeError(f"CCW cyclic dart order violated at vertex {v}")
+        return sub_pos
+
+    # 2. Split any multi-vertex planar cut-vertex `v_cut` into two 2-connected/smaller lobes:
+    split = _find_cut_split(m, local_opp)
+    if split is not None:
+        v_cut, s0, verts_a, verts_b = split
+        if forced_outer_dart is not None:
+            fv, fs = forced_outer_dart >> 2, forced_outer_dart & 3
+            if (fv in verts_b) or (fv == v_cut and fs in ((s0 + 2) & 3, (s0 + 3) & 3)):
+                s0 = (s0 + 2) & 3
+                verts_a, verts_b = verts_b, verts_a
+        s1, s2, s3 = (s0 + 1) & 3, (s0 + 2) & 3, (s0 + 3) & 3
+
+        nodes_a = [v_cut] + verts_a
+        idx_a = {u: i for i, u in enumerate(nodes_a)}
+        ma = len(nodes_a)
+        opp_a = [0] * (4 * ma)
+        vt_a = [local_vtype[u] for u in nodes_a]
+        for u in nodes_a:
+            iu = idx_a[u]
+            for s in range(4):
+                if u == v_cut and s in (s2, s3):
+                    opp_a[4 * iu + s] = 4 * iu + (s3 if s == s2 else s2)
+                else:
+                    od = local_opp[4 * u + s]
+                    opp_a[4 * iu + s] = 4 * idx_a[od >> 2] + (od & 3)
+        forced_a = (
+            (4 * idx_a[forced_outer_dart >> 2] + (forced_outer_dart & 3))
+            if forced_outer_dart is not None
+            else None
+        )
+        pos_a = _layout_connected_block(ma, opp_a, vt_a, [], forced_outer_dart=forced_a)
+
+        nodes_b = [v_cut] + verts_b
+        idx_b = {u: i for i, u in enumerate(nodes_b)}
+        mb = len(nodes_b)
+        opp_b = [0] * (4 * mb)
+        vt_b = [local_vtype[u] for u in nodes_b]
+        for u in nodes_b:
+            iu = idx_b[u]
+            for s in range(4):
+                if u == v_cut and s in (s0, s1):
+                    opp_b[4 * iu + s] = 4 * iu + (s1 if s == s0 else s0)
+                else:
+                    od = local_opp[4 * u + s]
+                    opp_b[4 * iu + s] = 4 * idx_b[od >> 2] + (od & 3)
+        pos_b = _layout_connected_block(mb, opp_b, vt_b, [], forced_outer_dart=s1)
+
+        va_x, va_y = pos_a[0]
+        qa2_x, qa2_y = pos_a[ma + s2]
+        qa3_x, qa3_y = pos_a[ma + s3]
+        pocket_r = min(math.hypot(qa2_x - va_x, qa2_y - va_y), math.hypot(qa3_x - va_x, qa3_y - va_y))
+        mid_px, mid_py = 0.5 * (qa2_x + qa3_x), 0.5 * (qa2_y + qa3_y)
+        for idx_pt in range(5 * ma):
+            if idx_pt in (0, ma + s2, ma + s3):
+                continue
+            px, py = pos_a[idx_pt]
+            pocket_r = min(pocket_r, 0.75 * math.hypot(px - mid_px, py - mid_py))
+
+        ang2_a = math.atan2(qa2_y - va_y, qa2_x - va_x)
+        ang_target = ang2_a + 0.5 * ((math.atan2(qa3_y - va_y, qa3_x - va_x) - ang2_a) % (2.0 * math.pi))
+
+        vb_x, vb_y = pos_b[0]
+        qb2_x, qb2_y = pos_b[mb + s2]
+        qb3_x, qb3_y = pos_b[mb + s3]
+        ang2_b = math.atan2(qb2_y - vb_y, qb2_x - vb_x)
+        ang_src = ang2_b + 0.5 * ((math.atan2(qb3_y - vb_y, qb3_x - vb_x) - ang2_b) % (2.0 * math.pi))
+
+        b_pts = [pos_b[i] for i in range(1, mb)] + [
+            pos_b[mb + 4 * iu + s]
+            for iu in range(mb)
+            for s in range(4)
+            if not (iu == 0 and s in (s0, s1))
+        ]
+        max_dist_b = max(math.hypot(px - vb_x, py - vb_y) for px, py in b_pts)
+        scale = (0.9 * pocket_r) / max(max_dist_b, 1e-6)
+        rot = ang_target - ang_src
+        cos_r, sin_r = math.cos(rot), math.sin(rot)
+
+        def _xform_b(pt: tuple[float, float]) -> tuple[float, float]:
+            dx, dy = pt[0] - vb_x, pt[1] - vb_y
+            return (va_x + scale * (dx * cos_r - dy * sin_r), va_y + scale * (dx * sin_r + dy * cos_r))
+
+        out_v = [(0.0, 0.0)] * m
+        out_u = [(0.0, 0.0)] * (4 * m)
+        for u in nodes_a:
+            iu = idx_a[u]
+            out_v[u] = pos_a[iu]
+            for s in range(4):
+                if not (u == v_cut and s in (s2, s3)):
+                    out_u[4 * u + s] = pos_a[ma + 4 * iu + s]
+        for u in nodes_b:
+            iu = idx_b[u]
+            if u != v_cut:
+                out_v[u] = _xform_b(pos_b[iu])
+            for s in range(4):
+                if not (u == v_cut and s in (s0, s1)):
+                    out_u[4 * u + s] = _xform_b(pos_b[mb + 4 * iu + s])
+
+        sub_pos = out_v + out_u
+        for v in range(m):
+            vx, vy = sub_pos[v]
+            qs = [sub_pos[m + 4 * v + s] for s in range(4)]
+            if not _verify_ccw_cyclic_order(vx, vy, qs):
+                raise RuntimeError(f"CCW cyclic dart order violated at vertex {v}")
+        return sub_pos
+
+    return _layout_2connected_loopfree_block(m, local_opp, local_vtype, forced_outer_dart=forced_outer_dart)
 
 
 def _build_splines_from_positions(

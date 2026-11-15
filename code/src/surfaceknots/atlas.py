@@ -1,10 +1,10 @@
 """Interactive KnotInfo-style HTML Web Atlas generator for the SurfaceKnots repository.
 
-Unifies all 33 canonical prime Hub classes (`ch <= 10` Yoshikawa + `ch = 11` Expanded Census)
-with all 41 pairwise-distinct `ch >= 12` Spoke family classes (74 surface-links total).
-Includes an exact client-side JavaScript port of the IRLS `p`-Laplacian Tutte + cubic Bezier
-hyperbolic splitting layout and LaTeX/TikZ engine, keeping the entire self-contained HTML
-under ~100 KB while unlocking a live interactive EPD diagram & splitting-movie sandbox.
+Unifies all canonical prime Hub classes (`ch <= 10` Yoshikawa + `ch = 11, 12` Expanded Censuses)
+with all pairwise-distinct remaining Spoke family classes into a single self-contained explorer.
+Includes an exact client-side JavaScript port of the IRLS `p`-Laplacian Tutte + block-cut pocket
+layout + cubic Bezier hyperbolic splitting and LaTeX/TikZ engine, with optional deflate payload
+compression (`compress=True`) and explicit epistemic rigor badges across Hub and Spoke tiers.
 """
 
 from __future__ import annotations
@@ -13,8 +13,14 @@ import base64
 import hashlib
 import json
 from pathlib import Path
+import re
 from typing import Any
 import zlib
+
+from surfaceknots.diagrams import MarkedDiagram
+
+
+_EULER_TAG_RE = re.compile(r"e=(-?\d+)")
 
 
 def _short_hash(obj: Any) -> str:
@@ -22,8 +28,33 @@ def _short_hash(obj: Any) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
+def _o4_canonicalize_linking(items: Any) -> list[str] | None:
+    """Canonicalize mod-2 double/triple linking rows up to global `O(4)` mirror `e -> -e`."""
+    if items is None:
+        return None
+    if not items:
+        return []
+
+    def _flip_e(obj: Any) -> Any:
+        if isinstance(obj, str):
+            return _EULER_TAG_RE.sub(lambda m: f"e={-int(m.group(1))}", obj)
+        if isinstance(obj, (list, tuple)):
+            return [_flip_e(x) for x in obj]
+        return obj
+
+    pos = sorted(json.dumps(x, sort_keys=True, separators=(",", ":")) for x in items)
+    neg = sorted(json.dumps(_flip_e(x), sort_keys=True, separators=(",", ":")) for x in items)
+    return min(pos, neg)
+
+
 def _fmt_torsion(tors: list[int]) -> str:
     return " \u2295 ".join(f"Z/{t}" for t in tors)
+
+
+def _realization_rigor_badge(mode: str) -> str:
+    if mode == "MOVE_CERTIFIED":
+        return "PROVABLE (Move-Certified / Exact Singleton)"
+    return "HEURISTIC (10-Layer Invariant Match, Unverified Move Path)"
 
 
 def _normalize_entry(
@@ -36,32 +67,70 @@ def _normalize_entry(
     ch_diag = int(rec["ch_index_diagram"])
     ch_lo = int(rec.get("ch_lower", ch_diag))
     ch_hi = int(rec.get("ch_upper", ch_diag))
-    exact_ch = bool(rec.get("exact_ch_certified", tier_code in ("yoshikawa_ch10", "expanded_ch11")))
+    is_hub = tier_code in ("yoshikawa_ch10", "expanded_ch11", "expanded_ch12")
+    exact_ch = bool(rec.get("exact_ch_certified", is_hub))
 
-    if tier_code in ("yoshikawa_ch10", "expanded_ch11"):
+    if is_hub:
         cell_status = str(rec.get("cell_status", "EXACT_SINGLETON"))
         cell_reason = str(rec.get("cell_status_reason", "Canonical Hub prime census class."))
     else:
-        cell_status = "EXACT_CH12_SPOKE" if (exact_ch and ch_lo == 12) else "SPOKE_BOUNDED"
+        cell_status = f"EXACT_CH{ch_lo}_SPOKE" if exact_ch else "SPOKE_BOUNDED"
         cell_reason = str(rec.get("complexity_certification_reason", ""))
+
+    # Explicit epistemic rigor classification for ch(F) / Hub identification:
+    if rec.get("hub_match_mode") == "INVARIANT_MATCH":
+        rigor_code = "heuristic"
+        rigor_badge = "HEURISTIC (10-Layer Invariant Match, Unverified Move Path)"
+    elif is_hub:
+        if cell_status == "NEW_PACKET":
+            rigor_code = "packet"
+            rigor_badge = "PACKET (Unmerged Diagrams, Same Invariants)"
+        else:
+            rigor_code = "provable"
+            rigor_badge = "PROVABLE (Move-Certified / Exact Singleton)"
+    elif exact_ch:
+        rigor_code = "provable"
+        rigor_badge = "PROVABLE (Move-Certified / Exact Singleton)"
+    else:
+        rigor_code = "bounded"
+        rigor_badge = f"BOUNDED ([{ch_lo}, {ch_hi}])"
+
+    has_heuristic_spoke_match = any(r.get("match_mode") != "MOVE_CERTIFIED" for r in hub_reals)
+    spoke_match_badge = (
+        "HEURISTIC (10-Layer Invariant Match, Unverified Move Path)"
+        if has_heuristic_spoke_match
+        else ("PROVABLE (Move-Certified / Exact Singleton)" if hub_reals else "")
+    )
 
     sublinks = rec.get("sublinks") or {}
     sym = rec.get("symmetry") or {}
 
+    # Layer 1: strict unoriented O(4) intrinsic topology & normal Euler multisets up to global e -> -e
+    topo = MarkedDiagram.from_epd(rec["epd"]).surface_topology()
+    c_pos = sorted([bool(c.orientable), int(c.genus_symbol), int(c.normal_euler)] for c in topo.components)
+    c_neg = sorted([bool(c.orientable), int(c.genus_symbol), -int(c.normal_euler)] for c in topo.components)
+    topo_o4 = min(c_pos, c_neg)
+
     c3_raw = rec["mochizuki_c3_mod3"]
     c3_mir = rec["mochizuki_c3_mirror_mod3"]
     c3_unord = sorted([c3_raw, c3_mir]) if (c3_raw is not None and c3_mir is not None) else None
+    c5_raw = rec.get("mochizuki_c5_mod5")
+    c5_mir = rec.get("mochizuki_c5_mirror_mod5")
+    c5_unord = sorted([c5_raw, c5_mir]) if (c5_raw is not None and c5_mir is not None) else None
+    c7_raw = rec.get("mochizuki_c7_mod7")
+    c7_mir = rec.get("mochizuki_c7_mirror_mod7")
+    c7_unord = sorted([c7_raw, c7_mir]) if (c7_raw is not None and c7_mir is not None) else None
 
-    # Exact canonical objects for each of the 10 invariant filtration layers
+    # Strict O(4) topological invariants ONLY across all 10 filtration layers:
+    # NO presentation/orientation-dependent generators, greedy min_ch_found, or bounded-BFS booleans.
     raw_layers = [
-        (rec["component_types"], rec["orientability"], rec["euler_characteristic"], rec["normal_euler_numbers"]),
-        (rec["h1_free_rank"], rec["h1_torsion"]),
-        (rec["e1_fingerprint_hash"], rec["e2_generators"], rec["single_var_alex"]),
+        (rec["orientability"], int(rec["euler_characteristic"]), topo_o4),
+        (int(rec["h1_free_rank"]), [int(t) for t in rec["h1_torsion"]]),
+        (str(rec["e1_fingerprint_hash"]), [str(x) for x in (rec.get("twisted_s3_delta0") or [])]),
         (
             rec["hom_counts"],
-            rec["sl2f3_hom_count"],
-            rec["sl2f3_non_meridional_peripheral_count"],
-            rec["twisted_s3_delta0"],
+            int(rec["sl2f3_hom_count"]),
+            int(rec["sl2f3_non_meridional_peripheral_count"]),
         ),
         (
             rec["kei_invariant_factors"],
@@ -71,29 +140,29 @@ def _normalize_entry(
         ),
         (
             c3_unord,
-            rec["sym_quandle_q6_col"],
-            rec["sym_quandle_q6_trivial_weights"],
-            rec["sym_quandle_q6_nontrivial_weights"],
+            c5_unord,
+            c7_unord,
+            int(rec["sym_quandle_q6_col"]),
+            int(rec["sym_quandle_q6_trivial_weights"]),
+            int(rec["sym_quandle_q6_nontrivial_weights"]),
         ),
         (
-            rec["double_linking_mod2"],
-            rec["triple_linking_mod2"],
-            bool(sublinks.get("is_brunnian", False)),
-            sublinks.get("proper_sublinks", []),
+            _o4_canonicalize_linking(rec.get("double_linking_mod2")),
+            _o4_canonicalize_linking(rec.get("triple_linking_mod2")),
+            rec.get("sublink_invariant_profile", []),
         ),
         (
-            rec["sigma2_euler"],
-            rec["sigma2_b1"],
-            rec["sigma2_h1_torsion"],
-            rec["sigma2_b2"],
+            int(rec["sigma2_euler"]),
+            int(rec["sigma2_b1"]),
+            [int(t) for t in rec["sigma2_h1_torsion"]],
+            int(rec["sigma2_b2"]),
             rec["sigma2_abs_signature"],
         ),
-        (rec["cover_betti_profile"], rec["certified_pi2_z_rank"]),
+        (rec.get("cover_betti_profile") or {},),
         (
-            bool(sym.get("chiral_by_normal_euler", False)),
-            bool(sym.get("oriented_chiral_by_cocycle", False)),
-            bool(sym.get("non_invertible_by_cocycle", False)),
-            bool(sym.get("constructive_so4_amphicheiral", False)),
+            bool(sym.get("chiral_by_normal_euler")),
+            bool(sym.get("oriented_chiral_by_cocycle")),
+            bool(sym.get("non_invertible_by_cocycle")),
         ),
     ]
     layer_hashes = [_short_hash(x) for x in raw_layers]
@@ -118,23 +187,25 @@ def _normalize_entry(
         f"\u03c7={rec['sigma2_euler']}, b1={rec['sigma2_b1']}, "
         f"tors={rec['sigma2_h1_torsion']}, b2={rec['sigma2_b2']}, |\u03c3|={sig_str}"
     )
-    cov_keys = list(rec["cover_betti_profile"].keys())
-    pi2_rk = rec["certified_pi2_z_rank"]
-    pi2_str = (
-        f"rk\u2265{pi2_rk if pi2_rk is not None else '?'} ({rec['pi2_certification_reason']}) "
-        f"| covers:[{','.join(cov_keys)}]"
-    )
+    cov_keys = list((rec.get("cover_betti_profile") or {}).keys())
+    cov_part = f"covers:[{','.join(cov_keys)}]" if cov_keys else "covers:none"
+    pi2_rk = rec.get("certified_pi2_z_rank")
+    pi2_reason = rec.get("pi2_certification_reason")
+    pi2_str = f"rk={pi2_rk} ({pi2_reason}) | {cov_part}" if pi2_rk is not None else cov_part
+
+    tw_s3 = rec.get("twisted_s3_delta0") or []
+    tw_s3_part = f" | \u03940(S3)=[{', '.join(str(x) for x in tw_s3)}]" if tw_s3 else ""
 
     cup_sep = " \u222a "
     comp_joined = cup_sep.join(rec["component_types"])
     layer_displays = [
         f"{comp_joined} ({rec['orientability']}), \u03c7={rec['euler_characteristic']}, e={rec['normal_euler_numbers']}",
         h1_str,
-        f"E1=({', '.join(rec['e1_generators'])}) | E2=({', '.join(rec['e2_generators'])}) | \u03941={rec['single_var_alex']}",
+        f"E1=({', '.join(rec['e1_generators'])}){tw_s3_part} | \u03941={rec['single_var_alex']}",
         hom_str,
         f"{kei_str} | {bik_str}",
         f"C3={c3_str} | Q6: col={rec['sym_quandle_q6_col']} (nontriv={rec['sym_quandle_q6_nontrivial_weights']})",
-        f"dlk2={rec['double_linking_mod2']}, tlk2={rec['triple_linking_mod2']}, Brunnian={bool(sublinks.get('is_brunnian', False))}",
+        f"dlk2={rec['double_linking_mod2']}, tlk2={rec['triple_linking_mod2']}, sublinks={len(rec.get('sublink_invariant_profile', []))}",
         sigma2_str,
         pi2_str,
         str(sym.get("summary", "")),
@@ -142,11 +213,18 @@ def _normalize_entry(
 
     nw = rec.get("nearest_separating_witness")
     nw_str = ""
-    if isinstance(nw, dict) and nw.get("nearest_entry"):
-        nw_str = (
-            f"Nearest: {nw['nearest_entry']} (dist={nw['num_separating_layers']}/10 via "
-            f"{', '.join(nw.get('separating_layers', [])[:3])})"
-        )
+    if isinstance(nw, dict):
+        if nw.get("nearest_label"):
+            nw_str = (
+                f"Nearest: {nw['nearest_label']} "
+                f"(shared {nw.get('shared_prefix_layers', 0)}/10 layers; "
+                f"separates at L{nw.get('separating_layer_index', '?')} {nw.get('separating_layer', '')})"
+            )
+        elif nw.get("nearest_entry"):
+            nw_str = (
+                f"Nearest: {nw['nearest_entry']} (dist={nw.get('num_separating_layers', '?')}/10 via "
+                f"{', '.join(nw.get('separating_layers', [])[:3])})"
+            )
 
     return {
         "label": rec["label"],
@@ -159,6 +237,9 @@ def _normalize_entry(
         "ch_lo": ch_lo,
         "ch_hi": ch_hi,
         "ex_ch": exact_ch,
+        "rigor_code": rigor_code,
+        "rigor_badge": rigor_badge,
+        "spoke_match_badge": spoke_match_badge,
         "c": int(rec["num_classical"]),
         "m": int(rec["num_marked"]),
         "cm": int(rec["c_minus"]),
@@ -184,7 +265,12 @@ def _normalize_entry(
         "q_hs4": bool(rec["sigma2_is_q_homology_4sphere"]),
         "epd": rec["epd"],
         "reals": [
-            {"id": r["family_id"], "mode": r["match_mode"], "ch": r["compiled_ch"]}
+            {
+                "id": r["family_id"],
+                "mode": r["match_mode"],
+                "ch": r["compiled_ch"],
+                "rigor": _realization_rigor_badge(str(r["match_mode"])),
+            }
             for r in hub_reals
         ],
         "lh": layer_hashes,
@@ -193,15 +279,25 @@ def _normalize_entry(
 
 
 def build_atlas_payload(data_dir: Path) -> dict[str, Any]:
-    """Assemble the unified 74-entry Hub + Spoke payload for the interactive Web Atlas."""
+    """Assemble the unified Hub + Spoke payload for the interactive Web Atlas."""
+    from surfaceknots.yoshikawa_data import invariant_discrimination_key
+
     yosh_list = json.loads((data_dir / "yoshikawa_ch10.json").read_text())
     ch11_payload = json.loads((data_dir / "expanded_ch11.json").read_text())
+    ch12_path = data_dir / "expanded_ch12.json"
+    ch12_payload = json.loads(ch12_path.read_text()) if ch12_path.exists() else {}
+    ch12_entries = ch12_payload.get("entries", [])
     fam_payload = json.loads((data_dir / "families" / "family_catalog.json").read_text())
 
     hub_reals_map: dict[str, list[dict[str, Any]]] = fam_payload.get("hub_realizations", {})
+    promoted_spoke_ids: set[str] = {
+        str(p["family_id"]) for p in ch12_payload.get("promoted_exact_ch12_spokes", []) if p.get("family_id")
+    }
     entries: list[dict[str, Any]] = []
+    seen_hub_iks: set[tuple] = set()
 
     for r in yosh_list:
+        seen_hub_iks.add(invariant_discrimination_key(r))
         entries.append(
             _normalize_entry(
                 r,
@@ -212,6 +308,7 @@ def build_atlas_payload(data_dir: Path) -> dict[str, Any]:
         )
 
     for r in ch11_payload["entries"]:
+        seen_hub_iks.add(invariant_discrimination_key(r))
         entries.append(
             _normalize_entry(
                 r,
@@ -221,15 +318,39 @@ def build_atlas_payload(data_dir: Path) -> dict[str, Any]:
             )
         )
 
-    for r in fam_payload["entries"]:
-        if r.get("hub_match") is not None:
-            continue
-        is_ex12 = bool(r.get("exact_ch_certified")) and int(r["ch_lower"]) == 12
+    for r in ch12_entries:
+        seen_hub_iks.add(invariant_discrimination_key(r))
+        reals12 = hub_reals_map.get(r["label"], [])
+        if not reals12 and r.get("matched_spoke_families"):
+            reals12 = r["matched_spoke_families"]
+        for sm in reals12:
+            if sm.get("family_id"):
+                promoted_spoke_ids.add(str(sm["family_id"]))
         entries.append(
             _normalize_entry(
                 r,
-                tier_code="exact_ch12" if is_ex12 else "spoke_ch_ge_12",
-                tier_label="Exact ch = 12 (Spoke)" if is_ex12 else "Spoke Catalog (ch \u2265 12)",
+                tier_code="expanded_ch12",
+                tier_label="Expanded Census (ch = 12)",
+                hub_reals=reals12,
+            )
+        )
+
+    seen_spoke_iks: set[tuple] = set()
+    for r in fam_payload["entries"]:
+        fam_id = str(r.get("family_id") or r.get("label") or "")
+        if r.get("hub_match") is not None or r.get("reference_collisions") or fam_id in promoted_spoke_ids:
+            continue
+        ik = invariant_discrimination_key(r)
+        if ik in seen_hub_iks or ik in seen_spoke_iks:
+            continue
+        seen_spoke_iks.add(ik)
+        ch_lo = int(r["ch_lower"])
+        is_ex = bool(r.get("exact_ch_certified")) and ch_lo >= 12
+        entries.append(
+            _normalize_entry(
+                r,
+                tier_code=f"exact_ch{ch_lo}" if is_ex else "spoke_bounded",
+                tier_label=f"Exact ch = {ch_lo} (Spoke)" if is_ex else f"Spoke Catalog (ch \u2265 {ch_lo})",
                 hub_reals=[],
             )
         )
@@ -243,17 +364,27 @@ def build_atlas_payload(data_dir: Path) -> dict[str, Any]:
                 seen_ids[h_val] = len(seen_ids)
             ent["lh"][layer_i] = seen_ids[h_val]
 
+    hub_total = len(yosh_list) + len(ch11_payload["entries"]) + len(ch12_entries)
+    spoke_total = len(entries) - hub_total
+    exact_total = sum(1 for e in entries if e["ex_ch"])
+    hub_realized = sum(
+        1
+        for e in entries
+        if e["tier_code"] in ("yoshikawa_ch10", "expanded_ch11", "expanded_ch12") and len(e["reals"]) > 0
+    )
+
     return {
-        "version": "0.5.1",
+        "version": "0.6.0",
         "counts": {
             "total_distinct_classes": len(entries),
+            "hub_total": hub_total,
             "yoshikawa_ch10": len(yosh_list),
             "expanded_ch11": len(ch11_payload["entries"]),
-            "exact_ch12": sum(1 for e in entries if e["tier_code"] == "exact_ch12"),
-            "spoke_total": sum(
-                1 for e in entries if e["tier_code"] in ("exact_ch12", "spoke_ch_ge_12")
-            ),
-            "hub_realized_count": int(fam_payload["distinct_hub_entries_realized"]),
+            "expanded_ch12": len(ch12_entries),
+            "exact_ch12": sum(1 for e in entries if e["ex_ch"] and e["ch_lo"] == 12),
+            "exact_ch_total": exact_total,
+            "spoke_total": spoke_total,
+            "hub_realized_count": hub_realized,
             "compiled_family_instances": int(fam_payload["total_family_instances"]),
         },
         "entries": entries,
@@ -266,7 +397,178 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SurfaceKnots Atlas — Knotted Surfaces &amp; Surface-Links in R^4</title>
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --background: #f8fafc;
+      --foreground: #0f172a;
+      --card: #ffffff;
+      --card-border: #e2e8f0;
+      --border: #cbd5e1;
+      --secondary: #e2e8f0;
+      --secondary-foreground: #0f172a;
+      --muted-foreground: #475569;
+      --primary: #1e3a8a;
+      --primary-foreground: #ffffff;
+      --link: #1d4ed8;
+      --warning: #b45309;
+      --error: #dc2626;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not(.light) {
+        --background: #0b1120;
+        --foreground: #f1f5f9;
+        --card: #111827;
+        --card-border: #1e293b;
+        --border: #334155;
+        --secondary: #1e293b;
+        --secondary-foreground: #f1f5f9;
+        --muted-foreground: #94a3b8;
+        --primary: #3b82f6;
+        --primary-foreground: #ffffff;
+        --link: #60a5fa;
+        --warning: #f59e0b;
+        --error: #f87171;
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { background: var(--background); color: var(--foreground); margin: 0; padding: 1rem; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; background: transparent; }
+    code, pre, .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .hidden { display: none !important; }
+    .block { display: block; }
+    .inline-block { display: inline-block; }
+    .inline-flex { display: inline-flex; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .justify-between { justify-content: space-between; }
+    .justify-end { justify-content: flex-end; }
+    .shrink-0 { flex-shrink: 0; }
+    .min-w-0 { min-width: 0; }
+    .w-full { width: 100%; }
+    .w-2\.5 { width: 0.625rem; }
+    .h-2\.5 { height: 0.625rem; }
+    .max-w-7xl { max-width: 82rem; }
+    .max-w-\[225px\] { max-width: 225px; }
+    .max-h-\[650px\] { max-height: 650px; }
+    .max-h-72 { max-height: 18rem; }
+    .max-h-56 { max-height: 14rem; }
+    .max-h-52 { max-height: 13rem; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .m-0 { margin: 0; }
+    .mt-0\.5 { margin-top: 0.125rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .p-2 { padding: 0.5rem; }
+    .p-2\.5 { padding: 0.625rem; }
+    .p-3 { padding: 0.75rem; }
+    .p-3\.5 { padding: 0.875rem; }
+    .p-4 { padding: 1rem; }
+    .p-6 { padding: 1.5rem; }
+    .px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+    .px-1\.5 { padding-left: 0.375rem; padding-right: 0.375rem; }
+    .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+    .pt-1 { padding-top: 0.25rem; }
+    .pb-1 { padding-bottom: 0.25rem; }
+    .pb-2 { padding-bottom: 0.5rem; }
+    .pb-3 { padding-bottom: 0.75rem; }
+    .gap-1\.5 { gap: 0.375rem; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-2\.5 { gap: 0.625rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-4 { gap: 1rem; }
+    .space-y-0\.5 > * + * { margin-top: 0.125rem; }
+    .space-y-1 > * + * { margin-top: 0.25rem; }
+    .space-y-1\.5 > * + * { margin-top: 0.375rem; }
+    .space-y-2 > * + * { margin-top: 0.5rem; }
+    .space-y-2\.5 > * + * { margin-top: 0.625rem; }
+    .space-y-3 > * + * { margin-top: 0.75rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    .divide-y > * + * { border-top: 1px solid var(--card-border); }
+    .grid { display: grid; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (min-width: 640px) {
+      .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (min-width: 768px) {
+      body { padding: 1.25rem; }
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .md\:text-lg { font-size: 1.125rem; }
+    }
+    @media (min-width: 1024px) {
+      .lg\:flex-row { flex-direction: row; }
+      .lg\:items-center { align-items: center; }
+      .lg\:justify-between { justify-content: space-between; }
+      .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .lg\:grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+      .lg\:col-span-5 { grid-column: span 5 / span 5; }
+      .lg\:col-span-7 { grid-column: span 7 / span 7; }
+    }
+    .rounded { border-radius: 0.25rem; }
+    .rounded-md { border-radius: 0.375rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-full { border-radius: 9999px; }
+    .border { border: 1px solid var(--border); }
+    .border-t { border-top: 1px solid var(--card-border); }
+    .border-b { border-bottom: 1px solid var(--card-border); }
+    .border-transparent { border-color: transparent; }
+    .border-\[var\(--border\)\] { border-color: var(--border); }
+    .border-\[var\(--card-border\)\] { border-color: var(--card-border); }
+    .border-\[var\(--warning\)\] { border-color: var(--warning); }
+    .bg-\[var\(--background\)\] { background-color: var(--background); }
+    .bg-\[var\(--card\)\] { background-color: var(--card); }
+    .bg-\[var\(--secondary\)\] { background-color: var(--secondary); }
+    .bg-\[var\(--primary\)\] { background-color: var(--primary); }
+    .text-\[var\(--foreground\)\] { color: var(--foreground); }
+    .text-\[var\(--muted-foreground\)\] { color: var(--muted-foreground); }
+    .text-\[var\(--secondary-foreground\)\] { color: var(--secondary-foreground); }
+    .text-\[var\(--primary-foreground\)\] { color: var(--primary-foreground); }
+    .text-\[var\(--link\)\] { color: var(--link); }
+    .text-\[var\(--warning\)\] { color: var(--warning); }
+    .text-\[var\(--error\)\] { color: var(--error); }
+    .hover\:bg-\[var\(--background\)\]:hover { background-color: var(--background); }
+    .hover\:bg-\[var\(--secondary\)\]:hover { background-color: var(--secondary); }
+    .hover\:underline:hover { text-decoration: underline; }
+    .focus\:outline-none:focus { outline: none; }
+    .text-xs { font-size: 0.75rem; }
+    .text-sm { font-size: 0.875rem; }
+    .text-base { font-size: 1rem; }
+    .text-xl { font-size: 1.25rem; }
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .text-left { text-align: left; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .break-words { overflow-wrap: break-word; }
+    .break-all { word-break: break-all; }
+    .whitespace-pre-wrap { white-space: pre-wrap; }
+    .overflow-hidden { overflow: hidden; }
+    .overflow-y-auto { overflow-y: auto; }
+    .overflow-x-auto { overflow-x: auto; }
+    .border-collapse { border-collapse: collapse; }
+    .transition { transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease; }
+    .cursor-pointer { cursor: pointer; }
+  </style>
 </head>
 <body class="bg-[var(--background)] text-[var(--foreground)] antialiased m-0 p-3 md:p-5">
   <div class="max-w-7xl mx-auto space-y-4">
@@ -277,19 +579,19 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
           <h1 class="text-base md:text-lg font-bold tracking-tight text-[var(--foreground)]">
             SurfaceKnots Atlas
           </h1>
-          <span class="px-2 py-0.5 rounded-md text-xs font-mono bg-[var(--secondary)] text-[var(--secondary-foreground)] border border-[var(--border)]">
-            v0.5.1 &middot; 74 Certified Classes in R&#8308;
+          <span id="hdr-badge" class="px-2 py-0.5 rounded-md text-xs font-mono bg-[var(--secondary)] text-[var(--secondary-foreground)] border border-[var(--border)]">
+            v0.6.0 &middot; Certified Classes in R&#8308;
           </span>
         </div>
         <p class="text-xs text-[var(--muted-foreground)]">
-          Unified Hub-and-Spoke Explorer: Yoshikawa (ch &le; 10) &middot; Expanded Prime Census (ch = 11) &middot; Certified Exact ch = 12 &amp; Parametric Spoke Catalogs
+          Interactive Explorer: Yoshikawa (ch &le; 10) &middot; Prime Censuses (ch = 11, 12) &middot; Parametric Families
         </p>
       </div>
       <!-- Primary Mode Tabs -->
       <nav class="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Atlas views">
         <button id="tab-explorer" type="button" data-main-tab="explorer"
           class="px-3 py-1.5 rounded-lg text-xs font-medium transition border">
-          Atlas Explorer (74)
+          Atlas Explorer
         </button>
         <button id="tab-compare" type="button" data-main-tab="compare"
           class="px-3 py-1.5 rounded-lg text-xs font-medium transition border">
@@ -301,7 +603,7 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
         </button>
         <button id="tab-overview" type="button" data-main-tab="overview"
           class="px-3 py-1.5 rounded-lg text-xs font-medium transition border">
-          Hub &amp; Spoke Summary
+          Census Summary
         </button>
       </nav>
     </header>
@@ -317,12 +619,12 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
         <div>
           <label for="f-tier" class="block text-xs font-medium text-[var(--muted-foreground)] mb-1">Catalog Tier</label>
           <select id="f-tier" class="w-full px-2.5 py-1.5 rounded-lg text-xs bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)]">
-            <option value="all">All Tiers (74)</option>
-            <option value="hub">Canonical Hub (ch &le; 11) (33)</option>
-            <option value="yoshikawa_ch10">Yoshikawa Table (ch &le; 10) (23)</option>
-            <option value="expanded_ch11">Expanded Census (ch = 11) (10)</option>
-            <option value="exact_ch12">Certified Exact ch = 12 (5)</option>
-            <option value="spoke">All Spoke ch &ge; 12 Classes (41)</option>
+            <option value="all">All Tiers</option>
+            <option value="hub">Canonical Hub (ch &le; 12)</option>
+            <option value="yoshikawa_ch10">Yoshikawa Table (ch &le; 10)</option>
+            <option value="expanded_ch11">Expanded Census (ch = 11)</option>
+            <option value="expanded_ch12">Expanded Census (ch = 12)</option>
+            <option value="spoke">Parametric Spoke Catalog</option>
           </select>
         </div>
         <div>
@@ -350,8 +652,12 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
           <label for="f-prop" class="block text-xs font-medium text-[var(--muted-foreground)] mb-1">Certification / Property</label>
           <select id="f-prop" class="w-full px-2.5 py-1.5 rounded-lg text-xs bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)]">
             <option value="all">All Entries</option>
-            <option value="exact_ch">Exact ch(F) Proven (38)</option>
-            <option value="hub_realized">Hub Entries w/ Spoke Model (15)</option>
+            <option value="exact_ch">Exact ch(F) Proven</option>
+            <option value="rigor_provable">Rigor: PROVABLE (Move / Singleton)</option>
+            <option value="rigor_packet">Rigor: PACKET (Unmerged Same-Invariant)</option>
+            <option value="rigor_heuristic">Rigor: HEURISTIC (10-Layer Match)</option>
+            <option value="rigor_bounded">Rigor: BOUNDED ([ch_min, ch_max])</option>
+            <option value="hub_realized">Hub Entries w/ Spoke Model</option>
             <option value="chiral">Certified Chiral</option>
             <option value="q6_triple">Positive Triple Points (Q&#8326;)</option>
             <option value="erratum">Yoshikawa Table II Erratum</option>
@@ -362,7 +668,7 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         <div class="lg:col-span-5 bg-[var(--card)] border border-[var(--border)] rounded-xl overflow-hidden">
           <div class="px-3 py-2 border-b border-[var(--card-border)] flex items-center justify-between text-xs">
-            <span id="filter-count" class="font-medium text-[var(--foreground)]">74 entries</span>
+            <span id="filter-count" class="font-medium text-[var(--foreground)]">Entries</span>
             <button id="btn-reset-filters" type="button" class="text-xs text-[var(--link)] hover:underline">
               Reset filters
             </button>
@@ -489,7 +795,7 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
       let freeLoops = 0;
       const oMatches = s.match(/O\s*\[\s*1\s*\]/g);
       if (oMatches) freeLoops = oMatches.length;
-      const re = /([XYZ])\s*\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]/g;
+      const re = /([XYZ][01]?)\s*\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]/g;
       const items = [];
       let m;
       while ((m = re.exec(s)) !== null) {
@@ -568,7 +874,77 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
       return circles;
     }
 
-    function layoutConnectedBlock(m, localOpp, localVtype) {
+    const TWO_PI = 2.0 * Math.PI;
+    function posMod2Pi(x) {
+      const r = x % TWO_PI;
+      return r < 0 ? r + TWO_PI : r;
+    }
+
+    function verifyCcwCyclicOrder(px, py, qs) {
+      const angs = qs.map(([qx, qy]) => Math.atan2(qy - py, qx - px));
+      let total = 0.0;
+      for (let s = 0; s < 4; s++) {
+        const diff = posMod2Pi(angs[(s + 1) & 3] - angs[s]);
+        if (diff < 1e-5 || diff > TWO_PI - 1e-5) return false;
+        total += diff;
+      }
+      return Math.abs(total - TWO_PI) < 1e-3;
+    }
+
+    function findSelfLoop(m, localOpp) {
+      if (m < 2) return null;
+      for (let v = 0; v < m; v++) {
+        for (let s0 = 0; s0 < 4; s0++) {
+          if (localOpp[4 * v + s0] === 4 * v + ((s0 + 1) & 3)) return [v, s0];
+        }
+      }
+      return null;
+    }
+
+    function findCutSplit(m, localOpp) {
+      if (m < 3) return null;
+      for (let v = 0; v < m; v++) {
+        const seen = new Set([v]);
+        const comps = [];
+        for (let st = 0; st < m; st++) {
+          if (seen.has(st)) continue;
+          const comp = [];
+          const stack = [st];
+          seen.add(st);
+          while (stack.length) {
+            const u = stack.pop();
+            comp.push(u);
+            for (let s = 0; s < 4; s++) {
+              const w = localOpp[4 * u + s] >> 2;
+              if (!seen.has(w)) { seen.add(w); stack.push(w); }
+            }
+          }
+          comp.sort((a, b) => a - b);
+          comps.push(comp);
+        }
+        if (comps.length <= 1) continue;
+        const vOfSlot = [0, 1, 2, 3].map((s) => localOpp[4 * v + s] >> 2);
+        const compIdOf = new Map();
+        comps.forEach((cverts, cid) => cverts.forEach((u) => compIdOf.set(u, cid)));
+        for (let s0 = 0; s0 < 4; s0++) {
+          const s1 = (s0 + 1) & 3, s2 = (s0 + 2) & 3, s3 = (s0 + 3) & 3;
+          const ca = new Set([compIdOf.get(vOfSlot[s0]), compIdOf.get(vOfSlot[s1])]);
+          const cb = new Set([compIdOf.get(vOfSlot[s2]), compIdOf.get(vOfSlot[s3])]);
+          let disj = true;
+          for (const x of ca) if (cb.has(x)) disj = false;
+          if (ca.size && cb.size && disj) {
+            const vertsA = [], vertsB = [];
+            comps.forEach((cv, cid) => { if (ca.has(cid)) vertsA.push(...cv); else vertsB.push(...cv); });
+            vertsA.sort((a, b) => a - b);
+            vertsB.sort((a, b) => a - b);
+            return vertsA.length >= vertsB.length ? [v, s0, vertsA, vertsB] : [v, s2, vertsB, vertsA];
+          }
+        }
+      }
+      return null;
+    }
+
+    function layout2ConnectedLoopFreeBlock(m, localOpp, localVtype, forcedOuterDart = null) {
       if (m === 1) {
         if (localOpp[0] === 2) throw new Error('Non-planar 1-vertex crossing loop.');
         const sub = [[0, 0]];
@@ -598,13 +974,14 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
         return w;
       });
       let outerIdx = 0;
-      let bestKey = [-1, -1, -1, 1];
+      let bestKey = [-1, -1, -1, -1, 1];
       for (let fi = 0; fi < faces.length; fi++) {
         const wf = faceWalks[fi];
+        const hasForced = (forcedOuterDart !== null && faces[fi].includes(forcedOuterDart)) ? 1 : 0;
         const simple = new Set(wf).size === wf.length ? 1 : 0;
         const mkCnt = faces[fi].reduce((acc, hd) => acc + ((localVtype[hd >> 2] === 'Y' || localVtype[hd >> 2] === 'Z') ? 1 : 0), 0);
-        const key = [simple, faces[fi].length, mkCnt, -fi];
-        for (let k = 0; k < 4; k++) {
+        const key = [hasForced, simple, faces[fi].length, mkCnt, -fi];
+        for (let k = 0; k < 5; k++) {
           if (key[k] !== bestKey[k]) { if (key[k] > bestKey[k]) { bestKey = key; outerIdx = fi; } break; }
         }
       }
@@ -682,7 +1059,204 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
           if (fixedPos.has(nd)) { curX[nd] *= rPuff; curY[nd] *= rPuff; }
         }
       }
-      return Array.from({ length: 5 * m }, (_, i) => [curX[i], curY[i]]);
+      const subPos = Array.from({ length: 5 * m }, (_, i) => [curX[i], curY[i]]);
+      for (let v = 0; v < m; v++) {
+        const [vx, vy] = subPos[v];
+        const qs = [0, 1, 2, 3].map((s) => subPos[m + 4 * v + s]);
+        if (!verifyCcwCyclicOrder(vx, vy, qs)) throw new Error(`CCW cyclic dart order violated at vertex ${v}`);
+      }
+      return subPos;
+    }
+
+    function layoutConnectedBlock(m, localOpp, localVtype, forcedOuterDart = null) {
+      if (m >= 2) {
+        const visChk = new Array(4 * m).fill(false);
+        let fCnt = 0;
+        for (let st = 0; st < 4 * m; st++) {
+          if (visChk[st]) continue;
+          fCnt++;
+          let cur = st;
+          while (!visChk[cur]) {
+            visChk[cur] = true;
+            const od = localOpp[cur];
+            cur = (od & ~3) | (((od & 3) + 3) & 3);
+          }
+        }
+        if (fCnt !== m + 2) {
+          throw new Error(`Non-planar shadow: V=${m}, E=${2 * m}, F=${fCnt} (expected ${m + 2}).`);
+        }
+      }
+
+      const sl = findSelfLoop(m, localOpp);
+      if (sl !== null) {
+        const [vSl, s0] = sl;
+        const s1 = (s0 + 1) & 3, s2 = (s0 + 2) & 3, s3 = (s0 + 3) & 3;
+        const od2 = localOpp[4 * vSl + s2], od3 = localOpp[4 * vSl + s3];
+        const remNodes = [];
+        const idxR = new Map();
+        for (let u = 0; u < m; u++) if (u !== vSl) { idxR.set(u, remNodes.length); remNodes.push(u); }
+        const mr = m - 1;
+        const oppR = new Array(4 * mr).fill(0);
+        const vtR = remNodes.map((u) => localVtype[u]);
+        const od2R = 4 * idxR.get(od2 >> 2) + (od2 & 3);
+        const od3R = 4 * idxR.get(od3 >> 2) + (od3 & 3);
+        for (const u of remNodes) {
+          const iu = idxR.get(u);
+          for (let s = 0; s < 4; s++) {
+            const od = localOpp[4 * u + s];
+            if (od === 4 * vSl + s2) oppR[4 * iu + s] = od3R;
+            else if (od === 4 * vSl + s3) oppR[4 * iu + s] = od2R;
+            else oppR[4 * iu + s] = 4 * idxR.get(od >> 2) + (od & 3);
+          }
+        }
+        let forcedR = null;
+        if (forcedOuterDart !== null) {
+          const fv = forcedOuterDart >> 2, fs = forcedOuterDart & 3;
+          forcedR = fv !== vSl ? (4 * idxR.get(fv) + fs) : ((fs === s1 || fs === s3) ? od2R : od3R);
+        }
+        const posR = layoutConnectedBlock(mr, oppR, vtR, forcedR);
+        let [p2x, p2y] = posR[mr + od2R];
+        const [p3x, p3y] = posR[mr + od3R];
+        if (Math.hypot(p2x - p3x, p2y - p3y) < 1e-6) {
+          const [v2x, v2y] = posR[od2R >> 2];
+          p2x = 0.5 * (v2x + p2x); p2y = 0.5 * (v2y + p2y);
+        }
+        const pvx = 0.5 * (p2x + p3x), pvy = 0.5 * (p2y + p3y);
+        const segHalf = 0.5 * Math.hypot(p2x - p3x, p2y - p3y);
+        const theta2 = Math.atan2(p2y - pvy, p2x - pvx);
+        const thetaN = theta2 - 0.5 * Math.PI;
+        const nx = Math.cos(thetaN), ny = Math.sin(thetaN);
+        let rLoop = Math.min(0.85 * segHalf, 0.42);
+        const prx = pvx + rLoop * nx, pry = pvy + rLoop * ny;
+        for (let idxPt = 0; idxPt < 5 * mr; idxPt++) {
+          if (idxPt === mr + od2R || idxPt === mr + od3R) continue;
+          const [qx, qy] = posR[idxPt];
+          rLoop = Math.min(rLoop, 0.45 * Math.hypot(qx - pvx, qy - pvy), 0.6 * Math.hypot(qx - prx, qy - pry));
+        }
+        rLoop = Math.max(rLoop, 0.12 * segHalf);
+        const outV = new Array(m), outU = new Array(4 * m);
+        for (const u of remNodes) {
+          const iu = idxR.get(u);
+          outV[u] = posR[iu];
+          for (let s = 0; s < 4; s++) outU[4 * u + s] = posR[mr + 4 * iu + s];
+        }
+        const v2Pos = posR[od2R >> 2], v3Pos = posR[od3R >> 2];
+        outU[od2] = [0.35 * v2Pos[0] + 0.65 * p2x, 0.35 * v2Pos[1] + 0.65 * p2y];
+        outU[od3] = [0.35 * v3Pos[0] + 0.65 * p3x, 0.35 * v3Pos[1] + 0.65 * p3y];
+        outV[vSl] = [pvx, pvy];
+        outU[4 * vSl + s2] = [pvx + 0.45 * (p2x - pvx), pvy + 0.45 * (p2y - pvy)];
+        outU[4 * vSl + s3] = [pvx + 0.45 * (p3x - pvx), pvy + 0.45 * (p3y - pvy)];
+        const ang0 = theta2 - (2.0 * Math.PI / 3.0), ang1 = theta2 - (1.0 * Math.PI / 3.0);
+        outU[4 * vSl + s0] = [pvx + rLoop * Math.cos(ang0), pvy + rLoop * Math.sin(ang0)];
+        outU[4 * vSl + s1] = [pvx + rLoop * Math.cos(ang1), pvy + rLoop * Math.sin(ang1)];
+        const subPos = [...outV, ...outU];
+        for (let v = 0; v < m; v++) {
+          const [vx, vy] = subPos[v];
+          if (!verifyCcwCyclicOrder(vx, vy, [0, 1, 2, 3].map((s) => subPos[m + 4 * v + s]))) {
+            throw new Error(`CCW cyclic dart order violated at vertex ${v}`);
+          }
+        }
+        return subPos;
+      }
+
+      const split = findCutSplit(m, localOpp);
+      if (split !== null) {
+        let [vCut, s0, vertsA, vertsB] = split;
+        if (forcedOuterDart !== null) {
+          const fv = forcedOuterDart >> 2, fs = forcedOuterDart & 3;
+          if (vertsB.includes(fv) || (fv === vCut && (fs === ((s0 + 2) & 3) || fs === ((s0 + 3) & 3)))) {
+            s0 = (s0 + 2) & 3;
+            [vertsA, vertsB] = [vertsB, vertsA];
+          }
+        }
+        const s1 = (s0 + 1) & 3, s2 = (s0 + 2) & 3, s3 = (s0 + 3) & 3;
+        const nodesA = [vCut, ...vertsA];
+        const idxA = new Map(nodesA.map((u, i) => [u, i]));
+        const ma = nodesA.length;
+        const oppA = new Array(4 * ma).fill(0);
+        for (const u of nodesA) {
+          const iu = idxA.get(u);
+          for (let s = 0; s < 4; s++) {
+            if (u === vCut && (s === s2 || s === s3)) oppA[4 * iu + s] = 4 * iu + (s === s2 ? s3 : s2);
+            else { const od = localOpp[4 * u + s]; oppA[4 * iu + s] = 4 * idxA.get(od >> 2) + (od & 3); }
+          }
+        }
+        const forcedA = forcedOuterDart !== null ? (4 * idxA.get(forcedOuterDart >> 2) + (forcedOuterDart & 3)) : null;
+        const posA = layoutConnectedBlock(ma, oppA, nodesA.map((u) => localVtype[u]), forcedA);
+
+        const nodesB = [vCut, ...vertsB];
+        const idxB = new Map(nodesB.map((u, i) => [u, i]));
+        const mb = nodesB.length;
+        const oppB = new Array(4 * mb).fill(0);
+        for (const u of nodesB) {
+          const iu = idxB.get(u);
+          for (let s = 0; s < 4; s++) {
+            if (u === vCut && (s === s0 || s === s1)) oppB[4 * iu + s] = 4 * iu + (s === s0 ? s1 : s0);
+            else { const od = localOpp[4 * u + s]; oppB[4 * iu + s] = 4 * idxB.get(od >> 2) + (od & 3); }
+          }
+        }
+        const posB = layoutConnectedBlock(mb, oppB, nodesB.map((u) => localVtype[u]), s1);
+
+        const [vaX, vaY] = posA[0];
+        const [qa2X, qa2Y] = posA[ma + s2], [qa3X, qa3Y] = posA[ma + s3];
+        let pocketR = Math.min(Math.hypot(qa2X - vaX, qa2Y - vaY), Math.hypot(qa3X - vaX, qa3Y - vaY));
+        const midPx = 0.5 * (qa2X + qa3X), midPy = 0.5 * (qa2Y + qa3Y);
+        for (let idxPt = 0; idxPt < 5 * ma; idxPt++) {
+          if (idxPt === 0 || idxPt === ma + s2 || idxPt === ma + s3) continue;
+          const [px, py] = posA[idxPt];
+          pocketR = Math.min(pocketR, 0.75 * Math.hypot(px - midPx, py - midPy));
+        }
+        const ang2A = Math.atan2(qa2Y - vaY, qa2X - vaX);
+        const angTarget = ang2A + 0.5 * posMod2Pi(Math.atan2(qa3Y - vaY, qa3X - vaX) - ang2A);
+
+        const [vbX, vbY] = posB[0];
+        const [qb2X, qb2Y] = posB[mb + s2], [qb3X, qb3Y] = posB[mb + s3];
+        const ang2B = Math.atan2(qb2Y - vbY, qb2X - vbX);
+        const angSrc = ang2B + 0.5 * posMod2Pi(Math.atan2(qb3Y - vbY, qb3X - vbX) - ang2B);
+
+        let maxDistB = 1e-6;
+        for (let i = 1; i < mb; i++) maxDistB = Math.max(maxDistB, Math.hypot(posB[i][0] - vbX, posB[i][1] - vbY));
+        for (let iu = 0; iu < mb; iu++) {
+          for (let s = 0; s < 4; s++) {
+            if (iu === 0 && (s === s0 || s === s1)) continue;
+            const [px, py] = posB[mb + 4 * iu + s];
+            maxDistB = Math.max(maxDistB, Math.hypot(px - vbX, py - vbY));
+          }
+        }
+        const scale = (0.9 * pocketR) / maxDistB;
+        const rot = angTarget - angSrc;
+        const cosR = Math.cos(rot), sinR = Math.sin(rot);
+        const xformB = ([px, py]) => {
+          const dx = px - vbX, dy = py - vbY;
+          return [vaX + scale * (dx * cosR - dy * sinR), vaY + scale * (dx * sinR + dy * cosR)];
+        };
+
+        const outV = new Array(m), outU = new Array(4 * m);
+        for (const u of nodesA) {
+          const iu = idxA.get(u);
+          outV[u] = posA[iu];
+          for (let s = 0; s < 4; s++) {
+            if (!(u === vCut && (s === s2 || s === s3))) outU[4 * u + s] = posA[ma + 4 * iu + s];
+          }
+        }
+        for (const u of nodesB) {
+          const iu = idxB.get(u);
+          if (u !== vCut) outV[u] = xformB(posB[iu]);
+          for (let s = 0; s < 4; s++) {
+            if (!(u === vCut && (s === s0 || s === s1))) outU[4 * u + s] = xformB(posB[mb + 4 * iu + s]);
+          }
+        }
+        const subPos = [...outV, ...outU];
+        for (let v = 0; v < m; v++) {
+          const [vx, vy] = subPos[v];
+          if (!verifyCcwCyclicOrder(vx, vy, [0, 1, 2, 3].map((s) => subPos[m + 4 * v + s]))) {
+            throw new Error(`CCW cyclic dart order violated at vertex ${v}`);
+          }
+        }
+        return subPos;
+      }
+
+      return layout2ConnectedLoopFreeBlock(m, localOpp, localVtype, forcedOuterDart);
     }
 
     function buildSplines(m, localOpp, localVtype, localScomp, subPos, resolution) {
@@ -1011,12 +1585,30 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     /* ---------- UI State & Views ---------- */
+    function resolveLabel(lbl) {
+      if (BY_LABEL[lbl]) return lbl;
+      const found = ENTRIES.find((e) => e.reals.some((r) => r.id === lbl));
+      return found ? found.label : (ENTRIES[0] ? ENTRIES[0].label : lbl);
+    }
+
+    function rigorPillHtml(badgeText, compact = false) {
+      if (!badgeText) return '';
+      const isWarn = badgeText.startsWith('HEURISTIC') || badgeText.startsWith('PACKET');
+      const cls = isWarn
+        ? 'border-[var(--warning)] text-[var(--warning)] bg-[var(--background)]'
+        : badgeText.startsWith('PROVABLE')
+          ? 'border-[var(--border)] text-[var(--foreground)] bg-[var(--secondary)]'
+          : 'border-[var(--border)] text-[var(--muted-foreground)] bg-[var(--background)]';
+      const pad = compact ? 'px-1.5 py-0.5' : 'px-2 py-0.5';
+      return `<span class="${pad} rounded text-xs font-mono border ${cls}">${esc(badgeText)}</span>`;
+    }
+
     let state = {
       mainTab: 'explorer',
       selectedLabel: '10_1^0,1',
       diagramMode: 'zero',
-      cmpA: 'R(b^2*a)',
-      cmpB: 'R(b^2*a^-1)',
+      cmpA: resolveLabel('R(b^2*a)'),
+      cmpB: resolveLabel('R(b^2*a^-1)'),
     };
 
     function matchesFilters(e) {
@@ -1026,9 +1618,10 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const ori = document.getElementById('f-ori').value;
       const prop = document.getElementById('f-prop').value;
 
-      if (tier === 'hub' && !(e.tier_code === 'yoshikawa_ch10' || e.tier_code === 'expanded_ch11')) return false;
-      if (tier === 'spoke' && !(e.tier_code === 'exact_ch12' || e.tier_code === 'spoke_ch_ge_12')) return false;
-      if (['yoshikawa_ch10', 'expanded_ch11', 'exact_ch12'].includes(tier) && e.tier_code !== tier) return false;
+      const isHub = ['yoshikawa_ch10', 'expanded_ch11', 'expanded_ch12'].includes(e.tier_code);
+      if (tier === 'hub' && !isHub) return false;
+      if (tier === 'spoke' && isHub) return false;
+      if (['yoshikawa_ch10', 'expanded_ch11', 'expanded_ch12'].includes(tier) && e.tier_code !== tier) return false;
 
       if (topo === 's2_knot' && !(e.nc === 1 && e.types[0] === 'S^2')) return false;
       if (topo === 't2_knot' && !(e.nc === 1 && e.types[0] === 'T^2')) return false;
@@ -1040,6 +1633,10 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
       if (ori !== 'all' && e.ori !== ori) return false;
 
       if (prop === 'exact_ch' && !e.ex_ch) return false;
+      if (prop === 'rigor_provable' && e.rigor_code !== 'provable') return false;
+      if (prop === 'rigor_packet' && e.rigor_code !== 'packet') return false;
+      if (prop === 'rigor_heuristic' && !(e.rigor_code === 'heuristic' || (e.spoke_match_badge && e.spoke_match_badge.startsWith('HEURISTIC')))) return false;
+      if (prop === 'rigor_bounded' && e.rigor_code !== 'bounded') return false;
       if (prop === 'hub_realized' && e.reals.length === 0) return false;
       if (prop === 'chiral' && !e.chiral) return false;
       if (prop === 'q6_triple' && !e.q6_pos) return false;
@@ -1048,7 +1645,8 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
       if (q) {
         const hay = [
           e.label, e.desc, e.types.join(' '), e.spoke, e.subfamily,
-          e.e1.join(' '), e.d1, e.pi1, e.reals.map((r) => r.id).join(' '),
+          e.rigor_badge, e.spoke_match_badge, e.nw,
+          e.e1.join(' '), e.d1, e.pi1, e.reals.map((r) => `${r.id} ${r.rigor || ''}`).join(' '),
         ].join(' ').toLowerCase();
         if (!hay.includes(q)) return false;
       }
@@ -1073,14 +1671,18 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
         const badge = e.ex_ch
           ? `<span class="px-1.5 py-0.5 rounded text-xs font-mono bg-[var(--background)] border border-[var(--border)]">ch=${fmtCh(e)}</span>`
           : `<span class="px-1.5 py-0.5 rounded text-xs font-mono text-[var(--muted-foreground)] border border-[var(--border)]">ch&isin;${fmtCh(e)}</span>`;
+        const spokeWarn = (e.spoke_match_badge && e.spoke_match_badge.startsWith('HEURISTIC'))
+          ? ` ${rigorPillHtml('Spoke Join: ' + e.spoke_match_badge, true)}`
+          : '';
         return (
-          `<button type="button" data-select-label="${esc(e.label)}" class="w-full text-left px-3 py-2.5 transition flex items-center justify-between gap-2 ${rowCls}">` +
+          `<button type="button" data-select-label="${esc(e.label)}" class="w-full text-left px-3 py-2.5 transition flex items-start justify-between gap-2 ${rowCls}">` +
             `<div class="min-w-0">` +
               `<div class="flex items-center gap-2">` +
                 `<span class="font-mono text-xs font-bold text-[var(--foreground)] truncate">${esc(e.label)}</span>` +
                 `<span class="text-xs text-[var(--muted-foreground)] truncate">${esc(e.types.join(' \u222a '))}</span>` +
               `</div>` +
               `<div class="text-xs text-[var(--muted-foreground)] truncate mt-0.5">${esc(e.desc || e.tier_label)}</div>` +
+              `<div class="flex flex-wrap gap-1.5 mt-1">${rigorPillHtml(e.rigor_badge, true)}${spokeWarn}</div>` +
             `</div>` +
             `<div class="shrink-0">${badge}</div>` +
           `</button>`
@@ -1147,11 +1749,15 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
         `<div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs space-y-1.5">` +
           `<div class="font-semibold text-[var(--foreground)]">Constructive Parametric Spoke Realizations (${e.reals.length})</div>` +
           `<div class="flex flex-wrap gap-1.5">` +
-            e.reals.map((r) => (
-              `<span class="px-2 py-0.5 rounded font-mono text-xs bg-[var(--card)] border border-[var(--border)]">` +
-                `${esc(r.id)} &middot; <span class="text-[var(--muted-foreground)]">${esc(r.mode)} (ch=${r.ch})</span>` +
-              `</span>`
-            )).join('') +
+            e.reals.map((r) => {
+              const rWarn = (r.rigor || '').startsWith('HEURISTIC');
+              const rCls = rWarn ? 'border-[var(--warning)]' : 'border-[var(--border)]';
+              return (
+                `<span class="px-2 py-0.5 rounded font-mono text-xs bg-[var(--card)] border ${rCls}">` +
+                  `${esc(r.id)} &middot; <span class="${rWarn ? 'text-[var(--warning)]' : 'text-[var(--muted-foreground)]'}">${esc(r.rigor || r.mode)} (diag ch=${r.ch})</span>` +
+                `</span>`
+              );
+            }).join('') +
           `</div>` +
         `</div>`
       ) : '';
@@ -1170,7 +1776,7 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
             `<div class="flex flex-wrap items-center gap-2">` +
               `<h2 class="text-base font-bold font-mono text-[var(--foreground)]">${esc(e.label)}</h2>` +
               `<span class="px-2 py-0.5 rounded text-xs bg-[var(--secondary)] text-[var(--secondary-foreground)]">${esc(e.tier_label)}</span>` +
-              `<span class="px-2 py-0.5 rounded text-xs font-mono border border-[var(--border)]">${esc(e.cell)}</span>` +
+              `${rigorPillHtml(e.rigor_badge)}` +
             `</div>` +
             `<p class="text-xs text-[var(--muted-foreground)]">${esc(e.desc)}</p>` +
             `<div class="flex flex-wrap gap-1.5 pt-1">${compDots}</div>` +
@@ -1186,8 +1792,9 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
         hubRealHtml +
         `<div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">` +
           `<div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1">` +
-            `<div class="font-semibold text-[var(--muted-foreground)]">Complexity &amp; Equivalence Cell</div>` +
+            `<div class="font-semibold text-[var(--muted-foreground)]">Complexity &amp; Epistemic Status</div>` +
             `<div><span class="text-[var(--muted-foreground)]">ch(F):</span> <span class="font-mono font-semibold">${e.ex_ch ? e.ch_lo + ' (EXACT)' : '[' + e.ch_lo + ', ' + e.ch_hi + ']'}</span> (diag=${e.ch_d}: c=${e.c}, m=${e.m})</div>` +
+            `<div><span class="text-[var(--muted-foreground)]">Epistemic Rigor:</span> <span class="font-mono">${esc(e.rigor_badge)}</span></div>` +
             `<div><span class="text-[var(--muted-foreground)]">Orientability / &chi;(F):</span> <span class="font-mono">${esc(e.ori)} / &chi;=${e.chi}</span> &middot; Ribbon: <span class="font-mono">${esc(e.rib)}</span></div>` +
             `<div><span class="text-[var(--muted-foreground)]">Notes:</span> ${esc(e.reason)}${e.nw ? ' &middot; ' + esc(e.nw) : ''}</div>` +
           `</div>` +
@@ -1206,7 +1813,7 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
           `<div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1">` +
             `<div class="font-semibold text-[var(--muted-foreground)]">Tier-3 Branched Cover &Sigma;&#8322;, &pi;&#8322; &amp; Symmetry</div>` +
             `<div><span class="text-[var(--muted-foreground)]">&Sigma;&#8322;(F):</span> <code class="font-mono">${esc(e.ld[7])}</code>${e.q_hs4 ? ' <span class="px-1 rounded bg-[var(--secondary)] text-xs">Q-HS&#8308;</span>' : ''}</div>` +
-            `<div><span class="text-[var(--muted-foreground)]">&pi;&#8322;:</span> <code class="font-mono">${esc(e.ld[8])}</code></div>` +
+            `<div><span class="text-[var(--muted-foreground)]">&pi;&#8322; / Covers:</span> <code class="font-mono">${esc(e.ld[8])}</code></div>` +
             `<div><span class="text-[var(--muted-foreground)]">Symmetry:</span> ${esc(e.ld[9])}</div>` +
           `</div>` +
         `</div>` +
@@ -1242,16 +1849,16 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     const LAYER_NAMES = [
-      '1. Intrinsic Topology & Normal Euler',
+      '1. Intrinsic O(4) Topology & Normal Euler',
       '2. Abelianized H\u2081(S\u2074 \\ F)',
-      '3. Alexander Ideals (E\u2081, E\u2082, \u0394\u2081)',
+      '3. Alexander Ideal E\u2081 & Twisted S\u2083',
       '4. Finite & SL(2,F\u2083) Quotients',
       '5. Kei, Bikei & Alexander Biquandle',
       '6. Mochizuki 3-Cocycle & Q\u2086 Triple-Points',
-      '7. Mod-2 Double/Triple Linking & Sublinks',
+      '7. O(4) Mod-2 Double/Triple Linking & Sublinks',
       '8. 4D Double Branched Cover \u03a3\u2082(F)',
-      '9. Lomonaco \u03c0\u2082 & Finite Cover Homology',
-      '10. O(4) Symmetry & Chirality Profile',
+      '9. Finite Cover Homology Profile',
+      '10. Exact O(4) Chirality & Invertibility Obstructions',
     ];
 
     function renderCompareView() {
@@ -1341,24 +1948,24 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
     function renderOverviewView() {
       const c = DATA.counts;
-      const exact12 = ENTRIES.filter((e) => e.tier_code === 'exact_ch12');
+      const ch12List = ENTRIES.filter((e) => e.tier_code === 'expanded_ch12' || e.tier_code === 'exact_ch12');
       const hubRealized = ENTRIES.filter((e) => e.reals.length > 0);
       document.getElementById('view-overview').innerHTML = (
         `<div class="grid grid-cols-2 lg:grid-cols-4 gap-3">` +
           `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">` +
             `<div class="text-xs text-[var(--muted-foreground)]">Unified Distinct Classes</div>` +
             `<div class="text-xl font-bold font-mono mt-1">${c.total_distinct_classes}</div>` +
-            `<div class="text-xs text-[var(--muted-foreground)] mt-1">33 Hub + 41 Spoke (ch &ge; 12)</div>` +
+            `<div class="text-xs text-[var(--muted-foreground)] mt-1">${c.hub_total} Hub + ${c.spoke_total} Spoke</div>` +
           `</div>` +
           `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">` +
             `<div class="text-xs text-[var(--muted-foreground)]">Exact ch(F) Certified</div>` +
-            `<div class="text-xl font-bold font-mono mt-1">${c.yoshikawa_ch10 + c.expanded_ch11 + c.exact_ch12}</div>` +
-            `<div class="text-xs text-[var(--muted-foreground)] mt-1">23 (ch&le;10) + 10 (ch=11) + 5 (ch=12)</div>` +
+            `<div class="text-xl font-bold font-mono mt-1">${c.exact_ch_total}</div>` +
+            `<div class="text-xs text-[var(--muted-foreground)] mt-1">${c.yoshikawa_ch10} (ch&le;10) + ${c.expanded_ch11} (ch=11) + ${c.expanded_ch12 || c.exact_ch12} (ch=12)</div>` +
           `</div>` +
           `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">` +
             `<div class="text-xs text-[var(--muted-foreground)]">Hub Classes Realized by Spokes</div>` +
-            `<div class="text-xl font-bold font-mono mt-1">${c.hub_realized_count} / 33</div>` +
-            `<div class="text-xs text-[var(--muted-foreground)] mt-1">12 move-certified via C mountain-pass</div>` +
+            `<div class="text-xl font-bold font-mono mt-1">${c.hub_realized_count} / ${c.hub_total}</div>` +
+            `<div class="text-xs text-[var(--muted-foreground)] mt-1">Spoke parametric realizations</div>` +
           `</div>` +
           `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">` +
             `<div class="text-xs text-[var(--muted-foreground)]">Compiled Family Diagrams</div>` +
@@ -1368,19 +1975,19 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
         `</div>` +
         `<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">` +
           `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-2.5">` +
-            `<h3 class="text-sm font-bold">5 Certified Exact ch(F) = 12 Surface-Links</h3>` +
-            `<p class="text-xs text-[var(--muted-foreground)]">Compiled into 12-vertex planar ch-diagrams and proven disjoint from the complete ch &le; 11 prime + composite + split reference catalog:</p>` +
-            `<div class="divide-y divide-[var(--card-border)]">` +
-              exact12.map((e) => (
+            `<h3 class="text-sm font-bold">${ch12List.length} Certified Exact ch(F) = 12 Surface-Links</h3>` +
+            `<p class="text-xs text-[var(--muted-foreground)]">Exhaustive ch = 12 prime census classes proven disjoint from the complete ch &le; 11 prime + composite + split reference catalog:</p>` +
+            `<div class="max-h-72 overflow-y-auto divide-y divide-[var(--card-border)]">` +
+              ch12List.map((e) => (
                 `<button type="button" data-jump="${esc(e.label)}" class="w-full py-2 text-left flex items-center justify-between hover:bg-[var(--background)] px-2 rounded text-xs">` +
-                  `<div><span class="font-mono font-bold">${esc(e.label)}</span> &middot; <span class="text-[var(--muted-foreground)]">${esc(e.desc)}</span></div>` +
-                  `<span class="font-mono text-xs px-1.5 py-0.5 rounded border border-[var(--border)]">${esc(e.types.join(' \u222a '))}</span>` +
+                  `<div class="min-w-0 truncate"><span class="font-mono font-bold">${esc(e.label)}</span> &middot; <span class="text-[var(--muted-foreground)]">${esc(e.desc || e.ld[2])}</span></div>` +
+                  `<span class="font-mono text-xs px-1.5 py-0.5 rounded border border-[var(--border)] shrink-0">${esc(e.types.join(' \u222a '))}</span>` +
                 `</button>`
               )).join('') +
             `</div>` +
           `</div>` +
           `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-2.5">` +
-            `<h3 class="text-sm font-bold">15 Canonical Hub Entries Realized by Parametric Spokes</h3>` +
+            `<h3 class="text-sm font-bold">${hubRealized.length} Canonical Hub Entries Realized by Parametric Spokes</h3>` +
             `<div class="max-h-72 overflow-y-auto divide-y divide-[var(--card-border)]">` +
               hubRealized.map((e) => (
                 `<button type="button" data-jump="${esc(e.label)}" class="w-full py-2 text-left flex items-center justify-between gap-2 hover:bg-[var(--background)] px-2 rounded text-xs">` +
@@ -1400,6 +2007,9 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
         });
       });
     }
+
+    document.getElementById('hdr-badge').textContent = `v${DATA.version} \u00b7 ${DATA.counts.total_distinct_classes} Certified Classes in R\u2074`;
+    document.getElementById('tab-explorer').textContent = `Atlas Explorer (${DATA.counts.total_distinct_classes})`;
 
     function setMainTab(tab) {
       state.mainTab = tab;
@@ -1462,7 +2072,8 @@ _ATLAS_HTML_TEMPLATE = r"""<!DOCTYPE html>
     ).join('');
     presetWrap.querySelectorAll('[data-preset]').forEach((b) => {
       b.addEventListener('click', () => {
-        const [pa, pb] = PRESETS[Number(b.getAttribute('data-preset'))];
+        const [rawA, rawB] = PRESETS[Number(b.getAttribute('data-preset'))];
+        const pa = resolveLabel(rawA), pb = resolveLabel(rawB);
         state.cmpA = pa; state.cmpB = pb;
         selA.value = pa; selB.value = pb;
         renderCompareView();
