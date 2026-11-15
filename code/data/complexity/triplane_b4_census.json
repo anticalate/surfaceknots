@@ -1,0 +1,9460 @@
+{
+  "max_bridge": 4,
+  "max_c_tri": 6,
+  "runtime_enum_sec": 314.27,
+  "runtime_invariants_sec": 2.174,
+  "enumeration_stats": {
+    "valid_triples_ingested": 36166398,
+    "c_resolved_triples": 35302655,
+    "python_tietze_overflow_triples": 863743,
+    "pruned_shared_untouched_arch_b4": 26808485,
+    "pruned_trivial_double_tangle": 1828325,
+    "pruned_halftwist_reducible": 85854824,
+    "concentrated_compilable": 1719925,
+    "concentrated_meander_obstructed": 95404,
+    "elapsed_b1_ms": 1,
+    "elapsed_b2_ms": 53,
+    "elapsed_b3_ms": 6351,
+    "elapsed_b4_ms": 307113,
+    "tangle_counts_by_bridge": {
+      "1": [
+        1
+      ],
+      "2": [
+        2,
+        4,
+        14,
+        41,
+        118,
+        344
+      ],
+      "3": [
+        5,
+        22,
+        105,
+        455,
+        1931,
+        8068
+      ],
+      "4": [
+        14,
+        96,
+        582,
+        3134,
+        15994,
+        78912
+      ]
+    },
+    "distinct_prekey_buckets": 62
+  },
+  "distinct_o4_classes_count": 22,
+  "connected_s2_classes_up_to_c6": [
+    {
+      "catalog_matches": [
+        "Hub:0_1"
+      ],
+      "min_bridge": 1,
+      "min_c_tri": 0,
+      "min_concentrated_c_tri": 0,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 0,
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "e1_generators": [
+        "1"
+      ],
+      "sigma2_h1_torsion": []
+    },
+    {
+      "catalog_matches": [
+        "Hub:10_2",
+        "Spoke:R(b^3*a)"
+      ],
+      "min_bridge": 4,
+      "min_c_tri": 6,
+      "min_concentrated_c_tri": 6,
+      "min_unconcentrated_c_tri": null,
+      "best_compiled_ch": null,
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          6
+        ]
+      ],
+      "e1_generators": [
+        "3",
+        "x + 1"
+      ],
+      "sigma2_h1_torsion": [
+        3
+      ]
+    },
+    {
+      "catalog_matches": [
+        "Hub:8_1"
+      ],
+      "min_bridge": 4,
+      "min_c_tri": 6,
+      "min_concentrated_c_tri": 6,
+      "min_unconcentrated_c_tri": 6,
+      "best_compiled_ch": 8,
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          2,
+          4
+        ]
+      ],
+      "e1_generators": [
+        "x**2 - x + 1"
+      ],
+      "sigma2_h1_torsion": [
+        3
+      ]
+    }
+  ],
+  "gong_lewis_monkman_osnes_2026_verification": {
+    "paper": "Gong, Lewis-Monkman, Osnes (June 2026, arXiv:2606.03799v2)",
+    "conjecture_3_6_spun_trefoil_c_tri_eq_6_at_b4": true,
+    "corollary_3_5_two_twist_spun_trefoil_c_tri_eq_6_at_b4": true,
+    "conjecture_3_7_only_0_1_8_1_10_2_for_s2_up_to_c6_at_b4": true,
+    "rank_inversion_9_1_absent_at_c6": true
+  },
+  "entries": [
+    {
+      "o4_key_repr": "((1, (0,), 'Ori', 2, (0,)), (1, ()), '48d6bf646cc9392e', (2, 0, (), 0, 0))",
+      "catalog_matches": [
+        "Hub:0_1"
+      ],
+      "min_bridge_in_census": 1,
+      "min_c_tri": 0,
+      "min_concentrated_c_tri": 0,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 0,
+      "best_compiled_epd": "O[1]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 1866352,
+      "conc_compilable_count": 118324,
+      "conc_interleaved_count": 12822,
+      "witness_triplane": {
+        "bridge_number": 1,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 1,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 1,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 1,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ]
+          ],
+          "braid_word": []
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 2,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          1,
+          2,
+          1
+        ],
+        "t1": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        },
+        "t3": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "braid_word": [
+            -3
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 1,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 1,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 1,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 1,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ]
+          ],
+          "braid_word": []
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 1,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "num_components": 1,
+        "yoshikawa_genera": [
+          0
+        ],
+        "component_types": [
+          "S^2"
+        ],
+        "orientability": "Ori",
+        "euler_characteristic": 2,
+        "normal_euler_numbers": [
+          0
+        ],
+        "abs_normal_euler_multiset": [
+          0
+        ],
+        "pi1_generators": 1,
+        "pi1_relators": 0,
+        "pi1_presentation": "<x1 | >",
+        "h1_free_rank": 1,
+        "h1_torsion": [],
+        "alexander_variables": [
+          "x"
+        ],
+        "e1_generators": [
+          "1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "1",
+        "e1_fingerprint_hash": "48d6bf646cc9392e",
+        "hom_counts": {
+          "S3": 6,
+          "D8": 8,
+          "Q8": 8,
+          "D10": 10,
+          "A4": 12,
+          "Dic12": 12,
+          "Dic16": 16,
+          "F21": 21,
+          "S4": 24,
+          "A5": 60
+        },
+        "twisted_s3_delta0": [],
+        "sigma2_euler": 2,
+        "sigma2_b1": 0,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 0,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          0
+        ],
+        "sigma2_is_q_homology_4sphere": true
+      }
+    },
+    {
+      "o4_key_repr": "((2, (0, 0), 'Ori', 4, (0, 0)), (2, ()), '22588661c09a2b68', (0, 1, (), 0, 0))",
+      "catalog_matches": [
+        "Unlink:0_1_u_0_1"
+      ],
+      "min_bridge_in_census": 2,
+      "min_c_tri": 0,
+      "min_concentrated_c_tri": 0,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 0,
+      "best_compiled_epd": "O[1]O[1]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 209689,
+      "conc_compilable_count": 19675,
+      "conc_interleaved_count": 487,
+      "witness_triplane": {
+        "bridge_number": 2,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": []
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 3,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          3,
+          2
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            -3
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 2,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": []
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 2,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "num_components": 2,
+        "yoshikawa_genera": [
+          0,
+          0
+        ],
+        "component_types": [
+          "S^2",
+          "S^2"
+        ],
+        "orientability": "Ori",
+        "euler_characteristic": 4,
+        "normal_euler_numbers": [
+          0,
+          0
+        ],
+        "abs_normal_euler_multiset": [
+          0,
+          0
+        ],
+        "pi1_generators": 2,
+        "pi1_relators": 0,
+        "pi1_presentation": "<x1, x2 | >",
+        "h1_free_rank": 2,
+        "h1_torsion": [],
+        "alexander_variables": [
+          "x",
+          "y"
+        ],
+        "e1_generators": [
+          "0"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "0",
+        "e1_fingerprint_hash": "22588661c09a2b68",
+        "hom_counts": {
+          "S3": 36,
+          "D8": 64,
+          "Q8": 64,
+          "D10": 100,
+          "A4": 144,
+          "Dic12": 144,
+          "Dic16": 256,
+          "F21": 441,
+          "S4": 576,
+          "A5": 3600
+        },
+        "twisted_s3_delta0": [
+          "(2, ())",
+          "(2, ())",
+          "(2, ())"
+        ],
+        "sigma2_euler": 0,
+        "sigma2_b1": 1,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 0,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          0
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((1, (1,), 'Ori', 0, (0,)), (1, ()), '48d6bf646cc9392e', (4, 0, (), 2, 0))",
+      "catalog_matches": [
+        "Hub:2_1^1"
+      ],
+      "min_bridge_in_census": 3,
+      "min_c_tri": 0,
+      "min_concentrated_c_tri": 0,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 2,
+      "best_compiled_epd": "Y[1,2,3,4], Z[2,1,4,3]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 3779449,
+      "conc_compilable_count": 175741,
+      "conc_interleaved_count": 15789,
+      "witness_triplane": {
+        "bridge_number": 3,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": []
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 3,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": [
+            1
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 3,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": []
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 3,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "num_components": 1,
+        "yoshikawa_genera": [
+          1
+        ],
+        "component_types": [
+          "T^2"
+        ],
+        "orientability": "Ori",
+        "euler_characteristic": 0,
+        "normal_euler_numbers": [
+          0
+        ],
+        "abs_normal_euler_multiset": [
+          0
+        ],
+        "pi1_generators": 1,
+        "pi1_relators": 0,
+        "pi1_presentation": "<x1 | >",
+        "h1_free_rank": 1,
+        "h1_torsion": [],
+        "alexander_variables": [
+          "x"
+        ],
+        "e1_generators": [
+          "1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "1",
+        "e1_fingerprint_hash": "48d6bf646cc9392e",
+        "hom_counts": {
+          "S3": 6,
+          "D8": 8,
+          "Q8": 8,
+          "D10": 10,
+          "A4": 12,
+          "Dic12": 12,
+          "Dic16": 16,
+          "F21": 21,
+          "S4": 24,
+          "A5": 60
+        },
+        "twisted_s3_delta0": [],
+        "sigma2_euler": 4,
+        "sigma2_b1": 0,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 2,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          1,
+          1
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((3, (0, 0, 0), 'Ori', 6, (0, 0, 0)), (3, ()), 'b1686d8f0b35e0a6', (-2, 2, (), 0, 0))",
+      "catalog_matches": [
+        "Unlink:0_1_u_0_1_u_0_1"
+      ],
+      "min_bridge_in_census": 3,
+      "min_c_tri": 0,
+      "min_concentrated_c_tri": 0,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 0,
+      "best_compiled_epd": "O[1]O[1]O[1]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 13450,
+      "conc_compilable_count": 1522,
+      "conc_interleaved_count": 0,
+      "witness_triplane": {
+        "bridge_number": 3,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          3,
+          3,
+          3
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          3,
+          4,
+          3
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            4
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": [
+            -5
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 3,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          3,
+          3,
+          3
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 3,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          3,
+          3,
+          3
+        ],
+        "num_components": 3,
+        "yoshikawa_genera": [
+          0,
+          0,
+          0
+        ],
+        "component_types": [
+          "S^2",
+          "S^2",
+          "S^2"
+        ],
+        "orientability": "Ori",
+        "euler_characteristic": 6,
+        "normal_euler_numbers": [
+          0,
+          0,
+          0
+        ],
+        "abs_normal_euler_multiset": [
+          0,
+          0,
+          0
+        ],
+        "pi1_generators": 3,
+        "pi1_relators": 0,
+        "pi1_presentation": "<x1, x2, x3 | >",
+        "h1_free_rank": 3,
+        "h1_torsion": [],
+        "alexander_variables": [
+          "x",
+          "y",
+          "z"
+        ],
+        "e1_generators": [
+          "0"
+        ],
+        "e2_generators": [
+          "0"
+        ],
+        "single_var_alex": "0",
+        "e1_fingerprint_hash": "b1686d8f0b35e0a6",
+        "hom_counts": {
+          "S3": 216,
+          "D8": 512,
+          "Q8": 512,
+          "D10": 1000,
+          "A4": 1728,
+          "Dic12": 1728,
+          "Dic16": 4096,
+          "F21": 9261,
+          "S4": 13824,
+          "A5": 216000
+        },
+        "twisted_s3_delta0": [
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())",
+          "(4, ())"
+        ],
+        "sigma2_euler": -2,
+        "sigma2_b1": 2,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 0,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          0
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((2, (0, 1), 'Ori', 2, (0, 0)), (2, ()), '22588661c09a2b68', (2, 1, (), 2, 0))",
+      "catalog_matches": [
+        "Split:0_1_u_2_1^1"
+      ],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 0,
+      "min_concentrated_c_tri": 0,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 2,
+      "best_compiled_epd": "Y[1,2,3,4], Z[2,1,4,3], O[1]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 152291,
+      "conc_compilable_count": 10526,
+      "conc_interleaved_count": 0,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            3
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 0,
+        "crossing_triple": [
+          0,
+          0,
+          0
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "num_components": 2,
+        "yoshikawa_genera": [
+          0,
+          1
+        ],
+        "component_types": [
+          "S^2",
+          "T^2"
+        ],
+        "orientability": "Ori",
+        "euler_characteristic": 2,
+        "normal_euler_numbers": [
+          0,
+          0
+        ],
+        "abs_normal_euler_multiset": [
+          0,
+          0
+        ],
+        "pi1_generators": 2,
+        "pi1_relators": 0,
+        "pi1_presentation": "<x1, x2 | >",
+        "h1_free_rank": 2,
+        "h1_torsion": [],
+        "alexander_variables": [
+          "x",
+          "y"
+        ],
+        "e1_generators": [
+          "0"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "0",
+        "e1_fingerprint_hash": "22588661c09a2b68",
+        "hom_counts": {
+          "S3": 36,
+          "D8": 64,
+          "Q8": 64,
+          "D10": 100,
+          "A4": 144,
+          "Dic12": 144,
+          "Dic16": 256,
+          "F21": 441,
+          "S4": 576,
+          "A5": 3600
+        },
+        "twisted_s3_delta0": [
+          "(2, ())",
+          "(2, ())",
+          "(2, ())"
+        ],
+        "sigma2_euler": 2,
+        "sigma2_b1": 1,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 2,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          1,
+          1
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((1, (-1,), 'Non', 1, (2,)), (0, (2,)), 'b11dfc4c3dd96d52', (3, 0, (), 1, 1))",
+      "catalog_matches": [
+        "Hub:2_1^-1"
+      ],
+      "min_bridge_in_census": 2,
+      "min_c_tri": 1,
+      "min_concentrated_c_tri": 1,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 2,
+      "best_compiled_epd": "X[2,3,4,1], Y[1,4,3,2]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 6101435,
+      "conc_compilable_count": 328207,
+      "conc_interleaved_count": 37442,
+      "witness_triplane": {
+        "bridge_number": 2,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 3,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            4
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 2,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 2,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 2,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "num_components": 1,
+        "yoshikawa_genera": [
+          -1
+        ],
+        "component_types": [
+          "RP^2"
+        ],
+        "orientability": "Non",
+        "euler_characteristic": 1,
+        "normal_euler_numbers": [
+          2
+        ],
+        "abs_normal_euler_multiset": [
+          2
+        ],
+        "pi1_generators": 1,
+        "pi1_relators": 1,
+        "pi1_presentation": "<x1 | x1^-2 = 1>",
+        "h1_free_rank": 0,
+        "h1_torsion": [
+          2
+        ],
+        "alexander_variables": [
+          "x"
+        ],
+        "e1_generators": [
+          "1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "1",
+        "e1_fingerprint_hash": "b11dfc4c3dd96d52",
+        "hom_counts": {
+          "S3": 4,
+          "D8": 6,
+          "Q8": 2,
+          "D10": 6,
+          "A4": 4,
+          "Dic12": 2,
+          "Dic16": 2,
+          "F21": 1,
+          "S4": 10,
+          "A5": 16
+        },
+        "twisted_s3_delta0": [],
+        "sigma2_euler": 3,
+        "sigma2_b1": 0,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 1,
+        "sigma2_signature": -1,
+        "sigma2_abs_signature": 1,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          1
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((1, (-2,), 'Non', 0, (0,)), (0, (2,)), 'b11dfc4c3dd96d52', (4, 0, (), 2, 0))",
+      "catalog_matches": [
+        "Unknot:K^2(e=0)"
+      ],
+      "min_bridge_in_census": 3,
+      "min_c_tri": 1,
+      "min_concentrated_c_tri": 1,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 3,
+      "best_compiled_epd": "X[2,3,4,1], Y[5,1,4,6], Z[6,3,2,5]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 7019334,
+      "conc_compilable_count": 333090,
+      "conc_interleaved_count": 17238,
+      "witness_triplane": {
+        "bridge_number": 3,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": [
+            3
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 3,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            4
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 3,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": [
+            3
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 3,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "num_components": 1,
+        "yoshikawa_genera": [
+          -2
+        ],
+        "component_types": [
+          "K^2"
+        ],
+        "orientability": "Non",
+        "euler_characteristic": 0,
+        "normal_euler_numbers": [
+          0
+        ],
+        "abs_normal_euler_multiset": [
+          0
+        ],
+        "pi1_generators": 1,
+        "pi1_relators": 1,
+        "pi1_presentation": "<x1 | x1^-2 = 1>",
+        "h1_free_rank": 0,
+        "h1_torsion": [
+          2
+        ],
+        "alexander_variables": [
+          "x"
+        ],
+        "e1_generators": [
+          "1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "1",
+        "e1_fingerprint_hash": "b11dfc4c3dd96d52",
+        "hom_counts": {
+          "S3": 4,
+          "D8": 6,
+          "Q8": 2,
+          "D10": 6,
+          "A4": 4,
+          "Dic12": 2,
+          "Dic16": 2,
+          "F21": 1,
+          "S4": 10,
+          "A5": 16
+        },
+        "twisted_s3_delta0": [],
+        "sigma2_euler": 4,
+        "sigma2_b1": 0,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 2,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          1,
+          1
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((2, (0, -1), 'Mixed', 3, (-2, 0)), (1, (2,)), '11779fd4aa4b1825', (1, 1, (), 1, 1))",
+      "catalog_matches": [
+        "Split:0_1_u_2_1^-1"
+      ],
+      "min_bridge_in_census": 3,
+      "min_c_tri": 1,
+      "min_concentrated_c_tri": 1,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 2,
+      "best_compiled_epd": "X[2,3,4,1], Y[1,4,3,2], O[1]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 432858,
+      "conc_compilable_count": 38362,
+      "conc_interleaved_count": 362,
+      "witness_triplane": {
+        "bridge_number": 3,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            4
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          3,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            3
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            -4
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 3,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            4
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 3,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "num_components": 2,
+        "yoshikawa_genera": [
+          0,
+          -1
+        ],
+        "component_types": [
+          "S^2",
+          "RP^2"
+        ],
+        "orientability": "Mixed",
+        "euler_characteristic": 3,
+        "normal_euler_numbers": [
+          0,
+          2
+        ],
+        "abs_normal_euler_multiset": [
+          0,
+          2
+        ],
+        "pi1_generators": 2,
+        "pi1_relators": 1,
+        "pi1_presentation": "<x1, x2 | x2^-2 = 1>",
+        "h1_free_rank": 1,
+        "h1_torsion": [
+          2
+        ],
+        "alexander_variables": [
+          "x",
+          "y"
+        ],
+        "e1_generators": [
+          "y + 1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "2",
+        "e1_fingerprint_hash": "11779fd4aa4b1825",
+        "hom_counts": {
+          "S3": 24,
+          "D8": 48,
+          "Q8": 16,
+          "D10": 60,
+          "A4": 48,
+          "Dic12": 24,
+          "Dic16": 32,
+          "F21": 21,
+          "S4": 240,
+          "A5": 960
+        },
+        "twisted_s3_delta0": [
+          "(1, ())",
+          "(1, ())"
+        ],
+        "sigma2_euler": 1,
+        "sigma2_b1": 1,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 1,
+        "sigma2_signature": -1,
+        "sigma2_abs_signature": 1,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          1
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((1, (-3,), 'Non', -1, (2,)), (0, (2,)), 'b11dfc4c3dd96d52', (5, 0, (), 3, 1))",
+      "catalog_matches": [
+        "Unknot:#3RP^2(e=+-2)"
+      ],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 1,
+      "min_concentrated_c_tri": 1,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 4,
+      "best_compiled_epd": "X[2,3,4,1], Y[1,4,3,5], Y[5,6,7,8], Z[8,7,6,2]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 10931130,
+      "conc_compilable_count": 429732,
+      "conc_interleaved_count": 0,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            5
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "num_components": 1,
+        "yoshikawa_genera": [
+          -3
+        ],
+        "component_types": [
+          "#3RP^2"
+        ],
+        "orientability": "Non",
+        "euler_characteristic": -1,
+        "normal_euler_numbers": [
+          2
+        ],
+        "abs_normal_euler_multiset": [
+          2
+        ],
+        "pi1_generators": 1,
+        "pi1_relators": 1,
+        "pi1_presentation": "<x1 | x1^-2 = 1>",
+        "h1_free_rank": 0,
+        "h1_torsion": [
+          2
+        ],
+        "alexander_variables": [
+          "x"
+        ],
+        "e1_generators": [
+          "1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "1",
+        "e1_fingerprint_hash": "b11dfc4c3dd96d52",
+        "hom_counts": {
+          "S3": 4,
+          "D8": 6,
+          "Q8": 2,
+          "D10": 6,
+          "A4": 4,
+          "Dic12": 2,
+          "Dic16": 2,
+          "F21": 1,
+          "S4": 10,
+          "A5": 16
+        },
+        "twisted_s3_delta0": [],
+        "sigma2_euler": 5,
+        "sigma2_b1": 0,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 3,
+        "sigma2_signature": -1,
+        "sigma2_abs_signature": 1,
+        "sigma2_b2_unoriented_pair": [
+          1,
+          2
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((2, (0, -2), 'Mixed', 2, (0, 0)), (1, (2,)), '11779fd4aa4b1825', (2, 1, (), 2, 0))",
+      "catalog_matches": [
+        "Split:0_1_u_K^2(e=0)"
+      ],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 1,
+      "min_concentrated_c_tri": 1,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 3,
+      "best_compiled_epd": "X[2,3,4,1], Y[5,1,4,6], Z[6,3,2,5], O[1]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 232850,
+      "conc_compilable_count": 17081,
+      "conc_interleaved_count": 0,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            4
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            3
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            5
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            4
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "num_components": 2,
+        "yoshikawa_genera": [
+          0,
+          -2
+        ],
+        "component_types": [
+          "S^2",
+          "K^2"
+        ],
+        "orientability": "Mixed",
+        "euler_characteristic": 2,
+        "normal_euler_numbers": [
+          0,
+          0
+        ],
+        "abs_normal_euler_multiset": [
+          0,
+          0
+        ],
+        "pi1_generators": 2,
+        "pi1_relators": 1,
+        "pi1_presentation": "<x1, x2 | x2^-2 = 1>",
+        "h1_free_rank": 1,
+        "h1_torsion": [
+          2
+        ],
+        "alexander_variables": [
+          "x",
+          "y"
+        ],
+        "e1_generators": [
+          "y + 1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "2",
+        "e1_fingerprint_hash": "11779fd4aa4b1825",
+        "hom_counts": {
+          "S3": 24,
+          "D8": 48,
+          "Q8": 16,
+          "D10": 60,
+          "A4": 48,
+          "Dic12": 24,
+          "Dic16": 32,
+          "F21": 21,
+          "S4": 240,
+          "A5": 960
+        },
+        "twisted_s3_delta0": [
+          "(1, ())",
+          "(1, ())"
+        ],
+        "sigma2_euler": 2,
+        "sigma2_b1": 1,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 2,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          1,
+          1
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((3, (0, 0, -1), 'Mixed', 5, (-2, 0, 0)), (2, (2,)), '2de981017901e7fd', (-1, 2, (), 1, 1))",
+      "catalog_matches": [],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 1,
+      "min_concentrated_c_tri": 1,
+      "min_unconcentrated_c_tri": 3,
+      "best_compiled_ch": 2,
+      "best_compiled_epd": "X[2,3,4,1], Y[1,4,3,2], O[1], O[1]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "valid_triple_count": 10190,
+      "conc_compilable_count": 1480,
+      "conc_interleaved_count": 0,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          3,
+          3,
+          3
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            4
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 3,
+        "crossing_triple": [
+          0,
+          1,
+          2
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          3,
+          3,
+          3
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            6,
+            7
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          3,
+          3,
+          3
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            4
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 1,
+        "crossing_triple": [
+          0,
+          0,
+          1
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          3,
+          3,
+          3
+        ],
+        "num_components": 3,
+        "yoshikawa_genera": [
+          0,
+          0,
+          -1
+        ],
+        "component_types": [
+          "S^2",
+          "S^2",
+          "RP^2"
+        ],
+        "orientability": "Mixed",
+        "euler_characteristic": 5,
+        "normal_euler_numbers": [
+          0,
+          0,
+          2
+        ],
+        "abs_normal_euler_multiset": [
+          0,
+          0,
+          2
+        ],
+        "pi1_generators": 3,
+        "pi1_relators": 1,
+        "pi1_presentation": "<x1, x2, x3 | x3^-2 = 1>",
+        "h1_free_rank": 2,
+        "h1_torsion": [
+          2
+        ],
+        "alexander_variables": [
+          "x",
+          "y",
+          "z"
+        ],
+        "e1_generators": [
+          "0"
+        ],
+        "e2_generators": [
+          "z + 1"
+        ],
+        "single_var_alex": "0",
+        "e1_fingerprint_hash": "2de981017901e7fd",
+        "hom_counts": {
+          "S3": 144,
+          "D8": 384,
+          "Q8": 128,
+          "D10": 600,
+          "A4": 576,
+          "Dic12": 288,
+          "Dic16": 512,
+          "F21": 441,
+          "S4": 5760,
+          "A5": 57600
+        },
+        "twisted_s3_delta0": [
+          "(2, (2, 2))",
+          "(2, (2, 2))",
+          "(2, (2, 2))",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())",
+          "(3, ())"
+        ],
+        "sigma2_euler": -1,
+        "sigma2_b1": 2,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 1,
+        "sigma2_signature": -1,
+        "sigma2_abs_signature": 1,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          1
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((1, (-2,), 'Non', 0, (4,)), (0, (2,)), 'b11dfc4c3dd96d52', (4, 0, (), 2, 2))",
+      "catalog_matches": [
+        "Unknot:K^2(e=+-4)"
+      ],
+      "min_bridge_in_census": 3,
+      "min_c_tri": 2,
+      "min_concentrated_c_tri": 2,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 4,
+      "best_compiled_epd": "X[2,3,4,1], X[5,6,7,2], Y[1,4,3,8], Y[8,7,6,5]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 4054794,
+      "conc_compilable_count": 187671,
+      "conc_interleaved_count": 10336,
+      "witness_triplane": {
+        "bridge_number": 3,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          0,
+          2
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            2,
+            4
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 3,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            -4
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 3,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          0,
+          2
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 3,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            2,
+            4
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 3,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          0,
+          2
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "num_components": 1,
+        "yoshikawa_genera": [
+          -2
+        ],
+        "component_types": [
+          "K^2"
+        ],
+        "orientability": "Non",
+        "euler_characteristic": 0,
+        "normal_euler_numbers": [
+          4
+        ],
+        "abs_normal_euler_multiset": [
+          4
+        ],
+        "pi1_generators": 1,
+        "pi1_relators": 1,
+        "pi1_presentation": "<x1 | x1^-2 = 1>",
+        "h1_free_rank": 0,
+        "h1_torsion": [
+          2
+        ],
+        "alexander_variables": [
+          "x"
+        ],
+        "e1_generators": [
+          "1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "1",
+        "e1_fingerprint_hash": "b11dfc4c3dd96d52",
+        "hom_counts": {
+          "S3": 4,
+          "D8": 6,
+          "Q8": 2,
+          "D10": 6,
+          "A4": 4,
+          "Dic12": 2,
+          "Dic16": 2,
+          "F21": 1,
+          "S4": 10,
+          "A5": 16
+        },
+        "twisted_s3_delta0": [],
+        "sigma2_euler": 4,
+        "sigma2_b1": 0,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 2,
+        "sigma2_signature": -2,
+        "sigma2_abs_signature": 2,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          2
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((2, (0, -2), 'Mixed', 2, (-4, 0)), (1, (2,)), '11779fd4aa4b1825', (2, 1, (), 2, 2))",
+      "catalog_matches": [],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 2,
+      "min_concentrated_c_tri": 2,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 4,
+      "best_compiled_epd": "X[2,3,4,1], X[5,6,7,2], Y[1,4,3,8], Y[8,7,6,5], O[1]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 142587,
+      "conc_compilable_count": 9703,
+      "conc_interleaved_count": 0,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          0,
+          2
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            3,
+            5
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            3
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            -5
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          0,
+          2
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            3,
+            5
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          0,
+          2
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "num_components": 2,
+        "yoshikawa_genera": [
+          0,
+          -2
+        ],
+        "component_types": [
+          "S^2",
+          "K^2"
+        ],
+        "orientability": "Mixed",
+        "euler_characteristic": 2,
+        "normal_euler_numbers": [
+          0,
+          4
+        ],
+        "abs_normal_euler_multiset": [
+          0,
+          4
+        ],
+        "pi1_generators": 2,
+        "pi1_relators": 1,
+        "pi1_presentation": "<x1, x2 | x2^-2 = 1>",
+        "h1_free_rank": 1,
+        "h1_torsion": [
+          2
+        ],
+        "alexander_variables": [
+          "x",
+          "y"
+        ],
+        "e1_generators": [
+          "y + 1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "2",
+        "e1_fingerprint_hash": "11779fd4aa4b1825",
+        "hom_counts": {
+          "S3": 24,
+          "D8": 48,
+          "Q8": 16,
+          "D10": 60,
+          "A4": 48,
+          "Dic12": 24,
+          "Dic16": 32,
+          "F21": 21,
+          "S4": 240,
+          "A5": 960
+        },
+        "twisted_s3_delta0": [
+          "(1, ())",
+          "(1, ())"
+        ],
+        "sigma2_euler": 2,
+        "sigma2_b1": 1,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 2,
+        "sigma2_signature": -2,
+        "sigma2_abs_signature": 2,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          2
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((2, (-1, -1), 'Non', 2, (-2, -2)), (0, (2, 2)), '6df35be3828b2b22', (2, 1, (), 2, 2))",
+      "catalog_matches": [
+        "Split:2_1^-1_u_2_1^-1(e=2,2)"
+      ],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 2,
+      "min_concentrated_c_tri": 2,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 4,
+      "best_compiled_epd": "X[2,3,4,1], X[6,7,8,5], Y[1,4,3,2], Y[5,8,7,6]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 35939,
+      "conc_compilable_count": 2112,
+      "conc_interleaved_count": 242,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          0,
+          2
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            2,
+            6
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            -6
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          0,
+          2
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            2,
+            6
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          0,
+          2
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "num_components": 2,
+        "yoshikawa_genera": [
+          -1,
+          -1
+        ],
+        "component_types": [
+          "RP^2",
+          "RP^2"
+        ],
+        "orientability": "Non",
+        "euler_characteristic": 2,
+        "normal_euler_numbers": [
+          2,
+          2
+        ],
+        "abs_normal_euler_multiset": [
+          2,
+          2
+        ],
+        "pi1_generators": 2,
+        "pi1_relators": 2,
+        "pi1_presentation": "<x1, x2 | x1^-2 = 1, x2^-2 = 1>",
+        "h1_free_rank": 0,
+        "h1_torsion": [
+          2,
+          2
+        ],
+        "alexander_variables": [
+          "x",
+          "y"
+        ],
+        "e1_generators": [
+          "x*y + x",
+          "x*y + y"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "2",
+        "e1_fingerprint_hash": "6df35be3828b2b22",
+        "hom_counts": {
+          "S3": 16,
+          "D8": 36,
+          "Q8": 4,
+          "D10": 36,
+          "A4": 16,
+          "Dic12": 4,
+          "Dic16": 4,
+          "F21": 1,
+          "S4": 100,
+          "A5": 256
+        },
+        "twisted_s3_delta0": [
+          "(0, ())"
+        ],
+        "sigma2_euler": 2,
+        "sigma2_b1": 1,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 2,
+        "sigma2_signature": -2,
+        "sigma2_abs_signature": 2,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          2
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((2, (-1, -1), 'Non', 2, (-2, 2)), (0, (2, 2)), '6df35be3828b2b22', (2, 1, (), 2, 0))",
+      "catalog_matches": [
+        "Split:2_1^-1_u_2_1^-1*(e=2,-2)"
+      ],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 2,
+      "min_concentrated_c_tri": 2,
+      "min_unconcentrated_c_tri": 2,
+      "best_compiled_ch": 4,
+      "best_compiled_epd": "X[2,3,4,1], X[5,6,7,8], Y[1,4,3,2], Y[5,8,7,6]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 35946,
+      "conc_compilable_count": 2112,
+      "conc_interleaved_count": 246,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          0,
+          2
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            2,
+            -6
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          1,
+          1
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            6
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          0,
+          2
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            2,
+            -6
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 2,
+        "crossing_triple": [
+          0,
+          0,
+          2
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "num_components": 2,
+        "yoshikawa_genera": [
+          -1,
+          -1
+        ],
+        "component_types": [
+          "RP^2",
+          "RP^2"
+        ],
+        "orientability": "Non",
+        "euler_characteristic": 2,
+        "normal_euler_numbers": [
+          -2,
+          2
+        ],
+        "abs_normal_euler_multiset": [
+          2,
+          2
+        ],
+        "pi1_generators": 2,
+        "pi1_relators": 2,
+        "pi1_presentation": "<x1, x2 | x1^-2 = 1, x2^-2 = 1>",
+        "h1_free_rank": 0,
+        "h1_torsion": [
+          2,
+          2
+        ],
+        "alexander_variables": [
+          "x",
+          "y"
+        ],
+        "e1_generators": [
+          "x*y + x",
+          "x*y + y"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "2",
+        "e1_fingerprint_hash": "6df35be3828b2b22",
+        "hom_counts": {
+          "S3": 16,
+          "D8": 36,
+          "Q8": 4,
+          "D10": 36,
+          "A4": 16,
+          "Dic12": 4,
+          "Dic16": 4,
+          "F21": 1,
+          "S4": 100,
+          "A5": 256
+        },
+        "twisted_s3_delta0": [
+          "(0, ())"
+        ],
+        "sigma2_euler": 2,
+        "sigma2_b1": 1,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 2,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          1,
+          1
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((1, (-3,), 'Non', -1, (6,)), (0, (2,)), 'b11dfc4c3dd96d52', (5, 0, (), 3, 3))",
+      "catalog_matches": [
+        "Unknot:#3RP^2(e=+-6)"
+      ],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 3,
+      "min_concentrated_c_tri": 3,
+      "min_unconcentrated_c_tri": 3,
+      "best_compiled_ch": 6,
+      "best_compiled_epd": "X[2,3,4,1], X[5,6,7,2], X[8,9,10,5], Y[1,4,3,11], Y[11,7,6,12], Y[12,10,9,8]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 1113982,
+      "conc_compilable_count": 39694,
+      "conc_interleaved_count": 0,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 3,
+        "crossing_triple": [
+          0,
+          0,
+          3
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            2,
+            4,
+            6
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 3,
+        "crossing_triple": [
+          0,
+          1,
+          2
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            2
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            -4,
+            -6
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 3,
+        "crossing_triple": [
+          0,
+          0,
+          3
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            2,
+            4,
+            6
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 3,
+        "crossing_triple": [
+          0,
+          0,
+          3
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          1,
+          1,
+          1
+        ],
+        "num_components": 1,
+        "yoshikawa_genera": [
+          -3
+        ],
+        "component_types": [
+          "#3RP^2"
+        ],
+        "orientability": "Non",
+        "euler_characteristic": -1,
+        "normal_euler_numbers": [
+          6
+        ],
+        "abs_normal_euler_multiset": [
+          6
+        ],
+        "pi1_generators": 1,
+        "pi1_relators": 1,
+        "pi1_presentation": "<x1 | x1^-2 = 1>",
+        "h1_free_rank": 0,
+        "h1_torsion": [
+          2
+        ],
+        "alexander_variables": [
+          "x"
+        ],
+        "e1_generators": [
+          "1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "1",
+        "e1_fingerprint_hash": "b11dfc4c3dd96d52",
+        "hom_counts": {
+          "S3": 4,
+          "D8": 6,
+          "Q8": 2,
+          "D10": 6,
+          "A4": 4,
+          "Dic12": 2,
+          "Dic16": 2,
+          "F21": 1,
+          "S4": 10,
+          "A5": 16
+        },
+        "twisted_s3_delta0": [],
+        "sigma2_euler": 5,
+        "sigma2_b1": 0,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 3,
+        "sigma2_signature": -3,
+        "sigma2_abs_signature": 3,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          3
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((2, (0, 1), 'Ori', 2, (0, 0)), (2, ()), 'f5578c5e52a7a6da', (2, 0, (2,), 0, 0))",
+      "catalog_matches": [
+        "Hub:6_1^0,1"
+      ],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 4,
+      "min_concentrated_c_tri": 4,
+      "min_unconcentrated_c_tri": 4,
+      "best_compiled_ch": 6,
+      "best_compiled_epd": "X[2,3,4,1], X[2,5,6,7], X[7,6,8,9], X[3,9,10,4], Y[10,8,11,12], Z[12,11,5,1]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 21080,
+      "conc_compilable_count": 2817,
+      "conc_interleaved_count": 0,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 4,
+        "crossing_triple": [
+          0,
+          0,
+          4
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            1,
+            -3,
+            -3,
+            -2
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 4,
+        "crossing_triple": [
+          0,
+          2,
+          2
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            4,
+            -6
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            -5,
+            -4
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 4,
+        "crossing_triple": [
+          0,
+          0,
+          4
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            1,
+            -3,
+            -3,
+            -2
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 4,
+        "crossing_triple": [
+          0,
+          0,
+          4
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "num_components": 2,
+        "yoshikawa_genera": [
+          0,
+          1
+        ],
+        "component_types": [
+          "S^2",
+          "T^2"
+        ],
+        "orientability": "Ori",
+        "euler_characteristic": 2,
+        "normal_euler_numbers": [
+          0,
+          0
+        ],
+        "abs_normal_euler_multiset": [
+          0,
+          0
+        ],
+        "pi1_generators": 2,
+        "pi1_relators": 1,
+        "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1 = 1>",
+        "h1_free_rank": 2,
+        "h1_torsion": [],
+        "alexander_variables": [
+          "x",
+          "y"
+        ],
+        "e1_generators": [
+          "x - 1",
+          "y - 1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "t - 1",
+        "e1_fingerprint_hash": "f5578c5e52a7a6da",
+        "hom_counts": {
+          "S3": 18,
+          "D8": 40,
+          "Q8": 40,
+          "D10": 40,
+          "A4": 48,
+          "Dic12": 72,
+          "Dic16": 112,
+          "F21": 105,
+          "S4": 120,
+          "A5": 300
+        },
+        "twisted_s3_delta0": [],
+        "sigma2_euler": 2,
+        "sigma2_b1": 0,
+        "sigma2_h1_torsion": [
+          2
+        ],
+        "sigma2_b2": 0,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          0
+        ],
+        "sigma2_is_q_homology_4sphere": true
+      }
+    },
+    {
+      "o4_key_repr": "((4, (0, 0, 0, 0), 'Ori', 8, (0, 0, 0, 0)), (4, ()), 'b5a835c4202cf11c', (-4, 3, (), 0, 0))",
+      "catalog_matches": [
+        "Unlink:0_1_u_0_1_u_0_1_u_0_1"
+      ],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 4,
+      "min_concentrated_c_tri": null,
+      "min_unconcentrated_c_tri": 4,
+      "best_compiled_ch": null,
+      "best_compiled_epd": null,
+      "crossing_triples_seen": [
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "valid_triple_count": 462,
+      "conc_compilable_count": 0,
+      "conc_interleaved_count": 0,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 4,
+        "crossing_triple": [
+          0,
+          2,
+          2
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          4,
+          4,
+          4
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            5,
+            6
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            1,
+            2
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 4,
+        "crossing_triple": [
+          0,
+          2,
+          2
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          4,
+          4,
+          4
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            5,
+            6
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            1,
+            2
+          ]
+        }
+      },
+      "witness_concentrated": null,
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 4,
+        "crossing_triple": [
+          0,
+          2,
+          2
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          4,
+          4,
+          4
+        ],
+        "num_components": 4,
+        "yoshikawa_genera": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "component_types": [
+          "S^2",
+          "S^2",
+          "S^2",
+          "S^2"
+        ],
+        "orientability": "Ori",
+        "euler_characteristic": 8,
+        "normal_euler_numbers": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "abs_normal_euler_multiset": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pi1_generators": 4,
+        "pi1_relators": 0,
+        "pi1_presentation": "<x1, x2, x3, x4 | >",
+        "h1_free_rank": 4,
+        "h1_torsion": [],
+        "alexander_variables": [
+          "x",
+          "y",
+          "z",
+          "w"
+        ],
+        "e1_generators": [
+          "0"
+        ],
+        "e2_generators": [
+          "0"
+        ],
+        "single_var_alex": "0",
+        "e1_fingerprint_hash": "b5a835c4202cf11c",
+        "hom_counts": {
+          "S3": 1296,
+          "D8": 4096,
+          "Q8": 4096,
+          "D10": 10000,
+          "A4": 20736,
+          "Dic12": 20736,
+          "Dic16": 65536,
+          "F21": 194481,
+          "S4": 331776,
+          "A5": 12960000
+        },
+        "twisted_s3_delta0": [
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())",
+          "(6, ())"
+        ],
+        "sigma2_euler": -4,
+        "sigma2_b1": 3,
+        "sigma2_h1_torsion": [],
+        "sigma2_b2": 0,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          0
+        ],
+        "sigma2_is_q_homology_4sphere": false
+      }
+    },
+    {
+      "o4_key_repr": "((2, (0, -2), 'Mixed', 2, (0, 0)), (1, (2,)), 'a9d4e0631a3aed99', (2, 0, (2,), 0, 0))",
+      "catalog_matches": [
+        "Hub:7_1^0,-2"
+      ],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 5,
+      "min_concentrated_c_tri": 5,
+      "min_unconcentrated_c_tri": 5,
+      "best_compiled_ch": 7,
+      "best_compiled_epd": "X[2,3,4,1], X[3,2,5,6], X[5,7,8,9], X[6,9,10,11], X[11,10,12,4], Y[12,8,13,14], Z[14,13,7,1]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "valid_triple_count": 9956,
+      "conc_compilable_count": 1798,
+      "conc_interleaved_count": 0,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 5,
+        "crossing_triple": [
+          0,
+          0,
+          5
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            1,
+            -2,
+            -3,
+            -2,
+            -2
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 5,
+        "crossing_triple": [
+          0,
+          1,
+          4
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            4
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            1,
+            -3,
+            -3,
+            -2
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 5,
+        "crossing_triple": [
+          0,
+          0,
+          5
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            1,
+            -2,
+            -3,
+            -2,
+            -2
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 5,
+        "crossing_triple": [
+          0,
+          0,
+          5
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "num_components": 2,
+        "yoshikawa_genera": [
+          0,
+          -2
+        ],
+        "component_types": [
+          "S^2",
+          "K^2"
+        ],
+        "orientability": "Mixed",
+        "euler_characteristic": 2,
+        "normal_euler_numbers": [
+          0,
+          0
+        ],
+        "abs_normal_euler_multiset": [
+          0,
+          0
+        ],
+        "pi1_generators": 2,
+        "pi1_relators": 1,
+        "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2^-1 x1 = 1>",
+        "h1_free_rank": 1,
+        "h1_torsion": [
+          2
+        ],
+        "alexander_variables": [
+          "x",
+          "y"
+        ],
+        "e1_generators": [
+          "y - 1",
+          "x*y + 1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "t + 1",
+        "e1_fingerprint_hash": "a9d4e0631a3aed99",
+        "hom_counts": {
+          "S3": 18,
+          "D8": 40,
+          "Q8": 40,
+          "D10": 40,
+          "A4": 24,
+          "Dic12": 48,
+          "Dic16": 112,
+          "F21": 21,
+          "S4": 120,
+          "A5": 300
+        },
+        "twisted_s3_delta0": [
+          "(0, (3,))"
+        ],
+        "sigma2_euler": 2,
+        "sigma2_b1": 0,
+        "sigma2_h1_torsion": [
+          2
+        ],
+        "sigma2_b2": 0,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          0
+        ],
+        "sigma2_is_q_homology_4sphere": true
+      }
+    },
+    {
+      "o4_key_repr": "((1, (0,), 'Ori', 2, (0,)), (1, ()), '53511ab0b1702b9c', (2, 0, (3,), 0, 0))",
+      "catalog_matches": [
+        "Hub:10_2",
+        "Spoke:R(b^3*a)"
+      ],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 6,
+      "min_concentrated_c_tri": 6,
+      "min_unconcentrated_c_tri": null,
+      "best_compiled_ch": null,
+      "best_compiled_epd": null,
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          6
+        ]
+      ],
+      "valid_triple_count": 90,
+      "conc_compilable_count": 0,
+      "conc_interleaved_count": 90,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 6,
+        "crossing_triple": [
+          0,
+          0,
+          6
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            2,
+            4,
+            -3,
+            5,
+            -4,
+            5
+          ]
+        }
+      },
+      "witness_unconcentrated": null,
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 6,
+        "crossing_triple": [
+          0,
+          0,
+          6
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            2,
+            4,
+            -3,
+            5,
+            -4,
+            5
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 6,
+        "crossing_triple": [
+          0,
+          0,
+          6
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "num_components": 1,
+        "yoshikawa_genera": [
+          0
+        ],
+        "component_types": [
+          "S^2"
+        ],
+        "orientability": "Ori",
+        "euler_characteristic": 2,
+        "normal_euler_numbers": [
+          0
+        ],
+        "abs_normal_euler_multiset": [
+          0
+        ],
+        "pi1_generators": 2,
+        "pi1_relators": 2,
+        "pi1_presentation": "<x1, x2 | x2^-2 x1^-2 = 1, x2^-1 x1^-1 x2^-1 x1 x2 x1^-1 = 1>",
+        "h1_free_rank": 1,
+        "h1_torsion": [],
+        "alexander_variables": [
+          "x"
+        ],
+        "e1_generators": [
+          "3",
+          "x + 1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "1",
+        "e1_fingerprint_hash": "53511ab0b1702b9c",
+        "hom_counts": {
+          "S3": 12,
+          "D8": 8,
+          "Q8": 8,
+          "D10": 10,
+          "A4": 12,
+          "Dic12": 24,
+          "Dic16": 16,
+          "F21": 21,
+          "S4": 48,
+          "A5": 120
+        },
+        "twisted_s3_delta0": [
+          "(0, (3,))"
+        ],
+        "sigma2_euler": 2,
+        "sigma2_b1": 0,
+        "sigma2_h1_torsion": [
+          3
+        ],
+        "sigma2_b2": 0,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          0
+        ],
+        "sigma2_is_q_homology_4sphere": true
+      }
+    },
+    {
+      "o4_key_repr": "((1, (0,), 'Ori', 2, (0,)), (1, ()), '251c966b43e9c6c8', (2, 0, (3,), 0, 0))",
+      "catalog_matches": [
+        "Hub:8_1"
+      ],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 6,
+      "min_concentrated_c_tri": 6,
+      "min_unconcentrated_c_tri": 6,
+      "best_compiled_ch": 8,
+      "best_compiled_epd": "X[2,3,4,1], X[3,5,6,7], X[7,8,9,4], X[2,10,11,12], X[12,13,14,5], X[13,11,15,16], Z[8,6,14,16], Y[1,9,15,10]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          2,
+          4
+        ]
+      ],
+      "valid_triple_count": 344,
+      "conc_compilable_count": 124,
+      "conc_interleaved_count": 0,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 6,
+        "crossing_triple": [
+          0,
+          2,
+          4
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            4,
+            -6
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            -5,
+            -4,
+            -4,
+            6
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 6,
+        "crossing_triple": [
+          0,
+          2,
+          4
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            4,
+            -6
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            -5,
+            -4,
+            -4,
+            6
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 6,
+        "crossing_triple": [
+          0,
+          0,
+          6
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            2,
+            -3,
+            2,
+            -6,
+            5,
+            -6
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 6,
+        "crossing_triple": [
+          0,
+          2,
+          4
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "num_components": 1,
+        "yoshikawa_genera": [
+          0
+        ],
+        "component_types": [
+          "S^2"
+        ],
+        "orientability": "Ori",
+        "euler_characteristic": 2,
+        "normal_euler_numbers": [
+          0
+        ],
+        "abs_normal_euler_multiset": [
+          0
+        ],
+        "pi1_generators": 2,
+        "pi1_relators": 1,
+        "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 = 1>",
+        "h1_free_rank": 1,
+        "h1_torsion": [],
+        "alexander_variables": [
+          "x"
+        ],
+        "e1_generators": [
+          "x**2 - x + 1"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "t**2 - t + 1",
+        "e1_fingerprint_hash": "251c966b43e9c6c8",
+        "hom_counts": {
+          "S3": 12,
+          "D8": 8,
+          "Q8": 8,
+          "D10": 10,
+          "A4": 36,
+          "Dic12": 24,
+          "Dic16": 16,
+          "F21": 21,
+          "S4": 96,
+          "A5": 360
+        },
+        "twisted_s3_delta0": [
+          "(1, ())"
+        ],
+        "sigma2_euler": 2,
+        "sigma2_b1": 0,
+        "sigma2_h1_torsion": [
+          3
+        ],
+        "sigma2_b2": 0,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          0
+        ],
+        "sigma2_is_q_homology_4sphere": true
+      }
+    },
+    {
+      "o4_key_repr": "((2, (-1, -1), 'Non', 2, (-2, 2)), (0, (2, 2)), '8547c5222b25e92c', (2, 0, (2,), 0, 0))",
+      "catalog_matches": [
+        "Hub:8_1^-1,-1"
+      ],
+      "min_bridge_in_census": 4,
+      "min_c_tri": 6,
+      "min_concentrated_c_tri": 6,
+      "min_unconcentrated_c_tri": 6,
+      "best_compiled_ch": 8,
+      "best_compiled_epd": "X[2,3,4,1], X[1,4,5,6], X[7,8,9,3], X[10,11,12,2], X[12,13,14,7], X[13,15,16,14], Z[5,9,8,16], Y[6,15,11,10]",
+      "crossing_triples_seen": [
+        [
+          0,
+          0,
+          6
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          3,
+          3
+        ],
+        [
+          1,
+          1,
+          4
+        ]
+      ],
+      "valid_triple_count": 2190,
+      "conc_compilable_count": 154,
+      "conc_interleaved_count": 350,
+      "witness_triplane": {
+        "bridge_number": 4,
+        "c_tri": 6,
+        "crossing_triple": [
+          0,
+          1,
+          5
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            4
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            -4,
+            -3,
+            2,
+            -5,
+            6
+          ]
+        }
+      },
+      "witness_unconcentrated": {
+        "bridge_number": 4,
+        "c_tri": 6,
+        "crossing_triple": [
+          0,
+          1,
+          5
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "braid_word": [
+            4
+          ]
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": [
+            -4,
+            -3,
+            2,
+            -5,
+            6
+          ]
+        }
+      },
+      "witness_concentrated": {
+        "bridge_number": 4,
+        "c_tri": 6,
+        "crossing_triple": [
+          0,
+          0,
+          6
+        ],
+        "is_concentrated": true,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "t1": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "braid_word": []
+        },
+        "t2": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "braid_word": []
+        },
+        "t3": {
+          "num_bridges": 4,
+          "bottom_matching": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "braid_word": [
+            2,
+            4,
+            -3,
+            -6,
+            5,
+            -4
+          ]
+        }
+      },
+      "invariants": {
+        "label": "",
+        "bridge_number": 4,
+        "c_tri": 6,
+        "crossing_triple": [
+          0,
+          1,
+          5
+        ],
+        "is_concentrated": false,
+        "patch_counts": [
+          2,
+          2,
+          2
+        ],
+        "num_components": 2,
+        "yoshikawa_genera": [
+          -1,
+          -1
+        ],
+        "component_types": [
+          "RP^2",
+          "RP^2"
+        ],
+        "orientability": "Non",
+        "euler_characteristic": 2,
+        "normal_euler_numbers": [
+          -2,
+          2
+        ],
+        "abs_normal_euler_multiset": [
+          2,
+          2
+        ],
+        "pi1_generators": 2,
+        "pi1_relators": 2,
+        "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1^-1 = 1, x2^-1 x1^-1 x2^-1 x1 = 1>",
+        "h1_free_rank": 0,
+        "h1_torsion": [
+          2,
+          2
+        ],
+        "alexander_variables": [
+          "x",
+          "y"
+        ],
+        "e1_generators": [
+          "2*x*y",
+          "x*y + 1",
+          "x*y + x"
+        ],
+        "e2_generators": [
+          "1"
+        ],
+        "single_var_alex": "2",
+        "e1_fingerprint_hash": "8547c5222b25e92c",
+        "hom_counts": {
+          "S3": 10,
+          "D8": 28,
+          "Q8": 28,
+          "D10": 16,
+          "A4": 16,
+          "Dic12": 4,
+          "Dic16": 52,
+          "F21": 1,
+          "S4": 52,
+          "A5": 76
+        },
+        "twisted_s3_delta0": [],
+        "sigma2_euler": 2,
+        "sigma2_b1": 0,
+        "sigma2_h1_torsion": [
+          2
+        ],
+        "sigma2_b2": 0,
+        "sigma2_signature": 0,
+        "sigma2_abs_signature": 0,
+        "sigma2_b2_unoriented_pair": [
+          0,
+          0
+        ],
+        "sigma2_is_q_homology_4sphere": true
+      }
+    }
+  ]
+}

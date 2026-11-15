@@ -19,13 +19,13 @@
 #include <string.h>
 
 #define MOD_P 1000000007LL
-#define MAX_N 16
-#define MAX_STATES (1 << 12)
+#define MAX_N 20
+#define MAX_STATES (1 << 14)
 
 typedef struct {
-    uint16_t m_mask;
-    uint16_t yz_mask;
-    uint16_t sign_mask;
+    uint32_t m_mask;
+    uint32_t yz_mask;
+    uint32_t sign_mask;
 } CandidateDiagram;
 
 static int64_t mod_pow(int64_t base, int exp) {
@@ -357,8 +357,8 @@ typedef struct {
 static void build_reduced_shadow(
     int n,
     const int *orig_opp,
-    uint16_t m_mask,
-    uint16_t yz_mask,
+    uint32_t m_mask,
+    uint32_t yz_mask,
     int sign_res, /* +1 for L_+, -1 for L_- */
     ReducedShadow *out
 ) {
@@ -546,14 +546,158 @@ static void kauffman_butterfly(
     }
 }
 
-int enumerate_shadow_candidates(
+typedef struct {
+    uint8_t loops_p[MAX_STATES];
+    uint8_t loops_m[MAX_STATES];
+    int64_t kp1[MAX_STATES];
+    int64_t km1[MAX_STATES];
+    int64_t kp2[MAX_STATES];
+    int64_t km2[MAX_STATES];
+    int surv_smask[MAX_STATES];
+    int surv_wp[MAX_STATES];
+    int surv_wm[MAX_STATES];
+} ShadowScratch;
+
+/* O(n) topological filter on (orig_opp, m_mask) BEFORE yz_mask and sign_mask loops!
+ * Both surface component count |pi_0(F)| and per-component orientability (Jablonowski Prop. 13)
+ * depend ONLY on which vertices are classical vs marked, completely independent of Y/Z and X0/X1!
+ * target_orientability: -1 = any, 1 = Ori (all orientable), 0 = Non (all non-orientable), 2 = Mixed.
+ */
+static int passes_m_mask_topology_filter_c(
+    int n,
+    const int *orig_opp,
+    uint32_t m_mask,
+    int target_components,
+    int target_orientability
+) {
+    if (target_components <= 0 && target_orientability < 0) {
+        return 1;
+    }
+    int parent[4 * MAX_N];
+    for (int d = 0; d < 4 * n; d++) parent[d] = d;
+    int comps = 4 * n;
+
+    #define UF_FIND(x_in, r_out) do { \
+        int _x = (x_in); \
+        while (parent[_x] != _x) { parent[_x] = parent[parent[_x]]; _x = parent[_x]; } \
+        (r_out) = _x; \
+    } while (0)
+
+    #define UF_UNION(a_in, b_in) do { \
+        int _ra, _rb; \
+        UF_FIND((a_in), _ra); \
+        UF_FIND((b_in), _rb); \
+        if (_ra != _rb) { parent[_rb] = _ra; comps--; } \
+    } while (0)
+
+    for (int d = 0; d < 4 * n; d++) {
+        int od = orig_opp[d];
+        if (d < od) {
+            UF_UNION(d, od);
+        }
+    }
+    for (int v = 0; v < n; v++) {
+        int base = 4 * v;
+        if ((m_mask >> v) & 1u) {
+            UF_UNION(base + 0, base + 1);
+            UF_UNION(base + 1, base + 2);
+            UF_UNION(base + 2, base + 3);
+        } else {
+            UF_UNION(base + 0, base + 2);
+            UF_UNION(base + 1, base + 3);
+        }
+    }
+
+    if (target_components > 0 && comps != target_components) {
+        return 0;
+    }
+    if (target_orientability < 0) {
+        return 1;
+    }
+
+    int root_to_sc[4 * MAX_N];
+    for (int d = 0; d < 4 * n; d++) root_to_sc[d] = -1;
+    int dart_sc[4 * MAX_N];
+    int sc_cnt = 0;
+    for (int d = 0; d < 4 * n; d++) {
+        int r = 0;
+        UF_FIND(d, r);
+        if (root_to_sc[r] < 0) {
+            root_to_sc[r] = sc_cnt++;
+        }
+        dart_sc[d] = root_to_sc[r];
+    }
+    #undef UF_UNION
+    #undef UF_FIND
+
+    int comp_ori[4 * MAX_N];
+    for (int s = 0; s < sc_cnt; s++) comp_ori[s] = 1;
+    int8_t ddir[4 * MAX_N];
+    memset(ddir, 0, sizeof(ddir));
+    int stk[4 * MAX_N];
+
+    for (int start_d = 0; start_d < 4 * n; start_d++) {
+        if (ddir[start_d] != 0) continue;
+        int sc = dart_sc[start_d];
+        ddir[start_d] = 1;
+        int sp_top = 0;
+        stk[sp_top++] = start_d;
+        while (sp_top > 0) {
+            int d = stk[--sp_top];
+            int8_t val = ddir[d];
+            int od = orig_opp[d];
+            if (ddir[od] == 0) {
+                ddir[od] = (int8_t)(-val);
+                stk[sp_top++] = od;
+            } else if (ddir[od] != -val) {
+                comp_ori[sc] = 0;
+            }
+            int v = d >> 2;
+            int s = d & 3;
+            if (!((m_mask >> v) & 1u)) {
+                int ac = (v << 2) | (s ^ 2);
+                if (ddir[ac] == 0) {
+                    ddir[ac] = (int8_t)(-val);
+                    stk[sp_top++] = ac;
+                } else if (ddir[ac] != -val) {
+                    comp_ori[sc] = 0;
+                }
+            } else {
+                for (int t = 0; t < 4; t++) {
+                    int td = (v << 2) | t;
+                    int8_t exp_v = (((t - s) & 1) == 0) ? val : (int8_t)(-val);
+                    if (ddir[td] == 0) {
+                        ddir[td] = exp_v;
+                        stk[sp_top++] = td;
+                    } else if (ddir[td] != exp_v) {
+                        comp_ori[sc] = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    int ori_total = 0;
+    for (int s = 0; s < sc_cnt; s++) ori_total += comp_ori[s];
+    if (target_orientability == 1) return (ori_total == sc_cnt) ? 1 : 0;
+    if (target_orientability == 0) return (ori_total == 0) ? 1 : 0;
+    if (target_orientability == 2) return (ori_total > 0 && ori_total < sc_cnt) ? 1 : 0;
+    return 1;
+}
+
+static int enumerate_shadow_candidates_ex(
     int n,
     const int *orig_opp,
     int m_min,
     int m_max,
-    int prune_level, /* 0: none, 1: classical R-II bigons, 2: + 1-step Yoshikawa reductions */
+    int prune_level,
+    int target_components,
+    int target_orientability,
+    int target_chi_min,
+    int target_chi_max,
     CandidateDiagram *out_buf,
-    int max_out
+    int max_out,
+    ShadowScratch *ext_scratch
 ) {
     const int64_t A_list[2] = {3LL, 5LL};
     int64_t A_inv_list[2];
@@ -603,26 +747,25 @@ int enumerate_shadow_candidates(
         }
     }
 
+    ShadowScratch *sc = ext_scratch ? ext_scratch : (ShadowScratch *)malloc(sizeof(ShadowScratch));
     int out_count = 0;
-    uint8_t loops_p[MAX_STATES];
-    uint8_t loops_m[MAX_STATES];
-    int64_t kp1[MAX_STATES], km1[MAX_STATES];
-    int64_t kp2[MAX_STATES], km2[MAX_STATES];
-    int surv_smask[MAX_STATES];
-    int surv_wp[MAX_STATES];
-    int surv_wm[MAX_STATES];
 
-    int total_masks = 1 << n;
-    for (int m_mask = 0; m_mask < total_masks; m_mask++) {
-        int m = __builtin_popcount((unsigned int)m_mask);
+    uint32_t total_masks = 1u << n;
+    for (uint32_t m_mask = 0; m_mask < total_masks; m_mask++) {
+        int m = __builtin_popcount(m_mask);
         if (m < m_min || m > m_max) continue;
         int c = n - m;
+        if ((1 << c) > MAX_STATES) continue;
+
+        if (!passes_m_mask_topology_filter_c(n, orig_opp, m_mask, target_components, target_orientability)) {
+            continue;
+        }
 
         int orig_to_c[MAX_N];
         int orig_to_m[MAX_N];
         int cc = 0, mm = 0;
         for (int v = 0; v < n; v++) {
-            if ((m_mask >> v) & 1) {
+            if ((m_mask >> v) & 1u) {
                 orig_to_c[v] = -1;
                 orig_to_m[v] = mm++;
             } else {
@@ -647,9 +790,6 @@ int enumerate_shadow_candidates(
                     act_forbid_xor[act_bg] = bigon_same_parity[b] ? 0 : 1;
                     act_bg++;
                 } else if (prune_level >= 2 && n >= 3 && orig_to_m[u] >= 0 && orig_to_m[w] >= 0) {
-                    /* Marked-marked bigon on n >= 3: Omega_7 applies iff same_type != same_parity,
-                     * turning the second edge of the bigon into a 1-gon (Omega_6-)!
-                     * Forbid (yz_bit_u ^ yz_bit_w) == (same_parity ? 1 : 0)! */
                     mm_mi[mm_bg] = orig_to_m[u];
                     mm_mj[mm_bg] = orig_to_m[w];
                     mm_forbid_xor[mm_bg] = bigon_same_parity[b] ? 1 : 0;
@@ -658,17 +798,17 @@ int enumerate_shadow_candidates(
             }
         }
 
-        int yz_limit = (m > 0) ? (1 << (m - 1)) : 1;
+        uint32_t yz_limit = (m > 0) ? (1u << (m - 1)) : 1u;
         int sign_limit = (c > 0) ? (1 << (c - 1)) : 1;
 
-        for (int yz_half = 0; yz_half < yz_limit; yz_half++) {
-            uint16_t yz_mask = (uint16_t)(yz_half << 1);
+        for (uint32_t yz_half = 0; yz_half < yz_limit; yz_half++) {
+            uint32_t yz_mask = yz_half << 1;
 
             /* Early marked-marked bigon filter BEFORE building ReducedShadow! */
             int mm_hit = 0;
             for (int b = 0; b < mm_bg; b++) {
-                int bi = (yz_mask >> mm_mi[b]) & 1;
-                int bj = (yz_mask >> mm_mj[b]) & 1;
+                int bi = (int)((yz_mask >> mm_mi[b]) & 1u);
+                int bj = (int)((yz_mask >> mm_mj[b]) & 1u);
                 if ((bi ^ bj) == mm_forbid_xor[b]) {
                     mm_hit = 1;
                     break;
@@ -677,31 +817,35 @@ int enumerate_shadow_candidates(
             if (mm_hit) continue;
 
             ReducedShadow rsp, rsm;
-            build_reduced_shadow(n, orig_opp, (uint16_t)m_mask, yz_mask, 1, &rsp);
+            build_reduced_shadow(n, orig_opp, m_mask, yz_mask, 1, &rsp);
             if (rsp.odd_linking_fail) continue;
-            build_reduced_shadow(n, orig_opp, (uint16_t)m_mask, yz_mask, -1, &rsm);
+            build_reduced_shadow(n, orig_opp, m_mask, yz_mask, -1, &rsm);
             if (rsm.odd_linking_fail) continue;
+
+            /* O(1) Euler characteristic filter BEFORE O(c * 2^c) Kauffman butterfly! */
+            int chi = rsp.num_circles + rsm.num_circles - m;
+            if (chi < target_chi_min || chi > target_chi_max) continue;
 
             if (c == 0) {
                 int vt[MAX_N];
                 for (int v = 0; v < n; v++) {
-                    vt[v] = ((yz_mask >> orig_to_m[v]) & 1) ? 3 : 2;
+                    vt[v] = ((yz_mask >> orig_to_m[v]) & 1u) ? 3 : 2;
                 }
                 if (prune_level >= 2 && has_1step_yoshikawa_reduction(n, orig_opp, vt, prune_level >= 3 ? 1 : 0)) {
                     continue;
                 }
                 if (out_count < max_out) {
-                    out_buf[out_count].m_mask = (uint16_t)m_mask;
+                    out_buf[out_count].m_mask = m_mask;
                     out_buf[out_count].yz_mask = yz_mask;
-                    out_buf[out_count].sign_mask = 0;
+                    out_buf[out_count].sign_mask = 0u;
                 }
                 out_count++;
                 continue;
             }
 
             /* Stage 1: compute L_+ loops + A1 = 3 butterfly ONLY! */
-            compute_loop_counts(&rsp, loops_p);
-            kauffman_butterfly(c, loops_p, A_list[0], A_inv_list[0], d_pows[0], kp1);
+            compute_loop_counts(&rsp, sc->loops_p);
+            kauffman_butterfly(c, sc->loops_p, A_list[0], A_inv_list[0], d_pows[0], sc->kp1);
 
             int center = 2 * MAX_N;
             int64_t dp1 = d_pows[0][rsp.num_circles - 1];
@@ -729,7 +873,7 @@ int enumerate_shadow_candidates(
                 }
 
                 int64_t exp_kp1 = (neg_A3_pos[0][center + wp] * dp1) % MOD_P;
-                if (kp1[smask] != exp_kp1) continue;
+                if (sc->kp1[smask] != exp_kp1) continue;
 
                 /* Pairwise linking numbers == 0 in L_+ and L_- */
                 int lk_fail = 0;
@@ -757,17 +901,17 @@ int enumerate_shadow_candidates(
                 }
                 if (lk_fail) continue;
 
-                surv_smask[surv_cnt] = smask;
-                surv_wp[surv_cnt] = wp;
-                surv_wm[surv_cnt] = wm;
+                sc->surv_smask[surv_cnt] = smask;
+                sc->surv_wp[surv_cnt] = wp;
+                sc->surv_wm[surv_cnt] = wm;
                 surv_cnt++;
             }
 
             if (surv_cnt == 0) continue;
 
             /* Stage 2: ONLY when L_+ has survivors, evaluate L_- at A1 = 3 and both at A2 = 5! */
-            compute_loop_counts(&rsm, loops_m);
-            kauffman_butterfly(c, loops_m, A_list[0], A_inv_list[0], d_pows[0], km1);
+            compute_loop_counts(&rsm, sc->loops_m);
+            kauffman_butterfly(c, sc->loops_m, A_list[0], A_inv_list[0], d_pows[0], sc->km1);
 
             int64_t dm1 = d_pows[0][rsm.num_circles - 1];
             int64_t dp2 = d_pows[1][rsp.num_circles - 1];
@@ -775,29 +919,29 @@ int enumerate_shadow_candidates(
             int computed_a2 = 0;
 
             for (int k = 0; k < surv_cnt; k++) {
-                int smask = surv_smask[k];
-                int wp = surv_wp[k];
-                int wm = surv_wm[k];
+                int smask = sc->surv_smask[k];
+                int wp = sc->surv_wp[k];
+                int wm = sc->surv_wm[k];
 
                 int64_t exp_km1 = (neg_A3_pos[0][center + wm] * dm1) % MOD_P;
-                if (km1[smask] != exp_km1) continue;
+                if (sc->km1[smask] != exp_km1) continue;
 
                 if (!computed_a2) {
-                    kauffman_butterfly(c, loops_p, A_list[1], A_inv_list[1], d_pows[1], kp2);
-                    kauffman_butterfly(c, loops_m, A_list[1], A_inv_list[1], d_pows[1], km2);
+                    kauffman_butterfly(c, sc->loops_p, A_list[1], A_inv_list[1], d_pows[1], sc->kp2);
+                    kauffman_butterfly(c, sc->loops_m, A_list[1], A_inv_list[1], d_pows[1], sc->km2);
                     computed_a2 = 1;
                 }
 
                 int64_t exp_kp2 = (neg_A3_pos[1][center + wp] * dp2) % MOD_P;
-                if (kp2[smask] != exp_kp2) continue;
+                if (sc->kp2[smask] != exp_kp2) continue;
                 int64_t exp_km2 = (neg_A3_pos[1][center + wm] * dm2) % MOD_P;
-                if (km2[smask] != exp_km2) continue;
+                if (sc->km2[smask] != exp_km2) continue;
 
                 if (prune_level >= 2) {
                     int vt[MAX_N];
                     for (int v = 0; v < n; v++) {
                         if (orig_to_m[v] >= 0) {
-                            vt[v] = ((yz_mask >> orig_to_m[v]) & 1) ? 3 : 2;
+                            vt[v] = ((yz_mask >> orig_to_m[v]) & 1u) ? 3 : 2;
                         } else {
                             vt[v] = ((smask >> orig_to_c[v]) & 1) ? 1 : 0;
                         }
@@ -808,15 +952,32 @@ int enumerate_shadow_candidates(
                 }
 
                 if (out_count < max_out) {
-                    out_buf[out_count].m_mask = (uint16_t)m_mask;
+                    out_buf[out_count].m_mask = m_mask;
                     out_buf[out_count].yz_mask = yz_mask;
-                    out_buf[out_count].sign_mask = (uint16_t)smask;
+                    out_buf[out_count].sign_mask = (uint32_t)smask;
                 }
                 out_count++;
             }
         }
     }
+    if (!ext_scratch) {
+        free(sc);
+    }
     return out_count;
+}
+
+int enumerate_shadow_candidates(
+    int n,
+    const int *orig_opp,
+    int m_min,
+    int m_max,
+    int prune_level,
+    CandidateDiagram *out_buf,
+    int max_out
+) {
+    return enumerate_shadow_candidates_ex(
+        n, orig_opp, m_min, m_max, prune_level, 0, -1, -1000, 1000, out_buf, max_out, NULL
+    );
 }
 
 /* =========================================================================
@@ -929,10 +1090,10 @@ static void canonical_sym_key_c(int n, const int *opp, const int *vt, CanonKey *
                         int rel_os = (os - slot_shift[ov]) & 3;
                         d_enc[k] = (ov2n[ov] << 2) | rel_os;
                     }
-                    uint32_t w = ((uint32_t)vt_rel << 24)
-                               | ((uint32_t)d_enc[0] << 18)
-                               | ((uint32_t)d_enc[1] << 12)
-                               | ((uint32_t)d_enc[2] << 6)
+                    uint32_t w = ((uint32_t)vt_rel << 28)
+                               | ((uint32_t)d_enc[0] << 21)
+                               | ((uint32_t)d_enc[1] << 14)
+                               | ((uint32_t)d_enc[2] << 7)
                                | (uint32_t)d_enc[3];
                     if (has_best && cmp_eq) {
                         if (w > best->words[qi]) goto next_start;
@@ -1674,12 +1835,16 @@ static int explore_single_component_c(
     return 0;
 }
 
-int enumerate_census_level_c(
+int enumerate_targeted_census_level_c(
     int n,
     int num_shadows,
     const int *all_shadows_opp,
     int m_min,
     int m_max,
+    int target_components,
+    int target_orientability,
+    int target_chi_min,
+    int target_chi_max,
     int max_bfs_states,
     int *out_opp,
     int *out_vt,
@@ -1691,6 +1856,7 @@ int enumerate_census_level_c(
 
     size_t cand_cap = 65536;
     CandidateDiagram *cand_buf = (CandidateDiagram *)malloc(cand_cap * sizeof(CandidateDiagram));
+    ShadowScratch *shared_scratch = (ShadowScratch *)malloc(sizeof(ShadowScratch));
 
     int (*q_opp)[4 * MAX_N] = malloc((size_t)max_bfs_states * sizeof(*q_opp));
     int (*q_vt)[MAX_N] = malloc((size_t)max_bfs_states * sizeof(*q_vt));
@@ -1703,28 +1869,36 @@ int enumerate_census_level_c(
 
     for (int sh_idx = 0; sh_idx < num_shadows; sh_idx++) {
         const int *sh_opp = all_shadows_opp + sh_idx * (4 * n);
-        int cnt = enumerate_shadow_candidates(n, sh_opp, m_min, m_max, 3, cand_buf, (int)cand_cap);
+        int cnt = enumerate_shadow_candidates_ex(
+            n, sh_opp, m_min, m_max, 3,
+            target_components, target_orientability, target_chi_min, target_chi_max,
+            cand_buf, (int)cand_cap, shared_scratch
+        );
         if (cnt > (int)cand_cap) {
             cand_cap = (size_t)cnt + 1024;
             free(cand_buf);
             cand_buf = (CandidateDiagram *)malloc(cand_cap * sizeof(CandidateDiagram));
-            cnt = enumerate_shadow_candidates(n, sh_opp, m_min, m_max, 3, cand_buf, (int)cand_cap);
+            cnt = enumerate_shadow_candidates_ex(
+                n, sh_opp, m_min, m_max, 3,
+                target_components, target_orientability, target_chi_min, target_chi_max,
+                cand_buf, (int)cand_cap, shared_scratch
+            );
         }
         total_cands += cnt;
 
         for (int ci = 0; ci < cnt; ci++) {
-            uint16_t m_mask = cand_buf[ci].m_mask;
-            uint16_t yz_mask = cand_buf[ci].yz_mask;
-            uint16_t smask = cand_buf[ci].sign_mask;
+            uint32_t m_mask = cand_buf[ci].m_mask;
+            uint32_t yz_mask = cand_buf[ci].yz_mask;
+            uint32_t smask = cand_buf[ci].sign_mask;
 
             int d0_vt[MAX_N];
             int mi = 0, ki = 0;
             for (int v = 0; v < n; v++) {
-                if ((m_mask >> v) & 1) {
-                    d0_vt[v] = ((yz_mask >> mi) & 1) ? 3 : 2;
+                if ((m_mask >> v) & 1u) {
+                    d0_vt[v] = ((yz_mask >> mi) & 1u) ? 3 : 2;
                     mi++;
                 } else {
-                    d0_vt[v] = ((smask >> ki) & 1) ? 1 : 0;
+                    d0_vt[v] = ((smask >> ki) & 1u) ? 1 : 0;
                     ki++;
                 }
             }
@@ -1761,9 +1935,29 @@ int enumerate_census_level_c(
     free(q_keys);
     free(q_opp);
     free(q_vt);
+    free(shared_scratch);
     free(cand_buf);
     hashset_free(&visited);
     return kept_cnt;
+}
+
+int enumerate_census_level_c(
+    int n,
+    int num_shadows,
+    const int *all_shadows_opp,
+    int m_min,
+    int m_max,
+    int max_bfs_states,
+    int *out_opp,
+    int *out_vt,
+    int max_kept,
+    int64_t *out_stats
+) {
+    return enumerate_targeted_census_level_c(
+        n, num_shadows, all_shadows_opp, m_min, m_max,
+        0, -1, -1000, 1000,
+        max_bfs_states, out_opp, out_vt, max_kept, out_stats
+    );
 }
 
 int merge_and_filter_diagrams_c(
@@ -2679,5 +2873,1518 @@ int tunnel_and_merge_diagrams_c(
     hashset_free(&key_to_comp);
     return kept_cnt;
 }
+
+/* =========================================================================
+ * C99 Simple Spherical Quadrangulation & Prime Shadow Generator (OEIS A113201)
+ * ========================================================================= */
+
+#define MAX_QV 22
+
+typedef struct {
+    uint8_t v_count;
+    uint8_t deg[MAX_QV];
+    uint8_t nbr[MAX_QV][MAX_QV];
+    uint16_t code_len;
+    uint8_t code[112];
+    uint64_t hash;
+} QGraph;
+
+static void canonical_quadrangulation_c(const QGraph *in, QGraph *best) {
+    int n = (int)in->v_count;
+    int has_best = 0;
+    uint8_t cur_deg[MAX_QV];
+    uint8_t cur_nbr[MAX_QV][MAX_QV];
+    uint8_t cur_code[112];
+    int old_to_new[MAX_QV];
+    int new_to_old[MAX_QV];
+
+    for (int v0 = 0; v0 < n; v0++) {
+        int d0 = (int)in->deg[v0];
+        for (int u0_idx = 0; u0_idx < d0; u0_idx++) {
+            int u0 = (int)in->nbr[v0][u0_idx];
+            for (int oi = 0; oi < 2; oi++) {
+                int orient = (oi == 0) ? 1 : -1;
+                for (int k = 0; k < n; k++) old_to_new[k] = -1;
+                old_to_new[v0] = 0;
+                old_to_new[u0] = 1;
+                new_to_old[0] = v0;
+                new_to_old[1] = u0;
+                int qlen = 2;
+                int cpos = 0;
+                int cmp_eq = 1;
+
+                for (int idx = 0; idx < n; idx++) {
+                    int v = new_to_old[idx];
+                    int d = (int)in->deg[v];
+                    int start = 0;
+                    if (idx == 0) {
+                        start = u0_idx;
+                    } else {
+                        int best_val = 1000000;
+                        for (int k = 0; k < d; k++) {
+                            int nv = old_to_new[in->nbr[v][k]];
+                            if (nv >= 0 && nv < best_val) {
+                                best_val = nv;
+                                start = k;
+                            }
+                        }
+                    }
+                    cur_deg[idx] = (uint8_t)d;
+                    for (int step = 0; step < d; step++) {
+                        int pos = (start + orient * step) % d;
+                        if (pos < 0) pos += d;
+                        int w = (int)in->nbr[v][pos];
+                        int nw = old_to_new[w];
+                        if (nw < 0) {
+                            nw = qlen;
+                            old_to_new[w] = nw;
+                            new_to_old[qlen++] = w;
+                        }
+                        uint8_t tok = (uint8_t)(nw + 1);
+                        if (has_best && cmp_eq) {
+                            if (tok > best->code[cpos]) goto next_q_start;
+                            if (tok < best->code[cpos]) cmp_eq = 0;
+                        }
+                        cur_code[cpos++] = tok;
+                        cur_nbr[idx][step] = (uint8_t)nw;
+                    }
+                    uint8_t delim = 0;
+                    if (has_best && cmp_eq) {
+                        if (delim > best->code[cpos]) goto next_q_start;
+                        if (delim < best->code[cpos]) cmp_eq = 0;
+                    }
+                    cur_code[cpos++] = delim;
+                }
+
+                if (!has_best || !cmp_eq) {
+                    best->v_count = (uint8_t)n;
+                    best->code_len = (uint16_t)cpos;
+                    memcpy(best->deg, cur_deg, (size_t)n);
+                    for (int idx = 0; idx < n; idx++) {
+                        memcpy(best->nbr[idx], cur_nbr[idx], cur_deg[idx]);
+                    }
+                    memcpy(best->code, cur_code, (size_t)cpos);
+                    has_best = 1;
+                }
+            next_q_start:;
+            }
+        }
+    }
+
+    uint64_t h = 1469598103934665603ULL;
+    for (int i = 0; i < (int)best->code_len; i++) {
+        h ^= (uint64_t)best->code[i];
+        h *= 1099511628211ULL;
+    }
+    h ^= (h >> 33);
+    h *= 0xff51afd7ed558ccdULL;
+    h ^= (h >> 33);
+    best->hash = h;
+}
+
+static int qgraph_cmp(const void *pa, const void *pb) {
+    const QGraph *a = (const QGraph *)pa;
+    const QGraph *b = (const QGraph *)pb;
+    return memcmp(a->code, b->code, a->code_len);
+}
+
+static void dualize_qgraph_to_shadow_c(const QGraph *q, int *opp_out) {
+    int v_count = (int)q->v_count;
+    int pos_in_nbrs[MAX_QV][MAX_QV];
+    int vis_f[MAX_QV][MAX_QV];
+    int vis_s[MAX_QV][MAX_QV];
+    for (int u = 0; u < v_count; u++) {
+        for (int w = 0; w < v_count; w++) pos_in_nbrs[u][w] = -1;
+        for (int k = 0; k < (int)q->deg[u]; k++) {
+            pos_in_nbrs[u][q->nbr[u][k]] = k;
+            vis_f[u][k] = -1;
+            vis_s[u][k] = -1;
+        }
+    }
+
+    int num_faces = 0;
+    for (int u = 0; u < v_count; u++) {
+        int du = (int)q->deg[u];
+        for (int k = 0; k < du; k++) {
+            if (vis_f[u][k] >= 0) continue;
+            int fid = num_faces++;
+            int cu = u, ck = k, step = 0;
+            while (vis_f[cu][ck] < 0) {
+                vis_f[cu][ck] = fid;
+                vis_s[cu][ck] = step++;
+                int cw = (int)q->nbr[cu][ck];
+                int idx_back = pos_in_nbrs[cw][cu];
+                int dcw = (int)q->deg[cw];
+                int next_k = (idx_back - 1 + dcw) % dcw;
+                cu = cw;
+                ck = next_k;
+            }
+        }
+    }
+
+    for (int u = 0; u < v_count; u++) {
+        int du = (int)q->deg[u];
+        for (int k = 0; k < du; k++) {
+            int fid = vis_f[u][k];
+            int s = vis_s[u][k];
+            int w = (int)q->nbr[u][k];
+            int rev_k = pos_in_nbrs[w][u];
+            int ofid = vis_f[w][rev_k];
+            int os = vis_s[w][rev_k];
+            opp_out[4 * fid + s] = 4 * ofid + os;
+        }
+    }
+}
+
+int generate_prime_shadows_c(
+    int num_faces,
+    int *out_opp,
+    int max_shadows
+) {
+    if (num_faces < 2 || num_faces + 2 > MAX_QV) {
+        return -1;
+    }
+
+    QGraph c4_raw;
+    memset(&c4_raw, 0, sizeof(c4_raw));
+    c4_raw.v_count = 4;
+    for (int u = 0; u < 4; u++) c4_raw.deg[u] = 2;
+    c4_raw.nbr[0][0] = 1; c4_raw.nbr[0][1] = 3;
+    c4_raw.nbr[1][0] = 2; c4_raw.nbr[1][1] = 0;
+    c4_raw.nbr[2][0] = 3; c4_raw.nbr[2][1] = 1;
+    c4_raw.nbr[3][0] = 0; c4_raw.nbr[3][1] = 2;
+
+    QGraph *cur_list = (QGraph *)malloc(sizeof(QGraph));
+    canonical_quadrangulation_c(&c4_raw, &cur_list[0]);
+    size_t cur_cnt = 1;
+
+    for (int f = 3; f <= num_faces; f++) {
+        size_t ht_cap = 64;
+        while (ht_cap < cur_cnt * 16) ht_cap <<= 1;
+        int *ht_idx = (int *)malloc(ht_cap * sizeof(int));
+        for (size_t i = 0; i < ht_cap; i++) ht_idx[i] = -1;
+
+        size_t next_cap = cur_cnt * 6 + 16;
+        QGraph *next_list = (QGraph *)malloc(next_cap * sizeof(QGraph));
+        size_t next_cnt = 0;
+
+        for (size_t gi = 0; gi < cur_cnt; gi++) {
+            const QGraph *g = &cur_list[gi];
+            int vc = (int)g->v_count;
+            for (int b = 0; b < vc; b++) {
+                int d = (int)g->deg[b];
+                const uint8_t *nbrs = g->nbr[b];
+                for (int i = 0; i < d; i++) {
+                    uint8_t a = nbrs[i];
+                    for (int j = i + 1; j < d; j++) {
+                        uint8_t c = nbrs[j];
+                        if (a == c) continue;
+
+                        QGraph cand;
+                        cand.v_count = (uint8_t)(vc + 1);
+                        memcpy(cand.deg, g->deg, (size_t)vc);
+                        for (int u = 0; u < vc; u++) {
+                            memcpy(cand.nbr[u], g->nbr[u], g->deg[u]);
+                        }
+
+                        /* b1_nbrs = (a,) + nbrs[i+1 : j] + (c,) */
+                        int d1 = 0;
+                        cand.nbr[b][d1++] = a;
+                        for (int k = i + 1; k < j; k++) cand.nbr[b][d1++] = nbrs[k];
+                        cand.nbr[b][d1++] = c;
+                        cand.deg[b] = (uint8_t)d1;
+
+                        /* b2_nbrs = (c,) + nbrs[j+1 : d] + nbrs[0 : i] + (a,) */
+                        int d2 = 0;
+                        cand.nbr[vc][d2++] = c;
+                        for (int k = j + 1; k < d; k++) cand.nbr[vc][d2++] = nbrs[k];
+                        for (int k = 0; k < i; k++) cand.nbr[vc][d2++] = nbrs[k];
+                        cand.nbr[vc][d2++] = a;
+                        cand.deg[vc] = (uint8_t)d2;
+
+                        /* Redirect w in nbrs[j+1 : d] and nbrs[0 : i] from b to vc */
+                        for (int k = j + 1; k < d; k++) {
+                            uint8_t w = nbrs[k];
+                            for (int t = 0; t < (int)cand.deg[w]; t++) {
+                                if (cand.nbr[w][t] == (uint8_t)b) cand.nbr[w][t] = (uint8_t)vc;
+                            }
+                        }
+                        for (int k = 0; k < i; k++) {
+                            uint8_t w = nbrs[k];
+                            for (int t = 0; t < (int)cand.deg[w]; t++) {
+                                if (cand.nbr[w][t] == (uint8_t)b) cand.nbr[w][t] = (uint8_t)vc;
+                            }
+                        }
+
+                        /* Insert (b, vc) at a in place of b */
+                        {
+                            int da = (int)cand.deg[a];
+                            int idx_a = 0;
+                            while (idx_a < da && cand.nbr[a][idx_a] != (uint8_t)b) idx_a++;
+                            for (int t = da; t > idx_a + 1; t--) cand.nbr[a][t] = cand.nbr[a][t - 1];
+                            cand.nbr[a][idx_a] = (uint8_t)b;
+                            cand.nbr[a][idx_a + 1] = (uint8_t)vc;
+                            cand.deg[a] = (uint8_t)(da + 1);
+                        }
+                        /* Insert (vc, b) at c in place of b */
+                        {
+                            int dc = (int)cand.deg[c];
+                            int idx_c = 0;
+                            while (idx_c < dc && cand.nbr[c][idx_c] != (uint8_t)b) idx_c++;
+                            for (int t = dc; t > idx_c + 1; t--) cand.nbr[c][t] = cand.nbr[c][t - 1];
+                            cand.nbr[c][idx_c] = (uint8_t)vc;
+                            cand.nbr[c][idx_c + 1] = (uint8_t)b;
+                            cand.deg[c] = (uint8_t)(dc + 1);
+                        }
+
+                        QGraph canon;
+                        canonical_quadrangulation_c(&cand, &canon);
+
+                        if ((next_cnt + 1) * 2 >= ht_cap) {
+                            ht_cap <<= 1;
+                            free(ht_idx);
+                            ht_idx = (int *)malloc(ht_cap * sizeof(int));
+                            for (size_t z = 0; z < ht_cap; z++) ht_idx[z] = -1;
+                            size_t msk = ht_cap - 1;
+                            for (size_t z = 0; z < next_cnt; z++) {
+                                size_t sl = (size_t)next_list[z].hash & msk;
+                                while (ht_idx[sl] >= 0) sl = (sl + 1) & msk;
+                                ht_idx[sl] = (int)z;
+                            }
+                        }
+
+                        size_t msk = ht_cap - 1;
+                        size_t sl = (size_t)canon.hash & msk;
+                        int exists = 0;
+                        while (ht_idx[sl] >= 0) {
+                            const QGraph *ex = &next_list[ht_idx[sl]];
+                            if (ex->hash == canon.hash && memcmp(ex->code, canon.code, canon.code_len) == 0) {
+                                exists = 1;
+                                break;
+                            }
+                            sl = (sl + 1) & msk;
+                        }
+                        if (!exists) {
+                            if (next_cnt >= next_cap) {
+                                next_cap *= 2;
+                                next_list = (QGraph *)realloc(next_list, next_cap * sizeof(QGraph));
+                            }
+                            ht_idx[sl] = (int)next_cnt;
+                            next_list[next_cnt++] = canon;
+                        }
+                    }
+                }
+            }
+        }
+
+        free(ht_idx);
+        free(cur_list);
+        cur_list = next_list;
+        cur_cnt = next_cnt;
+    }
+
+    qsort(cur_list, cur_cnt, sizeof(QGraph), qgraph_cmp);
+
+    if (out_opp != NULL && (int)cur_cnt <= max_shadows) {
+        for (size_t i = 0; i < cur_cnt; i++) {
+            dualize_qgraph_to_shadow_c(&cur_list[i], out_opp + i * (4 * num_faces));
+        }
+    }
+
+    int total_out = (int)cur_cnt;
+    free(cur_list);
+    return total_out;
+}
+
+
+/* =========================================================================
+ * Fast C99 batch R1/R2 + pairwise linking-number unlink classifier for
+ * braided tangle unions T_top u bar(T_bot) (24-byte packed tangle records).
+ * ========================================================================= */
+
+static uint8_t classify_two_tangles_unlink_c_inner(int c, int *opp, const int *vt);
+
+static uint8_t classify_two_tangles_unlink_c(const int8_t *t_top, const int8_t *t_bot) {
+    int b = (int)t_top[0];
+    int w = 2 * b;
+    int c_top = (int)t_top[1];
+    int c_bot = (int)t_bot[1];
+    int c = c_top + c_bot;
+    if (c == 0) return 1;
+
+    const int8_t *bp_top = t_top + 2;
+    const int8_t *bw_top = t_top + 14;
+    const int8_t *bp_bot = t_bot + 2;
+    const int8_t *bw_bot = t_bot + 14;
+
+    int comb[20];
+    for (int i = 0; i < c_bot; i++) comb[i] = (int)bw_bot[i];
+    for (int i = 0; i < c_top; i++) comb[c_bot + i] = -(int)bw_top[c_top - 1 - i];
+
+    int wire_cur[12];
+    int raw_opp[100];
+    int vt[20];
+    for (int i = 0; i < w; i++) wire_cur[i] = 4 * c + i;
+
+    for (int v = 0; v < c; v++) {
+        int g = comb[v];
+        int k = (g > 0 ? g : -g) - 1;
+        vt[v] = (g > 0) ? 1 : 0;
+        int pl = wire_cur[k];
+        int pr = wire_cur[k + 1];
+        raw_opp[pl] = 4 * v + 0;
+        raw_opp[4 * v + 0] = pl;
+        raw_opp[pr] = 4 * v + 1;
+        raw_opp[4 * v + 1] = pr;
+        wire_cur[k] = 4 * v + 3;
+        wire_cur[k + 1] = 4 * v + 2;
+    }
+
+    for (int u = 0; u < w; u++) {
+        int v_u = (int)bp_top[u];
+        if (v_u > u) {
+            int pu = wire_cur[u];
+            int pv = wire_cur[v_u];
+            raw_opp[pu] = pv;
+            raw_opp[pv] = pu;
+        }
+    }
+
+    int opp[80];
+    for (int d = 0; d < 4 * c; d++) {
+        int cur = raw_opp[d];
+        while (cur >= 4 * c) {
+            int bu = cur - 4 * c;
+            int bv = (int)bp_bot[bu];
+            cur = raw_opp[4 * c + bv];
+        }
+        opp[d] = cur;
+    }
+
+    return classify_two_tangles_unlink_c_inner(c, opp, vt);
+}
+
+static int reduce_r1_r2_c(int c, int *opp, const int *vt, uint8_t *alive) {
+    for (int v = 0; v < c; v++) alive[v] = 1;
+    int rem = c;
+    int changed = 1;
+    while (changed && rem > 0) {
+        changed = 0;
+        for (int v = 0; v < c; v++) {
+            if (!alive[v]) continue;
+            int found_s = -1;
+            for (int s = 0; s < 4; s++) {
+                if (opp[4 * v + s] == 4 * v + ((s + 1) & 3)) {
+                    found_s = s;
+                    break;
+                }
+            }
+            if (found_s >= 0) {
+                int da = 4 * v + ((found_s + 2) & 3);
+                int db = 4 * v + ((found_s + 3) & 3);
+                int ta = opp[da];
+                int tb = opp[db];
+                alive[v] = 0;
+                rem--;
+                if (ta != db) {
+                    opp[ta] = tb;
+                    opp[tb] = ta;
+                }
+                changed = 1;
+                break;
+            }
+        }
+        if (changed || rem == 0) continue;
+
+        for (int u = 0; u < c && !changed; u++) {
+            if (!alive[u]) continue;
+            for (int su = 0; su < 4; su++) {
+                int od1 = opp[4 * u + su];
+                int v_w = od1 >> 2;
+                if (v_w <= u || !alive[v_w]) continue;
+                int sw = od1 & 3;
+                int su2 = (su + 1) & 3;
+                int sw2 = (sw - 1) & 3;
+                if (opp[4 * u + su2] != ((v_w << 2) | sw2)) continue;
+                if (c_is_over(vt[u], su) != c_is_over(vt[v_w], sw)) continue;
+
+                int du1 = 4 * u + ((su + 3) & 3);
+                int dw1 = 4 * v_w + ((sw + 1) & 3);
+                int du2 = 4 * u + ((su + 2) & 3);
+                int dw2 = 4 * v_w + ((sw + 2) & 3);
+                int inner[80];
+                inner[du1] = dw1; inner[dw1] = du1;
+                inner[du2] = dw2; inner[dw2] = du2;
+                alive[u] = 0;
+                alive[v_w] = 0;
+                rem -= 2;
+                for (int x = 0; x < c; x++) {
+                    if (!alive[x]) continue;
+                    for (int sx = 0; sx < 4; sx++) {
+                        int dx = 4 * x + sx;
+                        int cur = opp[dx];
+                        while (!alive[cur >> 2]) {
+                            cur = opp[inner[cur]];
+                        }
+                        opp[dx] = cur;
+                    }
+                }
+                changed = 1;
+                break;
+            }
+        }
+    }
+    return rem;
+}
+
+static uint8_t classify_two_tangles_unlink_c_inner(int c, int *opp, const int *vt) {
+    uint8_t alive[20];
+    int rem = reduce_r1_r2_c(c, opp, vt, alive);
+
+    if (rem == 0) return 1;
+    if (rem <= 2) return 0;
+
+    uint8_t vis_d[80];
+    int dart_cid[80];
+    int dart_dir[80];
+    memset(vis_d, 0, sizeof(uint8_t) * 4 * c);
+    int num_c = 0;
+    for (int v = 0; v < c; v++) {
+        if (!alive[v]) continue;
+        for (int s = 0; s < 4; s++) {
+            int d0 = 4 * v + s;
+            if (vis_d[d0]) continue;
+            int cid = num_c++;
+            int cur = d0;
+            while (!vis_d[cur]) {
+                vis_d[cur] = 1;
+                int ex = cur ^ 2;
+                vis_d[ex] = 1;
+                dart_cid[cur] = cid;
+                dart_cid[ex] = cid;
+                dart_dir[cur] = 1;
+                dart_dir[ex] = -1;
+                cur = opp[ex];
+            }
+        }
+    }
+
+    int wp = 0;
+    int lk2[20][20];
+    if (num_c >= 2) {
+        for (int a = 0; a < num_c; a++) {
+            for (int b_i = 0; b_i < num_c; b_i++) lk2[a][b_i] = 0;
+        }
+    }
+    for (int v = 0; v < c; v++) {
+        if (!alive[v]) continue;
+        int sgn = (vt[v] == 1 ? 1 : -1) * dart_dir[4 * v + 0] * dart_dir[4 * v + 1];
+        wp += sgn;
+        if (num_c >= 2) {
+            int c0 = dart_cid[4 * v + 0];
+            int c1 = dart_cid[4 * v + 1];
+            if (c0 != c1) {
+                lk2[c0][c1] += sgn;
+                lk2[c1][c0] += sgn;
+            }
+        }
+    }
+    if (num_c >= 2) {
+        for (int a = 0; a < num_c; a++) {
+            for (int b_i = a + 1; b_i < num_c; b_i++) {
+                if (lk2[a][b_i] != 0) return 0;
+            }
+        }
+    }
+
+    /* Compactify the `rem` alive crossings to `0..rem-1` and check Kauffman bracket at A = 3 mod P */
+    if (rem <= 12) {
+        int old_to_new[20];
+        int sub_vt[12];
+        int idx_r = 0;
+        for (int v = 0; v < c; v++) {
+            if (alive[v]) {
+                sub_vt[idx_r] = vt[v];
+                old_to_new[v] = idx_r++;
+            } else {
+                old_to_new[v] = -1;
+            }
+        }
+        int sub_opp[48];
+        for (int v = 0; v < c; v++) {
+            if (!alive[v]) continue;
+            int nv = old_to_new[v];
+            for (int s = 0; s < 4; s++) {
+                int od = opp[4 * v + s];
+                sub_opp[4 * nv + s] = (old_to_new[od >> 2] << 2) | (od & 3);
+            }
+        }
+
+        const int64_t A = 3LL;
+        const int64_t Ainv = 333333336LL; /* 3^-1 mod 1000000007 */
+        const int64_t d_val = 888888886LL; /* -(9 + 3^-2) mod 1000000007 */
+        const int64_t neg_A3 = 999999980LL; /* -27 mod 1000000007 */
+        const int64_t neg_A3_inv = 629629634LL; /* (-27)^-1 mod 1000000007 */
+
+        int64_t d_pows_loc[24];
+        d_pows_loc[0] = 1;
+        for (int k = 1; k < 24; k++) d_pows_loc[k] = (d_pows_loc[k - 1] * d_val) % MOD_P;
+
+        int total_st = 1 << rem;
+        int64_t kb_sum = 0;
+        uint8_t st_seen[48];
+        for (int st = 0; st < total_st; st++) {
+            memset(st_seen, 0, (size_t)(4 * rem));
+            int loops = 0;
+            for (int sd = 0; sd < 4 * rem; sd++) {
+                if (st_seen[sd]) continue;
+                loops++;
+                int cur = sd;
+                while (!st_seen[cur]) {
+                    st_seen[cur] = 1;
+                    int vv = cur >> 2;
+                    int ss = cur & 3;
+                    int partner = ((st >> vv) & 1) ? ((vv << 2) | (3 - ss)) : ((vv << 2) | (ss ^ 1));
+                    st_seen[partner] = 1;
+                    cur = sub_opp[partner];
+                }
+            }
+            int64_t wt = d_pows_loc[loops - 1];
+            for (int vv = 0; vv < rem; vv++) {
+                int bit = (st >> vv) & 1;
+                wt = (wt * ((bit == sub_vt[vv]) ? A : Ainv)) % MOD_P;
+            }
+            kb_sum += wt;
+            if (kb_sum >= MOD_P) kb_sum -= MOD_P;
+        }
+
+        int64_t exp_kb = d_pows_loc[num_c - 1];
+        if (wp > 0) {
+            for (int k = 0; k < wp; k++) exp_kb = (exp_kb * neg_A3) % MOD_P;
+        } else if (wp < 0) {
+            for (int k = 0; k < -wp; k++) exp_kb = (exp_kb * neg_A3_inv) % MOD_P;
+        }
+        if (kb_sum != exp_kb) return 0;
+
+        /* 1-step and 2-step constructive C99 R3 + R1/R2 unlinking certification */
+        int tmp_opp[48], tmp_vt[12];
+        uint8_t r3_alive[20];
+        for (int start_d = 0; start_d < 4 * rem; start_d++) {
+            int d0 = start_d;
+            int od0 = sub_opp[d0];
+            int v1 = od0 >> 2, t1 = od0 & 3;
+            int s1 = (t1 - 1) & 3;
+            int d1 = (v1 << 2) | s1;
+            int od1 = sub_opp[d1];
+            int v2 = od1 >> 2, t2 = od1 & 3;
+            int s2 = (t2 - 1) & 3;
+            int d2 = (v2 << 2) | s2;
+            int od2 = sub_opp[d2];
+            int v0 = od2 >> 2, t0 = od2 & 3;
+            int s0 = (t0 - 1) & 3;
+            if (((v0 << 2) | s0) != d0 || v0 == v1 || v1 == v2 || v2 == v0) continue;
+            if (d0 > d1 || d0 > d2) continue;
+
+            int a1 = c_is_over(sub_vt[v0], s0), a2 = c_is_over(sub_vt[v1], t1);
+            int b1 = c_is_over(sub_vt[v1], s1), b2 = c_is_over(sub_vt[v2], t2);
+            int c1_o = c_is_over(sub_vt[v2], s2), c2_o = c_is_over(sub_vt[v0], t0);
+            int ha = (a1 && a2) ? 2 : ((!a1 && !a2) ? 0 : 1);
+            int hb = (b1 && b2) ? 2 : ((!b1 && !b2) ? 0 : 1);
+            int hc = (c1_o && c2_o) ? 2 : ((!c1_o && !c2_o) ? 0 : 1);
+            if (((1 << ha) | (1 << hb) | (1 << hc)) != 7) continue;
+
+            int ports[6] = {
+                (v0 << 2) | ((s0 + 2) & 3),
+                (v0 << 2) | ((s0 + 3) & 3),
+                (v1 << 2) | ((s1 + 2) & 3),
+                (v1 << 2) | ((s1 + 3) & 3),
+                (v2 << 2) | ((s2 + 2) & 3),
+                (v2 << 2) | ((s2 + 3) & 3)
+            };
+            int ws[3] = {v0, v1, v2};
+            int new_wsvt[3] = {
+                (hb > hc) ? 0 : 1,
+                (hc > ha) ? 0 : 1,
+                (ha > hb) ? 0 : 1
+            };
+            int int_edges[3][2] = {
+                {4 * ws[0] + 0, 4 * ws[1] + 1},
+                {4 * ws[1] + 0, 4 * ws[2] + 1},
+                {4 * ws[2] + 0, 4 * ws[0] + 1}
+            };
+            int port_assign[6][2] = {
+                {4 * ws[0] + 2, 1},
+                {4 * ws[0] + 3, 2},
+                {4 * ws[1] + 2, 3},
+                {4 * ws[1] + 3, 4},
+                {4 * ws[2] + 2, 5},
+                {4 * ws[2] + 3, 0}
+            };
+            rewire_ports_c(rem, sub_opp, sub_vt, 3, ws, new_wsvt, 3, int_edges, 6, ports, port_assign, tmp_opp, tmp_vt);
+            int r_after = reduce_r1_r2_c(rem, tmp_opp, tmp_vt, r3_alive);
+            if (r_after == 0) return 1;
+        }
+    }
+
+    return 2;
+}
+
+void batch_check_tangle_pairs_c(
+    int n_a,
+    const int8_t *tangles_a,
+    int n_b,
+    const int8_t *tangles_b,
+    uint8_t *out_status
+) {
+    for (int i = 0; i < n_a; i++) {
+        const int8_t *ta = tangles_a + 24 * i;
+        uint8_t *row = out_status + (size_t)i * (size_t)n_b;
+        for (int j = 0; j < n_b; j++) {
+            row[j] = classify_two_tangles_unlink_c(ta, tangles_b + 24 * j);
+        }
+    }
+}
+
+/* =========================================================================
+ * Fast C99 Tri-Plane Level Bitset Scanner & Lossless 128-Bit Prekey Engine
+ * ========================================================================= */
+
+typedef struct {
+    uint8_t tau[8];
+    uint8_t is_entry_mask;
+    uint8_t nxings;
+    uint8_t xing_pL[6];
+    uint8_t xing_pR[6];
+    int8_t  xing_bs[6];
+    uint8_t cap_len[4];
+    int8_t  cap_words[4][32];
+    uint8_t w3_len[8];
+    int8_t  w3_words[8][160];
+} TangleFastMeta;
+
+typedef struct {
+    uint64_t key_hi;
+    uint64_t key_lo;
+    uint64_t valid_count;
+    uint64_t conc_compilable_count;
+    uint64_t conc_interleaved_count;
+    int32_t  rep_i;
+    int32_t  rep_j;
+    int32_t  rep_k;
+    int32_t  best_comp_markers;
+    int32_t  best_comp_i;
+    int32_t  best_comp_j;
+    int32_t  best_comp_k;
+    int32_t  pad0;
+} TriplaneBucketOut;
+
+typedef struct {
+    int32_t i;
+    int32_t j;
+    int32_t k;
+} TriplaneOverflowTriple;
+
+static inline int64_t i64_abs(int64_t x) {
+    return x < 0 ? -x : x;
+}
+
+static int64_t i64_gcd(int64_t a, int64_t b) {
+    a = i64_abs(a);
+    b = i64_abs(b);
+    while (b != 0) {
+        int64_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+
+static int64_t floor_div_i64(int64_t a, int64_t b) {
+    int64_t q = a / b;
+    int64_t r = a % b;
+    if (r != 0 && ((r < 0) != (b < 0))) {
+        q -= 1;
+    }
+    return q;
+}
+
+static void int_snf_8x4_c(int m_rows, int ncols, int64_t a[8][4], int *out_nullity, int64_t out_tors[4]) {
+    int k = 0;
+    while (k < m_rows && k < ncols) {
+        int64_t best_val = 0;
+        int br = -1, bc = -1;
+        for (int r = k; r < m_rows; r++) {
+            for (int c = k; c < ncols; c++) {
+                int64_t v = i64_abs(a[r][c]);
+                if (v != 0 && (best_val == 0 || v < best_val)) {
+                    best_val = v;
+                    br = r;
+                    bc = c;
+                }
+            }
+        }
+        if (br == -1) break;
+        if (br != k) {
+            for (int c = 0; c < ncols; c++) {
+                int64_t tmp = a[k][c]; a[k][c] = a[br][c]; a[br][c] = tmp;
+            }
+        }
+        if (bc != k) {
+            for (int r = 0; r < m_rows; r++) {
+                int64_t tmp = a[r][k]; a[r][k] = a[r][bc]; a[r][bc] = tmp;
+            }
+        }
+
+        for (;;) {
+            int64_t piv = a[k][k];
+            int changed = 0;
+            for (int r = k + 1; r < m_rows; r++) {
+                if (a[r][k] != 0) {
+                    int64_t q = floor_div_i64(a[r][k], piv);
+                    for (int c = k; c < ncols; c++) {
+                        a[r][c] -= q * a[k][c];
+                    }
+                    if (a[r][k] != 0) {
+                        for (int c = 0; c < ncols; c++) {
+                            int64_t tmp = a[k][c]; a[k][c] = a[r][c]; a[r][c] = tmp;
+                        }
+                        piv = a[k][k];
+                        changed = 1;
+                    }
+                }
+            }
+            for (int c = k + 1; c < ncols; c++) {
+                if (a[k][c] != 0) {
+                    int64_t q = floor_div_i64(a[k][c], piv);
+                    for (int r = k; r < m_rows; r++) {
+                        a[r][c] -= q * a[r][k];
+                    }
+                    if (a[k][c] != 0) {
+                        for (int r = k; r < m_rows; r++) {
+                            int64_t tmp = a[r][k]; a[r][k] = a[r][c]; a[r][c] = tmp;
+                        }
+                        piv = a[k][k];
+                        changed = 1;
+                    }
+                }
+            }
+            if (changed) continue;
+            int rem_found = 0;
+            for (int r = k + 1; r < m_rows && !rem_found; r++) {
+                for (int c = k + 1; c < ncols; c++) {
+                    if (a[r][c] % piv != 0) {
+                        for (int cc = k; cc < ncols; cc++) {
+                            a[k][cc] += a[r][cc];
+                        }
+                        rem_found = 1;
+                        break;
+                    }
+                }
+            }
+            if (!rem_found) break;
+        }
+        if (a[k][k] < 0) {
+            for (int c = k; c < ncols; c++) a[k][c] = -a[k][c];
+        }
+        k++;
+    }
+
+    int nz = 0;
+    int nt = 0;
+    out_tors[0] = out_tors[1] = out_tors[2] = out_tors[3] = 0;
+    for (int i = 0; i < k; i++) {
+        int64_t d = i64_abs(a[i][i]);
+        if (d > 0) {
+            nz++;
+            if (d > 1) {
+                out_tors[nt++] = d;
+            }
+        }
+    }
+    for (int i = 1; i < nt; i++) {
+        int64_t v = out_tors[i];
+        int j = i - 1;
+        while (j >= 0 && out_tors[j] > v) {
+            out_tors[j + 1] = out_tors[j];
+            j--;
+        }
+        out_tors[j + 1] = v;
+    }
+    *out_nullity = ncols - nz;
+}
+
+/* Returns 0 if resolved into lossless 128-bit (out_hi, out_lo), or 1 if needs Python Tietze */
+static int eval_fast_triple_c(
+    int b,
+    const TangleFastMeta *m1,
+    const TangleFastMeta *m2,
+    const TangleFastMeta *m3,
+    uint64_t *out_hi,
+    uint64_t *out_lo
+) {
+    int w_count = 2 * b;
+    int port_scomp[8];
+    int port_sign[8];
+    int orb_sizes[4];
+    int ori_flags[4];
+    for (int p = 0; p < w_count; p++) {
+        port_scomp[p] = -1;
+        port_sign[p] = 0;
+    }
+    int num_sc = 0;
+    int all_ori = 1;
+    for (int sp_start = 0; sp_start < w_count; sp_start++) {
+        if (port_scomp[sp_start] != -1) continue;
+        int sc = num_sc++;
+        int cnt = 0;
+        int is_ori = 1;
+        port_scomp[sp_start] = sc;
+        port_sign[sp_start] = 1;
+        int stk[8];
+        int sp = 0;
+        stk[sp++] = sp_start;
+        while (sp > 0) {
+            int p = stk[--sp];
+            cnt++;
+            int exp_s = -port_sign[p];
+            const uint8_t *taus[3] = {m1->tau, m2->tau, m3->tau};
+            for (int ti = 0; ti < 3; ti++) {
+                int q = taus[ti][p];
+                if (port_scomp[q] == -1) {
+                    port_scomp[q] = sc;
+                    port_sign[q] = exp_s;
+                    stk[sp++] = q;
+                } else if (port_sign[q] != exp_s) {
+                    is_ori = 0;
+                }
+            }
+        }
+        orb_sizes[sc] = cnt;
+        ori_flags[sc] = is_ori;
+        if (!is_ori) all_ori = 0;
+    }
+
+    int p_sum[4] = {0, 0, 0, 0};
+    int e_sc[4]  = {0, 0, 0, 0};
+    const TangleFastMeta *pair_a[3] = {m1, m2, m3};
+    const TangleFastMeta *pair_b[3] = {m2, m3, m1};
+
+    if (all_ori) {
+        for (int pi = 0; pi < 3; pi++) {
+            const uint8_t *ta = pair_a[pi]->tau;
+            const uint8_t *tb = pair_b[pi]->tau;
+            uint8_t seen = 0;
+            for (int p = 0; p < w_count; p++) {
+                if ((seen >> p) & 1u) continue;
+                p_sum[port_scomp[p]]++;
+                int cur = p;
+                while (!((seen >> cur) & 1u)) {
+                    seen |= (uint8_t)(1u << cur);
+                    int nxt = ta[cur];
+                    seen |= (uint8_t)(1u << nxt);
+                    cur = tb[nxt];
+                }
+            }
+        }
+    } else {
+        for (int pi = 0; pi < 3; pi++) {
+            const TangleFastMeta *ma = pair_a[pi];
+            const TangleFastMeta *mb = pair_b[pi];
+            const uint8_t *ta = ma->tau;
+            const uint8_t *tb = mb->tau;
+            uint8_t ie_a = ma->is_entry_mask;
+            uint8_t ie_b = mb->is_entry_mask;
+            uint8_t seen = 0;
+            int cid_a[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
+            int dir_a[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+            int cid_b[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
+            int dir_b[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+            int cid = 0;
+            for (int p = 0; p < w_count; p++) {
+                if ((seen >> p) & 1u) continue;
+                p_sum[port_scomp[p]]++;
+                int cur = p;
+                while (!((seen >> cur) & 1u)) {
+                    seen |= (uint8_t)(1u << cur);
+                    int nxt = ta[cur];
+                    seen |= (uint8_t)(1u << nxt);
+                    if ((ie_a >> cur) & 1u) {
+                        cid_a[cur] = cid; dir_a[cur] = 1;
+                    } else {
+                        cid_a[nxt] = cid; dir_a[nxt] = -1;
+                    }
+                    int cur2 = tb[nxt];
+                    if ((ie_b >> nxt) & 1u) {
+                        cid_b[nxt] = cid; dir_b[nxt] = 1;
+                    } else {
+                        cid_b[cur2] = cid; dir_b[cur2] = -1;
+                    }
+                    cur = cur2;
+                }
+                cid++;
+            }
+            for (int x = 0; x < mb->nxings; x++) {
+                int pL = mb->xing_pL[x], pR = mb->xing_pR[x];
+                if (cid_b[pL] == cid_b[pR]) {
+                    e_sc[port_scomp[pL]] -= (int)mb->xing_bs[x] * dir_b[pL] * dir_b[pR];
+                }
+            }
+            for (int x = 0; x < ma->nxings; x++) {
+                int pL = ma->xing_pL[x], pR = ma->xing_pR[x];
+                if (cid_a[pL] == cid_a[pR]) {
+                    e_sc[port_scomp[pL]] += (int)ma->xing_bs[x] * dir_a[pL] * dir_a[pR];
+                }
+            }
+        }
+    }
+
+    uint32_t comp_packed[4] = {0, 0, 0, 0};
+    int sum_e = 0;
+    for (int sc = 0; sc < num_sc; sc++) {
+        int chi = p_sum[sc] - (orb_sizes[sc] >> 1);
+        uint32_t chi_enc = (uint32_t)(chi + 16) & 31u;
+        int ae = e_sc[sc] < 0 ? -e_sc[sc] : e_sc[sc];
+        sum_e += e_sc[sc];
+        comp_packed[sc] = ((uint32_t)ori_flags[sc] << 10) | (chi_enc << 5) | ((uint32_t)ae & 31u);
+    }
+    for (int i = 1; i < num_sc; i++) {
+        uint32_t v = comp_packed[i];
+        int j = i - 1;
+        while (j >= 0 && comp_packed[j] > v) {
+            comp_packed[j + 1] = comp_packed[j];
+            j--;
+        }
+        comp_packed[j + 1] = v;
+    }
+    int abs_e_sum = sum_e < 0 ? -sum_e : sum_e;
+
+    /* Substitute m3->w3_words into m1->cap_words and m2->cap_words */
+    int8_t rels[8][1024];
+    int rlen[8];
+    int n_rels = 0;
+    const TangleFastMeta *cap_src[2] = {m1, m2};
+    for (int si = 0; si < 2; si++) {
+        const TangleFastMeta *ms = cap_src[si];
+        for (int r = 0; r < b; r++) {
+            int cl = ms->cap_len[r];
+            if (cl == 0) continue;
+            int8_t buf[1024];
+            int bl = 0;
+            for (int idx = 0; idx < cl; idx++) {
+                int lit = ms->cap_words[r][idx];
+                if (lit > 0) {
+                    int p = lit - 1;
+                    int wl = m3->w3_len[p];
+                    const int8_t *ww = m3->w3_words[p];
+                    for (int q = 0; q < wl; q++) {
+                        int8_t x = ww[q];
+                        if (bl > 0 && buf[bl - 1] == (int8_t)(-x)) bl--;
+                        else buf[bl++] = x;
+                    }
+                } else {
+                    int p = (-lit) - 1;
+                    int wl = m3->w3_len[p];
+                    const int8_t *ww = m3->w3_words[p];
+                    for (int q = wl - 1; q >= 0; q--) {
+                        int8_t x = (int8_t)(-ww[q]);
+                        if (bl > 0 && buf[bl - 1] == (int8_t)(-x)) bl--;
+                        else buf[bl++] = x;
+                    }
+                }
+            }
+            int lo = 0, hi = bl;
+            while (hi - lo >= 2 && buf[lo] == (int8_t)(-buf[hi - 1])) {
+                lo++;
+                hi--;
+            }
+            if (hi > lo) {
+                int nl = hi - lo;
+                memcpy(rels[n_rels], buf + lo, (size_t)nl);
+                rlen[n_rels] = nl;
+                n_rels++;
+            }
+        }
+    }
+
+    int64_t a_snf[8][4];
+    int n_snf_rows = 0;
+    for (int r = 0; r < n_rels; r++) {
+        int64_t vec[4] = {0, 0, 0, 0};
+        int sgn = 1;
+        int rl = rlen[r];
+        for (int pos = 0; pos < rl; pos++) {
+            int g = rels[r][pos];
+            int ab = g < 0 ? -g : g;
+            vec[ab - 1] += sgn;
+            sgn = -sgn;
+        }
+        if ((vec[0] | vec[1] | vec[2] | vec[3]) != 0) {
+            for (int c = 0; c < b; c++) a_snf[n_snf_rows][c] = vec[c];
+            n_snf_rows++;
+        }
+    }
+    int r_null = b;
+    int64_t tors[4] = {0, 0, 0, 0};
+    if (n_snf_rows > 0) {
+        int_snf_8x4_c(n_snf_rows, b, a_snf, &r_null, tors);
+    }
+
+    /* Fast inline generator elimination (len == 1 and len == 2 distinct generators) */
+    int rem_gens = b;
+    for (;;) {
+        for (int r = 0; r < n_rels; r++) {
+            int rl = rlen[r];
+            if (rl >= 2) {
+                int lo = 0, hi = rl;
+                while (hi - lo >= 2 && rels[r][lo] == (int8_t)(-rels[r][hi - 1])) {
+                    lo++;
+                    hi--;
+                }
+                if (lo > 0) {
+                    int nl = hi - lo;
+                    if (nl > 0) memmove(rels[r], rels[r] + lo, (size_t)nl);
+                    rlen[r] = nl;
+                }
+            }
+        }
+
+        int elim_g = 0;
+        int8_t sub_lit = 0;
+        int is_del = 0;
+        for (int r = 0; r < n_rels; r++) {
+            if (rlen[r] == 1) {
+                int x = rels[r][0];
+                elim_g = x < 0 ? -x : x;
+                is_del = 1;
+                break;
+            }
+        }
+        if (!is_del) {
+            for (int r = 0; r < n_rels; r++) {
+                if (rlen[r] == 2) {
+                    int u = rels[r][0], v = rels[r][1];
+                    int au = u < 0 ? -u : u;
+                    int av = v < 0 ? -v : v;
+                    if (au != av) {
+                        elim_g = au;
+                        sub_lit = (u > 0) ? (int8_t)(-v) : (int8_t)v;
+                        break;
+                    }
+                }
+            }
+        }
+        if (elim_g == 0) break;
+        rem_gens--;
+
+        for (int r = 0; r < n_rels; r++) {
+            int rl = rlen[r];
+            if (rl == 0) continue;
+            int nl = 0;
+            for (int pos = 0; pos < rl; pos++) {
+                int8_t x = rels[r][pos];
+                int ax = x < 0 ? -x : x;
+                if (ax == elim_g) {
+                    if (is_del) continue;
+                    x = (x > 0) ? sub_lit : (int8_t)(-sub_lit);
+                }
+                if (nl > 0 && rels[r][nl - 1] == (int8_t)(-x)) nl--;
+                else rels[r][nl++] = x;
+            }
+            rlen[r] = nl;
+        }
+    }
+
+    int max_rl = 0;
+    unsigned z2_mask = 0;
+    for (int r = 0; r < n_rels; r++) {
+        int rl = rlen[r];
+        if (rl > max_rl) max_rl = rl;
+        if (rl == 2) {
+            int g = rels[r][0];
+            int ag = g < 0 ? -g : g;
+            z2_mask |= (1u << ag);
+        }
+    }
+
+    uint64_t base_hi =
+        ((uint64_t)(num_sc & 7) << 59) |
+        ((uint64_t)(abs_e_sum & 31) << 54) |
+        ((uint64_t)(r_null & 7) << 51) |
+        ((uint64_t)(rem_gens & 7) << 48);
+    for (int sc = 0; sc < num_sc; sc++) {
+        base_hi |= ((uint64_t)comp_packed[sc]) << (11 * sc);
+    }
+    uint64_t base_lo =
+        ((uint64_t)(tors[0] & 0xFFF) << 36) |
+        ((uint64_t)(tors[1] & 0xFFF) << 24) |
+        ((uint64_t)(tors[2] & 0xFFF) << 12) |
+        ((uint64_t)(tors[3] & 0xFFF));
+
+    if (max_rl <= 2) {
+        int r_z2 = __builtin_popcount(z2_mask);
+        *out_hi = (1ULL << 62) | base_hi | ((uint64_t)(r_z2 & 7) << 45);
+        *out_lo = base_lo;
+        return 0;
+    }
+    if (rem_gens <= 1) {
+        int64_t d_gcd = 0;
+        for (int r = 0; r < n_rels; r++) {
+            if (rlen[r] > 0) d_gcd = i64_gcd(d_gcd, rlen[r]);
+        }
+        *out_hi = (2ULL << 62) | base_hi;
+        *out_lo = base_lo | (((uint64_t)(d_gcd & 0xFFFF)) << 48);
+        return 0;
+    }
+    return 1;
+}
+
+#define TP_HT_SIZE 8192
+#define TP_HT_MASK (TP_HT_SIZE - 1)
+
+typedef struct {
+    int32_t slot_to_bkt[TP_HT_SIZE];
+} TpLevelHashTable;
+
+static inline uint32_t tp_hash_128(uint64_t hi, uint64_t lo) {
+    uint64_t h = hi ^ (lo * 0x9e3779b97f4a7c15ULL);
+    h ^= (h >> 33);
+    h *= 0xff51afd7ed558ccdULL;
+    h ^= (h >> 33);
+    return (uint32_t)h;
+}
+
+static void tp_record_resolved(
+    uint64_t hi,
+    uint64_t lo,
+    int i,
+    int j,
+    int k_idx,
+    int is_conc_level,
+    int cm_val,
+    TpLevelHashTable *ht,
+    TriplaneBucketOut *buckets_out,
+    int max_buckets,
+    int *io_num_buckets
+) {
+    uint32_t pos = tp_hash_128(hi, lo) & TP_HT_MASK;
+    for (;;) {
+        int b_idx = ht->slot_to_bkt[pos];
+        if (b_idx == -1) {
+            int nb = *io_num_buckets;
+            if (nb < max_buckets) {
+                ht->slot_to_bkt[pos] = nb;
+                TriplaneBucketOut *bo = &buckets_out[nb];
+                bo->key_hi = hi;
+                bo->key_lo = lo;
+                bo->valid_count = 1;
+                bo->rep_i = i;
+                bo->rep_j = j;
+                bo->rep_k = k_idx;
+                if (is_conc_level) {
+                    if (cm_val >= 0) {
+                        bo->conc_compilable_count = 1;
+                        bo->conc_interleaved_count = 0;
+                        bo->best_comp_markers = cm_val;
+                        bo->best_comp_i = i;
+                        bo->best_comp_j = j;
+                        bo->best_comp_k = k_idx;
+                    } else {
+                        bo->conc_compilable_count = 0;
+                        bo->conc_interleaved_count = 1;
+                        bo->best_comp_markers = -1;
+                        bo->best_comp_i = -1;
+                        bo->best_comp_j = -1;
+                        bo->best_comp_k = -1;
+                    }
+                } else {
+                    bo->conc_compilable_count = 0;
+                    bo->conc_interleaved_count = 0;
+                    bo->best_comp_markers = -1;
+                    bo->best_comp_i = -1;
+                    bo->best_comp_j = -1;
+                    bo->best_comp_k = -1;
+                }
+                bo->pad0 = 0;
+                *io_num_buckets = nb + 1;
+            }
+            return;
+        }
+        TriplaneBucketOut *bo = &buckets_out[b_idx];
+        if (bo->key_hi == hi && bo->key_lo == lo) {
+            bo->valid_count++;
+            if (is_conc_level) {
+                if (cm_val >= 0) {
+                    bo->conc_compilable_count++;
+                    if (bo->best_comp_markers < 0 || cm_val < bo->best_comp_markers) {
+                        bo->best_comp_markers = cm_val;
+                        bo->best_comp_i = i;
+                        bo->best_comp_j = j;
+                        bo->best_comp_k = k_idx;
+                    }
+                } else {
+                    bo->conc_interleaved_count++;
+                }
+            }
+            return;
+        }
+        pos = (pos + 1) & TP_HT_MASK;
+    }
+}
+
+void scan_triplane_level_c(
+    int b,
+    int c1,
+    int c2,
+    int c3,
+    int n1,
+    int n2,
+    int n3,
+    const TangleFastMeta *meta1,
+    const TangleFastMeta *meta2,
+    const TangleFastMeta *meta3,
+    int words2,
+    int words3,
+    const uint64_t *r12,
+    const uint64_t *r13,
+    const uint64_t *r23,
+    const uint16_t *dm1,
+    const uint16_t *lm1,
+    const uint16_t *dm2,
+    const uint16_t *lm2,
+    const uint8_t *am1,
+    const uint8_t *pm1,
+    const uint8_t *am2,
+    const uint8_t *pm2,
+    const uint64_t *db3,
+    const uint64_t *lb3,
+    const uint64_t *ab3,
+    const uint64_t *npb3,
+    const int8_t *conc_lut,
+    uint64_t *out_stats,
+    TriplaneBucketOut *buckets_out,
+    int max_buckets,
+    int *out_num_buckets,
+    TriplaneOverflowTriple *overflow_out,
+    int max_overflow,
+    int *out_num_overflow
+) {
+    TpLevelHashTable ht;
+    for (int s = 0; s < TP_HT_SIZE; s++) ht.slot_to_bkt[s] = -1;
+    int num_buckets = 0;
+    int num_overflow = 0;
+    uint64_t st_valid = 0, st_double = 0, st_ht = 0, st_arch = 0;
+    int is_conc_level = (c1 == 0 && c2 == 0) ? 1 : 0;
+
+    uint64_t ck_buf[1536];
+    uint64_t ht_pmk[1536];
+    uint64_t arch_pmk[1536];
+
+    for (int i = 0; i < n1; i++) {
+        const uint64_t *row12 = r12 + (size_t)i * (size_t)words2;
+        const uint64_t *row13 = r13 + (size_t)i * (size_t)words3;
+
+        uint64_t any13 = 0;
+        for (int w = 0; w < words3; w++) any13 |= row13[w];
+        if (!any13) continue;
+
+        uint16_t d1 = dm1[i], l1 = lm1[i];
+        uint8_t a1 = am1[i], p1 = pm1[i];
+
+        for (int w2 = 0; w2 < words2; w2++) {
+            uint64_t m12_w = row12[w2];
+            if (c1 == c2) {
+                int min_j = (c3 >= 1) ? (i + 1) : i;
+                if (c3 >= 1 && (i >> 6) == w2 && ((m12_w >> (i & 63)) & 1ULL)) {
+                    const uint64_t *r23_i = r23 + (size_t)i * (size_t)words3;
+                    for (int w = 0; w < words3; w++) {
+                        st_double += (uint64_t)__builtin_popcountll(row13[w] & r23_i[w]);
+                    }
+                }
+                int base_j = w2 << 6;
+                if (base_j + 64 <= min_j) continue;
+                if (base_j < min_j) {
+                    m12_w &= ~((1ULL << (min_j - base_j)) - 1ULL);
+                }
+            }
+            while (m12_w) {
+                int bit2 = __builtin_ctzll(m12_w);
+                m12_w &= (m12_w - 1ULL);
+                int j = (w2 << 6) + bit2;
+                if (j >= n2) break;
+
+                uint16_t d2 = dm2[j], l2 = lm2[j];
+                const uint64_t *row23 = r23 + (size_t)j * (size_t)words3;
+
+                if (d1 & d2) {
+                    for (int w = 0; w < words3; w++) {
+                        st_ht += (uint64_t)__builtin_popcountll(row13[w] & row23[w]);
+                    }
+                    continue;
+                }
+
+                uint64_t any_ck = 0;
+                for (int w = 0; w < words3; w++) {
+                    ck_buf[w] = row13[w] & row23[w];
+                }
+                if (c2 == c3) {
+                    int min_k = (c3 >= 1) ? (j + 1) : j;
+                    if (c3 >= 1 && ((ck_buf[j >> 6] >> (j & 63)) & 1ULL)) {
+                        st_double++;
+                    }
+                    int full_w = min_k >> 6;
+                    for (int w = 0; w < full_w && w < words3; w++) ck_buf[w] = 0;
+                    if (full_w < words3 && (min_k & 63)) {
+                        ck_buf[full_w] &= ~((1ULL << (min_k & 63)) - 1ULL);
+                    }
+                }
+                for (int w = 0; w < words3; w++) any_ck |= ck_buf[w];
+                if (!any_ck) continue;
+
+                uint16_t d_kill = (uint16_t)((d1 | d2) | (l1 & l2));
+                uint16_t l_kill = (uint16_t)((d1 & l2) | (d2 & l1));
+                for (int w = 0; w < words3; w++) ht_pmk[w] = 0;
+                unsigned t_dk = d_kill;
+                while (t_dk) {
+                    int gi = __builtin_ctz(t_dk);
+                    t_dk &= (t_dk - 1u);
+                    const uint64_t *src = db3 + (size_t)gi * (size_t)words3;
+                    for (int w = 0; w < words3; w++) ht_pmk[w] |= src[w];
+                }
+                unsigned t_lk = l_kill;
+                while (t_lk) {
+                    int gi = __builtin_ctz(t_lk);
+                    t_lk &= (t_lk - 1u);
+                    const uint64_t *src = lb3 + (size_t)gi * (size_t)words3;
+                    for (int w = 0; w < words3; w++) ht_pmk[w] |= src[w];
+                }
+
+                any_ck = 0;
+                for (int w = 0; w < words3; w++) {
+                    uint64_t killed = ck_buf[w] & ht_pmk[w];
+                    if (killed) st_ht += (uint64_t)__builtin_popcountll(killed);
+                    ck_buf[w] &= ~ht_pmk[w];
+                    any_ck |= ck_buf[w];
+                }
+                if (!any_ck) continue;
+
+                if (b == 4) {
+                    uint8_t a2 = am2[j], p2 = pm2[j];
+                    unsigned a12 = (unsigned)(a1 & a2);
+                    unsigned ap1 = (unsigned)(a1 & (uint8_t)(~p2)) & 0x7Fu;
+                    unsigned ap2 = (unsigned)(a2 & (uint8_t)(~p1)) & 0x7Fu;
+                    if (a12 | ap1 | ap2) {
+                        for (int w = 0; w < words3; w++) arch_pmk[w] = 0;
+                        unsigned ta = a12;
+                        while (ta) {
+                            int u = __builtin_ctz(ta);
+                            ta &= (ta - 1u);
+                            const uint64_t *sa = ab3 + (size_t)u * (size_t)words3;
+                            const uint64_t *snp = npb3 + (size_t)u * (size_t)words3;
+                            for (int w = 0; w < words3; w++) arch_pmk[w] |= sa[w] | snp[w];
+                        }
+                        ta = (ap1 | ap2);
+                        while (ta) {
+                            int u = __builtin_ctz(ta);
+                            ta &= (ta - 1u);
+                            const uint64_t *sa = ab3 + (size_t)u * (size_t)words3;
+                            for (int w = 0; w < words3; w++) arch_pmk[w] |= sa[w];
+                        }
+                        any_ck = 0;
+                        for (int w = 0; w < words3; w++) {
+                            uint64_t killed = ck_buf[w] & arch_pmk[w];
+                            if (killed) st_arch += (uint64_t)__builtin_popcountll(killed);
+                            ck_buf[w] &= ~arch_pmk[w];
+                            any_ck |= ck_buf[w];
+                        }
+                        if (!any_ck) continue;
+                    }
+                }
+
+                int cm_ij = (is_conc_level && c3 > 0) ? (int)conc_lut[i * n2 + j] : -1;
+
+                for (int w3 = 0; w3 < words3; w3++) {
+                    uint64_t ck_w = ck_buf[w3];
+                    while (ck_w) {
+                        int bit3 = __builtin_ctzll(ck_w);
+                        ck_w &= (ck_w - 1ULL);
+                        int k_idx = (w3 << 6) + bit3;
+                        if (k_idx >= n3) break;
+
+                        st_valid++;
+                        int cm_val = is_conc_level
+                            ? ((c3 == 0) ? (int)conc_lut[i * n3 + k_idx] : cm_ij)
+                            : -1;
+                        uint64_t hi = 0, lo = 0;
+                        int need_py = eval_fast_triple_c(b, &meta1[i], &meta2[j], &meta3[k_idx], &hi, &lo);
+                        if (!need_py) {
+                            tp_record_resolved(
+                                hi, lo, i, j, k_idx, is_conc_level, cm_val,
+                                &ht, buckets_out, max_buckets, &num_buckets
+                            );
+                        } else {
+                            if (num_overflow < max_overflow) {
+                                overflow_out[num_overflow].i = i;
+                                overflow_out[num_overflow].j = j;
+                                overflow_out[num_overflow].k = k_idx;
+                            }
+                            num_overflow++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    out_stats[0] = st_valid;
+    out_stats[1] = st_double;
+    out_stats[2] = st_ht;
+    out_stats[3] = st_arch;
+    *out_num_buckets = num_buckets;
+    *out_num_overflow = num_overflow;
+}
+
+void eval_triplane_triples_list_c(
+    int b,
+    int n0,
+    const TangleFastMeta *meta0,
+    const TangleFastMeta *meta6,
+    const int8_t *conc_lut,
+    int num_triples,
+    const TriplaneOverflowTriple *triples_in,
+    TriplaneBucketOut *buckets_out,
+    int max_buckets,
+    int *out_num_buckets,
+    TriplaneOverflowTriple *overflow_out,
+    int max_overflow,
+    int *out_num_overflow
+) {
+    TpLevelHashTable ht;
+    for (int s = 0; s < TP_HT_SIZE; s++) ht.slot_to_bkt[s] = -1;
+    int num_buckets = 0;
+    int num_overflow = 0;
+
+    for (int t = 0; t < num_triples; t++) {
+        int mi = triples_in[t].i;
+        int mj = triples_in[t].j;
+        int k6 = triples_in[t].k;
+        int cm_val = (int)conc_lut[mi * n0 + mj];
+        uint64_t hi = 0, lo = 0;
+        int need_py = eval_fast_triple_c(b, &meta0[mi], &meta0[mj], &meta6[k6], &hi, &lo);
+        if (!need_py) {
+            tp_record_resolved(
+                hi, lo, mi, mj, k6, 1, cm_val,
+                &ht, buckets_out, max_buckets, &num_buckets
+            );
+        } else {
+            if (num_overflow < max_overflow) {
+                overflow_out[num_overflow] = triples_in[t];
+            }
+            num_overflow++;
+        }
+    }
+    *out_num_buckets = num_buckets;
+    *out_num_overflow = num_overflow;
+}
+
 
 

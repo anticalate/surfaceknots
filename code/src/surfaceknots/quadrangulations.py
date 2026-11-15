@@ -204,4 +204,12 @@ def quadrangulation_to_shadow(adj: RotationSystem) -> PlanarShadow:
 @lru_cache(maxsize=16)
 def generate_prime_shadows(num_vertices: int) -> tuple[PlanarShadow, ...]:
     """Return all prime 4-regular spherical link shadows with `num_vertices` crossings (n >= 2)."""
+    if num_vertices >= 9:
+        try:
+            from surfaceknots.fast_enum import generate_prime_shadows_c_list
+
+            return generate_prime_shadows_c_list(num_vertices)
+        except Exception:
+            pass
     return tuple(quadrangulation_to_shadow(q) for q in generate_quadrangulations(num_vertices))
+

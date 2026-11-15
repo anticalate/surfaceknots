@@ -399,3 +399,238 @@ def analyze_catalog_complexity(data_dir: Path) -> dict[str, object]:
         "hub_entries": hub_rows,
         "spoke_entries": spoke_rows,
     }
+
+
+def export_complexity_comparison_datasets(data_dir: Path) -> dict[str, object]:
+    """Join `ch`, `ch_0`, `excess_ch`, `(c, m)`, weighted `c + alpha * m`, targeted `ch = 12`
+    certifications, and braided tri-plane `(b, c_tri)` across the catalog, writing
+    `code/data/complexity/complexity_comparison.json` and `.csv`.
+    """
+    import csv
+    from surfaceknots.triplane import triplane_o4_key
+    from surfaceknots.yoshikawa_data import invariant_discrimination_key
+
+    base = analyze_catalog_complexity(data_dir)
+    out_dir = data_dir / "complexity"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load tri-plane `b <= 4, c_tri <= 6` census if present:
+    tp_by_o4: dict[tuple, dict[str, object]] = {}
+    tp_path = out_dir / "triplane_b4_census.json"
+    if tp_path.exists():
+        tp_data = json.loads(tp_path.read_text())
+        for te in tp_data["entries"]:
+            ok = triplane_o4_key(te["invariants"])
+            tp_by_o4[ok] = te
+
+    # Load targeted `ch = 12` census if present:
+    t12_new_s2: list[dict[str, object]] = []
+    t12_promoted_spokes: dict[str, str] = {}
+    t12_path = out_dir / "targeted_ch12_13_census.json"
+    if t12_path.exists():
+        t12_data = json.loads(t12_path.read_text())
+        t12_new_s2 = list(t12_data.get("ch12_m2_s2_knots", {}).get("new_prime_classes", []))
+        for ce in t12_new_s2:
+            for sp_id in ce.get("spoke_matches", []):
+                t12_promoted_spokes[str(sp_id)] = str(ce["class_id"])
+
+    yosh_entries = json.loads((data_dir / "yoshikawa_ch10.json").read_text())
+    ch11_entries = json.loads((data_dir / "expanded_ch11.json").read_text())["entries"]
+    fam_entries = json.loads((data_dir / "families" / "family_catalog.json").read_text())["entries"]
+
+    rows: list[dict[str, object]] = []
+
+    def make_row(
+        rec: dict[str, object],
+        label: str,
+        tier: str,
+        exact_ch: int | None,
+        ch_lo: int,
+        ch_hi: int,
+    ) -> dict[str, object]:
+        d = MarkedDiagram.from_epd(str(rec["epd"]))
+        cm = diagram_c_m_split(d)
+        ok = triplane_o4_key(rec)
+        tp_hit = tp_by_o4.get(ok)
+        c_tri_exact: int | None = None
+        c_tri_lo: int = 0
+        c_tri_conc: int | None = None
+        c_tri_unconc: int | None = None
+        tp_min_b: int | None = None
+        if tp_hit is not None:
+            c_tri_exact = int(tp_hit["min_c_tri"])
+            c_tri_lo = c_tri_exact
+            c_tri_conc = tp_hit["min_concentrated_c_tri"]  # type: ignore[assignment]
+            c_tri_unconc = tp_hit["min_unconcentrated_c_tri"]  # type: ignore[assignment]
+            tp_min_b = int(tp_hit["min_bridge_in_census"])
+        else:
+            b_lo = int(rec["bridge_bounds"][0])  # type: ignore[index]
+            # If b <= 4 and absent from exhaustive b <= 4, c_tri <= 6 braided census, c_tri >= 7 (braided):
+            c_tri_lo = 7 if int(rec["bridge_bounds"][1]) <= 4 else max(int(cm["c_0"]), 0)  # type: ignore[index, arg-type]
+
+        return {
+            "label": label,
+            "tier": tier,
+            "exact_ch": exact_ch,
+            "ch_lower": ch_lo,
+            "ch_upper": ch_hi,
+            "num_components": rec["num_components"],
+            "component_types": rec["component_types"],
+            "orientability": rec["orientability"],
+            "normal_euler_numbers": rec["normal_euler_numbers"],
+            "ch_diagram": cm["ch"],
+            "c": cm["c"],
+            "c_self": cm["c_self"],
+            "c_cross": cm["c_cross"],
+            "m": cm["m"],
+            "ch_0": cm["ch_0"],
+            "c_0": cm["c_0"],
+            "m_0": cm["m_0"],
+            "excess_ch": (exact_ch - int(cm["ch_0"])) if exact_ch is not None else None,  # type: ignore[arg-type]
+            "excess_ch_upper": ch_hi - int(cm["ch_0"]),  # type: ignore[arg-type]
+            "weighted_ch": cm["weighted_ch"],
+            "bridge_bounds": rec["bridge_bounds"],
+            "b4_census_bridge": tp_min_b,
+            "c_tri_b4_braided": c_tri_exact,
+            "c_tri_b4_lower": c_tri_lo,
+            "c_tri_concentrated": c_tri_conc,
+            "c_tri_unconcentrated": c_tri_unconc,
+        }
+
+    for e in yosh_entries:
+        ch_v = int(e["ch_index_diagram"])
+        rows.append(make_row(e, str(e["label"]), "Hub (ch <= 10)", ch_v, ch_v, ch_v))
+
+    for e in ch11_entries:
+        rows.append(make_row(e, str(e["label"]), "Hub (ch = 11)", 11, 11, 11))
+
+    # Add newly certified `ch = 12, m = 2` prime 2-knots:
+    seen_spoke_iks: set[str] = set()
+    for ce in t12_new_s2:
+        iks = str(invariant_discrimination_key(ce))
+        seen_spoke_iks.add(iks)
+        sp_m = ce.get("spoke_matches", [])
+        lbl = f"{ce['class_id']} ({sp_m[0]})" if sp_m else str(ce["class_id"])
+        rows.append(make_row(ce, lbl, "Targeted Census (exact ch = 12, m = 2)", 12, 12, 12))
+
+    # Add remaining Spoke classes (`ch >= 12`):
+    for fe in fam_entries:
+        if fe["hub_match"] is not None or fe["reference_collisions"]:
+            continue
+        iks = str(invariant_discrimination_key(fe))
+        if iks in seen_spoke_iks:
+            continue
+        seen_spoke_iks.add(iks)
+        ex = 12 if fe["exact_ch_certified"] else None
+        rows.append(
+            make_row(
+                fe,
+                str(fe["family_id"]),
+                "Spoke (exact ch = 12)" if ex == 12 else "Spoke (ch >= 12)",
+                ex,
+                int(fe["ch_lower"]),
+                int(fe["ch_upper"]),
+            )
+        )
+
+    payload = {
+        "total_distinct_classes_compared": len(rows),
+        "newly_certified_ch12_spoke_promotions": t12_promoted_spokes,
+        "hopf_excess_ch_4_cohort": base["hopf_excess_ch_4_cohort"],
+        "klein_bottle_subadditivity": base["klein_bottle_subadditivity"],
+        "connected_sum_collapses": base["connected_sum_collapses"],
+        "notable_rank_inversions": [
+            {
+                "pair": ["2_1^1 (T^2, e=0)", "2_1^-1 (RP^2, |e|=2)"],
+                "ch_values": [2, 2],
+                "c_tri_values": [0, 1],
+                "mechanism": "c_tri charges classical crossings only: T^2 has a 0-crossing (3;1,1,1) trisection, whereas RP^2 requires >= 1 crossing by |e|/2 = 1.",
+            },
+            {
+                "pair": ["9_1 (ribbon 2-knot)", "10_2 (2-twist-spun trefoil)"],
+                "ch_values": [9, 10],
+                "c_tri_values": [">= 7 (at b=4)", 6],
+                "mechanism": "10_2 achieves c_tri = 6 at b = 4 via 90 concentrated (0,0,6) braided realizations, ALL 90 of which hit the A-B-A-B Meander Interleaving Obstruction (0 compilable), forcing +2 R2 crossings upon planarization (ch = 6 + 2 + 2 = 10 > ch(9_1) = 9).",
+            },
+            {
+                "pair": ["6_1^0,1 .. 10_1^-2,-2 (6 Hopf-type 2-links)"],
+                "ch_values": [6, 7, 8, 8, 9, 10],
+                "excess_ch_values": [4, 4, 4, 4, 4, 4],
+                "mechanism": "Raw ch conflates intrinsic genus / normal-Euler unknot floor ch_0 in {2,3,4,5,6} with linking; excess_ch = ch - ch_0 = 4 is constant across the entire Hopf cohort.",
+            },
+        ],
+        "rows": rows,
+    }
+
+    json_path = out_dir / "complexity_comparison.json"
+    csv_path = out_dir / "complexity_comparison.csv"
+    json_path.write_text(json.dumps(payload, indent=2) + "\n")
+
+    fieldnames = [
+        "label",
+        "tier",
+        "num_components",
+        "component_types",
+        "orientability",
+        "normal_euler_numbers",
+        "exact_ch",
+        "ch_lower",
+        "ch_upper",
+        "c",
+        "c_self",
+        "c_cross",
+        "m",
+        "ch_0",
+        "c_0",
+        "m_0",
+        "excess_ch",
+        "excess_ch_upper",
+        "w_alpha_0_5",
+        "w_alpha_1_5",
+        "w_alpha_2_0",
+        "bridge_bounds",
+        "b4_census_bridge",
+        "c_tri_b4_braided",
+        "c_tri_b4_lower",
+        "c_tri_concentrated",
+        "c_tri_unconcentrated",
+    ]
+    with csv_path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for r in rows:
+            w = r["weighted_ch"]  # type: ignore[assignment]
+            writer.writerow(
+                {
+                    "label": r["label"],
+                    "tier": r["tier"],
+                    "num_components": r["num_components"],
+                    "component_types": ";".join(str(x) for x in r["component_types"]),  # type: ignore[union-attr]
+                    "orientability": r["orientability"],
+                    "normal_euler_numbers": ";".join(str(x) for x in r["normal_euler_numbers"]),  # type: ignore[union-attr]
+                    "exact_ch": r["exact_ch"] if r["exact_ch"] is not None else "",
+                    "ch_lower": r["ch_lower"],
+                    "ch_upper": r["ch_upper"],
+                    "c": r["c"],
+                    "c_self": r["c_self"],
+                    "c_cross": r["c_cross"],
+                    "m": r["m"],
+                    "ch_0": r["ch_0"],
+                    "c_0": r["c_0"],
+                    "m_0": r["m_0"],
+                    "excess_ch": r["excess_ch"] if r["excess_ch"] is not None else "",
+                    "excess_ch_upper": r["excess_ch_upper"],
+                    "w_alpha_0_5": w["0.5"],  # type: ignore[index]
+                    "w_alpha_1_5": w["1.5"],  # type: ignore[index]
+                    "w_alpha_2_0": w["2.0"],  # type: ignore[index]
+                    "bridge_bounds": f"[{r['bridge_bounds'][0]},{r['bridge_bounds'][1]}]",  # type: ignore[index]
+                    "b4_census_bridge": r["b4_census_bridge"] if r["b4_census_bridge"] is not None else "",
+                    "c_tri_b4_braided": r["c_tri_b4_braided"] if r["c_tri_b4_braided"] is not None else "",
+                    "c_tri_b4_lower": r["c_tri_b4_lower"],
+                    "c_tri_concentrated": r["c_tri_concentrated"] if r["c_tri_concentrated"] is not None else "",
+                    "c_tri_unconcentrated": r["c_tri_unconcentrated"] if r["c_tri_unconcentrated"] is not None else "",
+                }
+            )
+
+    return payload
+
