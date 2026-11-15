@@ -75,11 +75,19 @@ from surfaceknots.yoshikawa_data import (
     export_yoshikawa_datasets,
     invariant_discrimination_key,
 )
+from surfaceknots.atlas import (
+    build_atlas_payload,
+    export_interactive_atlas,
+    render_interactive_atlas_html,
+)
 from surfaceknots.drawing import (
     DiagramLayout,
     compute_diagram_layout,
+    compute_splitting_layouts,
     export_canonical_gallery,
+    export_extended_gallery,
     label_to_stem,
+    render_splitting_movie_svg,
     render_svg,
     render_tikz,
 )
@@ -104,7 +112,7 @@ from surfaceknots.families import (
     simplify_compiled_diagram,
 )
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 __all__ = [
     "CLASSICAL_PLAT_BY_LABEL",
@@ -130,6 +138,7 @@ __all__ = [
     "YOSHIKAWA_BY_LABEL",
     "YOSHIKAWA_TABLE",
     "YoshikawaEntry",
+    "build_atlas_payload",
     "build_family_catalog",
     "build_reference_catalog",
     "canonical_marked_key",
@@ -144,6 +153,7 @@ __all__ = [
     "compile_symmetric_union_2knot",
     "compute_diagram_layout",
     "compute_full_invariant_record",
+    "compute_splitting_layouts",
     "connected_diagram_components",
     "conway_4plat_word",
     "disjoint_union",
@@ -154,7 +164,9 @@ __all__ = [
     "estimate_bridge_bounds_from_marked",
     "exact_zh1_ideal_equals",
     "export_canonical_gallery",
+    "export_extended_gallery",
     "export_family_datasets",
+    "export_interactive_atlas",
     "export_yoshikawa_datasets",
     "find_planar_connected_sum_decomposition",
     "find_unlink_movie",
@@ -178,6 +190,8 @@ __all__ = [
     "planar_connected_sum",
     "post_filter_and_merge_ch11_survivors",
     "quadrangulation_to_shadow",
+    "render_interactive_atlas_html",
+    "render_splitting_movie_svg",
     "render_svg",
     "render_tikz",
     "simplify_and_explore_yoshikawa",

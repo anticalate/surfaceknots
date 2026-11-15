@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SurfaceKnots Atlas — Knotted Surfaces &amp; Surface-Links in R^4</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased m-0 p-3 md:p-5">
+  <div class="max-w-7xl mx-auto space-y-4">
+    <!-- Header Banner -->
+    <header class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <div class="space-y-1">
+        <div class="flex flex-wrap items-center gap-2">
+          <h1 class="text-base md:text-lg font-bold tracking-tight text-[var(--foreground)]">
+            SurfaceKnots Atlas
+          </h1>
+          <span class="px-2 py-0.5 rounded-md text-xs font-mono bg-[var(--secondary)] text-[var(--secondary-foreground)] border border-[var(--border)]">
+            v0.5.1 &middot; 74 Certified Classes in R&#8308;
+          </span>
+        </div>
+        <p class="text-xs text-[var(--muted-foreground)]">
+          Unified Hub-and-Spoke Explorer: Yoshikawa (ch &le; 10) &middot; Expanded Prime Census (ch = 11) &middot; Certified Exact ch = 12 &amp; Parametric Spoke Catalogs
+        </p>
+      </div>
+      <!-- Primary Mode Tabs -->
+      <nav class="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Atlas views">
+        <button id="tab-explorer" type="button" data-main-tab="explorer"
+          class="px-3 py-1.5 rounded-lg text-xs font-medium transition border">
+          Atlas Explorer (74)
+        </button>
+        <button id="tab-compare" type="button" data-main-tab="compare"
+          class="px-3 py-1.5 rounded-lg text-xs font-medium transition border">
+          Pairwise Separator
+        </button>
+        <button id="tab-sandbox" type="button" data-main-tab="sandbox"
+          class="px-3 py-1.5 rounded-lg text-xs font-medium transition border">
+          Live EPD Sandbox
+        </button>
+        <button id="tab-overview" type="button" data-main-tab="overview"
+          class="px-3 py-1.5 rounded-lg text-xs font-medium transition border">
+          Hub &amp; Spoke Summary
+        </button>
+      </nav>
+    </header>
+
+    <!-- VIEW 1: ATLAS EXPLORER -->
+    <section id="view-explorer" class="space-y-3">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+        <div>
+          <label for="f-search" class="block text-xs font-medium text-[var(--muted-foreground)] mb-1">Search label / invariant</label>
+          <input id="f-search" type="text" placeholder="e.g. 11_1, Klein, Borromean, 2t-1..."
+            class="w-full px-2.5 py-1.5 rounded-lg text-xs bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)] focus:outline-none" />
+        </div>
+        <div>
+          <label for="f-tier" class="block text-xs font-medium text-[var(--muted-foreground)] mb-1">Catalog Tier</label>
+          <select id="f-tier" class="w-full px-2.5 py-1.5 rounded-lg text-xs bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)]">
+            <option value="all">All Tiers (74)</option>
+            <option value="hub">Canonical Hub (ch &le; 11) (33)</option>
+            <option value="yoshikawa_ch10">Yoshikawa Table (ch &le; 10) (23)</option>
+            <option value="expanded_ch11">Expanded Census (ch = 11) (10)</option>
+            <option value="exact_ch12">Certified Exact ch = 12 (5)</option>
+            <option value="spoke">All Spoke ch &ge; 12 Classes (41)</option>
+          </select>
+        </div>
+        <div>
+          <label for="f-topo" class="block text-xs font-medium text-[var(--muted-foreground)] mb-1">Surface Topology</label>
+          <select id="f-topo" class="w-full px-2.5 py-1.5 rounded-lg text-xs bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)]">
+            <option value="all">All Topologies</option>
+            <option value="s2_knot">2-Knots (S&#178;)</option>
+            <option value="t2_knot">Torus Knots (T&#178;)</option>
+            <option value="nonori_knot">Non-Orientable Knots (RP&#178;, K&#178;)</option>
+            <option value="link_2">2-Component Surface-Links</option>
+            <option value="link_3">3-Component Surface-Links</option>
+            <option value="brunnian">Brunnian Surface-Links</option>
+          </select>
+        </div>
+        <div>
+          <label for="f-ori" class="block text-xs font-medium text-[var(--muted-foreground)] mb-1">Orientability</label>
+          <select id="f-ori" class="w-full px-2.5 py-1.5 rounded-lg text-xs bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)]">
+            <option value="all">All (Ori / Non / Mixed)</option>
+            <option value="Ori">Orientable (Ori)</option>
+            <option value="Non">Non-Orientable (Non)</option>
+            <option value="Mixed">Mixed Orientability</option>
+          </select>
+        </div>
+        <div>
+          <label for="f-prop" class="block text-xs font-medium text-[var(--muted-foreground)] mb-1">Certification / Property</label>
+          <select id="f-prop" class="w-full px-2.5 py-1.5 rounded-lg text-xs bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)]">
+            <option value="all">All Entries</option>
+            <option value="exact_ch">Exact ch(F) Proven (38)</option>
+            <option value="hub_realized">Hub Entries w/ Spoke Model (15)</option>
+            <option value="chiral">Certified Chiral</option>
+            <option value="q6_triple">Positive Triple Points (Q&#8326;)</option>
+            <option value="erratum">Yoshikawa Table II Erratum</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+        <div class="lg:col-span-5 bg-[var(--card)] border border-[var(--border)] rounded-xl overflow-hidden">
+          <div class="px-3 py-2 border-b border-[var(--card-border)] flex items-center justify-between text-xs">
+            <span id="filter-count" class="font-medium text-[var(--foreground)]">74 entries</span>
+            <button id="btn-reset-filters" type="button" class="text-xs text-[var(--link)] hover:underline">
+              Reset filters
+            </button>
+          </div>
+          <div class="max-h-[650px] overflow-y-auto divide-y divide-[var(--card-border)]" id="catalog-list"></div>
+        </div>
+        <div class="lg:col-span-7 bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-4" id="detail-panel"></div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: PAIRWISE INVARIANT SEPARATOR -->
+    <section id="view-compare" class="hidden space-y-4">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-sm font-bold text-[var(--foreground)]">10-Layer Pairwise Invariant Separator</h2>
+            <p class="text-xs text-[var(--muted-foreground)]">
+              Compare any two surface-links side-by-side across all 10 layers of the exact topological invariant filtration.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-1.5" id="compare-presets"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+          <div>
+            <label for="cmp-a" class="block text-xs font-medium text-[var(--muted-foreground)] mb-1">Surface A</label>
+            <select id="cmp-a" class="w-full px-2.5 py-1.5 rounded-lg text-xs font-mono bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)]"></select>
+          </div>
+          <div>
+            <label for="cmp-b" class="block text-xs font-medium text-[var(--muted-foreground)] mb-1">Surface B</label>
+            <select id="cmp-b" class="w-full px-2.5 py-1.5 rounded-lg text-xs font-mono bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)]"></select>
+          </div>
+        </div>
+      </div>
+      <div id="compare-output" class="space-y-4"></div>
+    </section>
+
+    <!-- VIEW 3: LIVE EPD SANDBOX -->
+    <section id="view-sandbox" class="hidden space-y-4">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-sm font-bold text-[var(--foreground)]">Live Planar EPD &amp; Splitting Movie Renderer</h2>
+            <p class="text-xs text-[var(--muted-foreground)]">
+              Paste any planar marked graph EPD (<code class="font-mono">X[a,b,c,d], Y[...], Z[...]</code>) to compute its crossing-free IRLS p-Laplacian Tutte layout, hyperbolic splitting movie, and LaTeX/TikZ source in real time.
+            </p>
+          </div>
+          <button id="btn-render-epd" type="button"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--primary)] text-[var(--primary-foreground)]">
+            Render EPD
+          </button>
+        </div>
+        <textarea id="sandbox-epd" rows="3"
+          class="w-full p-2.5 rounded-lg text-xs font-mono bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)]">Y[1,6,2,5], Z[2,6,3,7], X[3,12,4,11], X[4,9,5,10], X[1,8,12,9], X[7,11,8,10]</textarea>
+      </div>
+      <div id="sandbox-output" class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4"></div>
+    </section>
+
+    <!-- VIEW 4: HUB & SPOKE ARCHITECTURE SUMMARY -->
+    <section id="view-overview" class="hidden space-y-4"></section>
+  </div>
+
+  <script id="atlas-data" type="application/json">{"version":"0.5.1","counts":{"total_distinct_classes":74,"yoshikawa_ch10":23,"expanded_ch11":10,"exact_ch12":5,"spoke_total":41,"hub_realized_count":15,"compiled_family_instances":61},"entries":[{"label":"0_1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Unknotted 2-sphere","ch_d":0,"ch_lo":0,"ch_hi":0,"ex_ch":true,"c":0,"m":0,"cm":1,"cp":1,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["1"],"pi1":"<x1 | >","e1":["1"],"d1":"1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"O[1]","reals":[{"id":"Spin(0_1)","mode":"MOVE_CERTIFIED","ch":0},{"id":"R(1)","mode":"MOVE_CERTIFIED","ch":0}],"lh":[0,0,0,0,0,0,0,0,0,0],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(1) | E2=(1) | Δ1=1","S3:6 · D8:8 · A4:12 · S4:24 · A5:60 · SL(2,F3):24 (periph:0)","Kei=Z^1 | Bikei=Z^2","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[], b2=0, |σ|=0","rk≥0 (exact_pi1_Z_sphere) | covers:[Z2,Z3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"2_1^1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Unknotted torus","ch_d":2,"ch_lo":2,"ch_hi":2,"ex_ch":true,"c":0,"m":2,"cm":1,"cp":1,"nc":1,"types":["T^2"],"ori":"Ori","chi":0,"eul":[0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["1"],"pi1":"<x1 | >","e1":["1"],"d1":"1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"Y[1,2,3,4], Z[4,3,2,1]","reals":[{"id":"Tube(0_1)","mode":"MOVE_CERTIFIED","ch":2}],"lh":[1,0,0,0,0,0,0,1,1,0],"ld":["T^2 (Ori), χ=0, e=[0]","Z^1","E1=(1) | E2=(1) | Δ1=1","S3:6 · D8:8 · A4:12 · S4:24 · A5:60 · SL(2,F3):24 (periph:0)","Kei=Z^1 | Bikei=Z^2","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"2_1^-1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Standard projective plane P_+- (normal Euler +-2)","ch_d":2,"ch_lo":2,"ch_hi":2,"ex_ch":true,"c":1,"m":1,"cm":1,"cp":1,"nc":1,"types":["RP^2"],"ori":"Non","chi":1,"eul":[2],"rib":"Pseudo-ribbon (non-ribbon)","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["1"],"pi1":"<x1 | x1^-2 = 1>","e1":["1"],"d1":"1","brunn":false,"chiral":true,"q6_pos":false,"q_hs4":false,"epd":"Y[1,2,3,4], X[4,3,2,1]","reals":[],"lh":[2,1,1,1,1,1,0,2,2,1],"ld":["RP^2 (Non), χ=1, e=[2]","Z^0 ⊕ Z/2","E1=(1) | E2=(1) | Δ1=1","S3:4 · D8:6 · A4:4 · S4:10 · A5:16 · SL(2,F3):2 (periph:0)","Kei=Z^1 | Bikei=Z^1","C3=N/A (non-ori) | Q6: col=0 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=3, b1=0, tors=[], b2=1, |σ|=1","rk≥1 (universal_cover_Z2) | covers:[Z2]","Chiral (normal Euler e != -e)"]},{"label":"6_1^0,1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Spun Hopf link (S^2 u T^2)","ch_d":6,"ch_lo":6,"ch_hi":6,"ex_ch":true,"c":4,"m":2,"cm":2,"cp":2,"nc":2,"types":["T^2","S^2"],"ori":"Ori","chi":2,"eul":[0,0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x - 1","y - 1"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1 = 1>","e1":["x - 1","y - 1"],"d1":"t - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"Y[1,2,3,4], Z[4,5,6,1], X[6,7,8,9], X[9,8,10,2], X[10,11,12,3], X[11,7,5,12]","reals":[{"id":"Mixed(L2a1)","mode":"MOVE_CERTIFIED","ch":6}],"lh":[3,2,2,2,2,2,1,3,3,0],"ld":["T^2 ∪ S^2 (Ori), χ=2, e=[0, 0]","Z^2","E1=(x - 1, y - 1) | E2=(1) | Δ1=t - 1","S3:18 · D8:40 · A4:48 · S4:120 · A5:300 · SL(2,F3):168 (periph:69)","Kei=Z^1⊕[2] | Bikei=Z^3","C3=[3, 3, 3, 3] | Q6: col=12 (nontriv=0)","dlk2=[['T^2', 'S^2(e=0)', 0]], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[2], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"7_1^0,-2","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Simplest mixed orientable/non-orientable ribbon link (S^2 u K^2)","ch_d":7,"ch_lo":7,"ch_hi":7,"ex_ch":true,"c":5,"m":2,"cm":2,"cp":2,"nc":2,"types":["K^2","S^2"],"ori":"Mixed","chi":2,"eul":[0,0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x + 1","y - 1"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 = 1>","e1":["y - 1","x*y + 1"],"d1":"t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"Z[1,2,3,4], Y[5,6,7,8], X[6,9,10,11], X[12,13,14,2], X[5,14,13,9], X[8,7,4,3], X[12,1,11,10]","reals":[{"id":"KleinMixed(L2a1,1)","mode":"MOVE_CERTIFIED","ch":7}],"lh":[4,3,3,3,3,3,2,3,4,2],"ld":["K^2 ∪ S^2 (Mixed), χ=2, e=[0, 0]","Z^1 ⊕ Z/2","E1=(y - 1, x*y + 1) | E2=(1) | Δ1=t + 1","S3:18 · D8:40 · A4:24 · S4:120 · A5:300 · SL(2,F3):72 (periph:0)","Kei=Z^1⊕[2] | Bikei=Z^2⊕[2]","C3=N/A (non-ori) | Q6: col=24 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[2], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,Dic16]","Symmetry open / no obstruction detected"]},{"label":"8_1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Spun trefoil 2-knot tau^0(3_1)","ch_d":8,"ch_lo":8,"ch_hi":8,"ex_ch":true,"c":6,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x**2 - x + 1"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1>","e1":["x**2 - x + 1"],"d1":"t**2 - t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,1], X[7,6,5,8], X[3,9,10,11], X[11,10,12,13], Z[7,14,15,16], Y[16,15,9,2], X[14,8,13,12]","reals":[{"id":"Spin(3_1)","mode":"MOVE_CERTIFIED","ch":8},{"id":"R(b*a)","mode":"MOVE_CERTIFIED","ch":8}],"lh":[0,0,4,4,4,4,0,4,5,0],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**2 - x + 1) | E2=(1) | Δ1=t**2 - t + 1","S3:12 · D8:8 · A4:36 · S4:96 · A5:360 · SL(2,F3):72 (periph:0)","Kei=Z^1⊕[3] | Bikei=Z^2⊕[3]","C3=[9, 9] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[3], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,A4,SL2F3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"8_1^1,1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"0-twist torus-spun Hopf link (T^2 u T^2)","ch_d":8,"ch_lo":8,"ch_hi":8,"ex_ch":true,"c":4,"m":4,"cm":2,"cp":2,"nc":2,"types":["T^2","T^2"],"ori":"Ori","chi":0,"eul":[0,0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x - 1","y - 1"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1 = 1>","e1":["x - 1","y - 1"],"d1":"t - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[4,5,6,1], Z[6,7,8,9], Y[9,8,10,2], Z[3,11,12,13], Y[13,12,14,5], X[15,16,7,14], X[16,15,11,10]","reals":[{"id":"Tube(L2a1)","mode":"MOVE_CERTIFIED","ch":8}],"lh":[5,2,2,5,2,2,3,5,6,0],"ld":["T^2 ∪ T^2 (Ori), χ=0, e=[0, 0]","Z^2","E1=(x - 1, y - 1) | E2=(1) | Δ1=t - 1","S3:18 · D8:40 · A4:48 · S4:120 · A5:300 · SL(2,F3):168 (periph:122)","Kei=Z^1⊕[2] | Bikei=Z^3","C3=[3, 3, 3, 3] | Q6: col=12 (nontriv=0)","dlk2=[['T^2', 'T^2(e=0)', 0], ['T^2', 'T^2(e=0)', 0]], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[2], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"8_1^-1,-1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Linked P_+ u P_- with quaternion group pi_1 = Q_8 and t(F) = 2","ch_d":8,"ch_lo":8,"ch_hi":8,"ex_ch":true,"c":6,"m":2,"cm":2,"cp":2,"nc":2,"types":["RP^2","RP^2"],"ori":"Non","chi":2,"eul":[-2,2],"rib":"Non-ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x + 1","y + 1","2"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 = 1, x2^-1 x1^-1 x2^-1 x1 = 1>","e1":["2*x*y","x*y + 1","x*y + x"],"d1":"2","brunn":false,"chiral":false,"q6_pos":true,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,1], Y[7,8,9,2], X[10,8,7,6], Y[3,11,12,13], X[13,12,14,5], X[15,16,10,14], X[16,15,11,9]","reals":[],"lh":[6,4,5,6,5,5,4,3,7,0],"ld":["RP^2 ∪ RP^2 (Non), χ=2, e=[-2, 2]","Z^0 ⊕ Z/2 ⊕ Z/2","E1=(2*x*y, x*y + 1, x*y + x) | E2=(1) | Δ1=2","S3:10 · D8:28 · A4:16 · S4:52 · A5:76 · SL(2,F3):28 (periph:0)","Kei=Z^1⊕[2] | Bikei=Z^1⊕[4]","C3=N/A (non-ori) | Q6: col=24 (nontriv=24)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[2], b2=0, |σ|=0","rk≥0 (universal_cover_Q8) | covers:[Z2,Q8]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"9_1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"1-fusion ribbon 2-knot with Baumslag-Solitar group BS(1, 2)","ch_d":9,"ch_lo":9,"ch_hi":9,"ex_ch":true,"c":7,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x - 2"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1 = 1>","e1":["x - 2"],"d1":"t - 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"Z[1,2,3,4], Y[4,3,5,6], X[1,7,8,9], X[7,10,11,8], X[12,13,14,15], X[13,16,9,11], X[12,5,2,16], X[17,18,10,6], X[15,14,18,17]","reals":[{"id":"SymUnion(3_1,1)","mode":"MOVE_CERTIFIED","ch":9},{"id":"R(b*a^-1)","mode":"INVARIANT_MATCH","ch":10}],"lh":[0,0,6,7,6,4,0,4,8,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x - 2) | E2=(1) | Δ1=t - 2","S3:12 · D8:8 · A4:12 · S4:48 · A5:120 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[3] | Bikei=Z^2⊕[3]","C3=[9, 9] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[3], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3]","Symmetry open / no obstruction detected"]},{"label":"9_1^0,1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Ribbon S^2 u T^2 link","ch_d":9,"ch_lo":9,"ch_hi":9,"ex_ch":true,"c":7,"m":2,"cm":2,"cp":2,"nc":2,"types":["T^2","S^2"],"ori":"Ori","chi":2,"eul":[0,0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["(x - 1)*(y - 1)","(y - 1)**2"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1 = 1>","e1":["y**2 - 2*y + 1","x*y - x - y + 1"],"d1":"t**2 - 2*t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,1], X[7,8,2,6], X[3,9,10,11], Y[11,12,13,5], Y[13,12,14,15], X[15,16,17,7], X[8,17,16,18], X[14,10,9,18]","reals":[],"lh":[3,2,7,8,7,6,5,6,9,2],"ld":["T^2 ∪ S^2 (Ori), χ=2, e=[0, 0]","Z^2","E1=(y**2 - 2*y + 1, x*y - x - y + 1) | E2=(1) | Δ1=t**2 - 2*t + 1","S3:24 · D8:64 · A4:72 · S4:240 · A5:600 · SL(2,F3):192 (periph:0)","Kei=Z^1⊕[4] | Bikei=Z^3⊕[2]","C3=[3, 3, 3, 3] | Q6: col=36 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[4], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,A4,Dic16]","Symmetry open / no obstruction detected"]},{"label":"9_1^1,-2","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Ribbon T^2 u K^2 link with abelian pi_1 = Z + Z_2","ch_d":9,"ch_lo":9,"ch_hi":9,"ex_ch":true,"c":5,"m":4,"cm":2,"cp":2,"nc":2,"types":["T^2","K^2"],"ori":"Mixed","chi":0,"eul":[0,0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":true,"err_note":"Yoshikawa Table II printed pi_1 = <x, y | yxyx^{-1} = 1> and E_1 = (x + 1, y - 1); actual group is abelian Z + Z_2 = <x, y | xy = yx, y^2 = 1> with E_1 = (x - 1, y - 1, 2).","err_print":["x + 1","y - 1"],"pi1":"<x1, x2 | x2^-2 = 1, x2^-1 x1^-1 x2 x1 = 1>","e1":["2*y","y + 1","x*y + 1"],"d1":"1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"Y[1,2,3,4], Z[4,5,6,1], X[6,7,8,9], X[9,8,10,2], X[11,12,13,3], X[12,14,5,13], Z[14,15,16,7], Y[10,17,18,11], X[18,17,16,15]","reals":[{"id":"KleinMixed(L2a1,10)","mode":"MOVE_CERTIFIED","ch":9}],"lh":[7,3,8,9,8,1,6,5,10,2],"ld":["T^2 ∪ K^2 (Mixed), χ=0, e=[0, 0]","Z^1 ⊕ Z/2","E1=(2*y, y + 1, x*y + 1) | E2=(1) | Δ1=1","S3:12 · D8:32 · A4:24 · S4:72 · A5:120 · SL(2,F3):48 (periph:9)","Kei=Z^1⊕[2] | Bikei=Z^2","C3=N/A (non-ori) | Q6: col=0 (nontriv=0)","dlk2=[['T^2', 'K^2(e=0)', 0]], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[2], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"10_1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Spun figure-eight 2-knot tau^0(4_1)","ch_d":10,"ch_lo":10,"ch_hi":10,"ex_ch":true,"c":8,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x**2 - 3*x + 1"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1^-1 x2 x1 = 1>","e1":["x**2 - 3*x + 1"],"d1":"t**2 - 3*t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[5,6,7,8], Y[5,9,4,10], X[11,12,2,13], Y[3,14,15,16], X[16,17,6,10], X[9,8,13,1], X[17,18,19,7], X[18,15,20,19], X[20,14,12,11]","reals":[{"id":"Spin(4_1)","mode":"INVARIANT_MATCH","ch":10},{"id":"R(b^-1*a*b*a^-1)","mode":"INVARIANT_MATCH","ch":18}],"lh":[0,0,9,10,9,0,0,7,11,0],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**2 - 3*x + 1) | E2=(1) | Δ1=t**2 - 3*t + 1","S3:6 · D8:8 · A4:36 · S4:48 · A5:300 · SL(2,F3):72 (periph:0)","Kei=Z^1⊕[5] | Bikei=Z^2⊕[5]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[5], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,A4,SL2F3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"10_2","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"2-twist-spun trefoil tau^2(3_1) (non-ribbon, chiral by Mochizuki 3-cocycle)","ch_d":10,"ch_lo":10,"ch_hi":10,"ex_ch":true,"c":8,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Non-ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x + 1","3"],"pi1":"<x1, x2 | x2^-2 x1^2 = 1, x2^-1 x1^-1 x2 x1 x2^-1 x1 = 1>","e1":["3","x + 1"],"d1":"1","brunn":false,"chiral":true,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,1], X[6,7,8,9], Y[9,10,11,2], Y[12,13,14,15], X[16,13,12,3], X[15,17,7,5], X[18,19,10,8], X[19,20,16,11], X[17,14,20,18]","reals":[],"lh":[0,0,10,11,10,7,0,4,12,3],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(3, x + 1) | E2=(1) | Δ1=1","S3:12 · D8:8 · A4:12 · S4:48 · A5:120 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[3] | Bikei=Z^2⊕[3]","C3=[3 + 6*u, 3 + 6*u^2] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[3], b2=0, |σ|=0","rk≥2 (finite_commutator_cover_S3) | covers:[Z2,Z3,S3]","Oriented-chiral & non-invertible (Mochizuki 3-cocycle)"]},{"label":"10_3","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"3-twist-spun trefoil tau^3(3_1) (non-ribbon, commutator subgroup Q_8)","ch_d":10,"ch_lo":10,"ch_hi":10,"ex_ch":true,"c":8,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Non-ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x**2 + x + 1","2"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1, x2^-3 x1^3 = 1, x2^-2 x1^-1 x2^2 x1^-1 x2 x1 = 1>","e1":["2","x**2 + x + 1"],"d1":"1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,1], X[6,7,8,9], Y[9,10,11,2], X[12,13,14,3], Y[14,15,16,5], X[17,8,7,16], X[18,19,10,17], X[11,20,13,12], X[19,18,15,20]","reals":[],"lh":[0,0,11,12,11,0,0,0,13,0],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(2, x**2 + x + 1) | E2=(1) | Δ1=1","S3:6 · D8:8 · A4:36 · S4:48 · A5:180 · SL(2,F3):72 (periph:0)","Kei=Z^1 | Bikei=Z^2","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[], b2=0, |σ|=0","rk≥7 (finite_commutator_cover_SL2F3) | covers:[Z2,Z3,A4,SL2F3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"10_1^1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Symmetric-spun / tubed trefoil torus Tube(3_1)","ch_d":10,"ch_lo":10,"ch_hi":10,"ex_ch":true,"c":6,"m":4,"cm":2,"cp":2,"nc":1,"types":["T^2"],"ori":"Ori","chi":0,"eul":[0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x**2 - x + 1"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1>","e1":["x**2 - x + 1"],"d1":"t**2 - t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"Z[1,2,3,4], Y[4,5,6,1], X[6,7,8,9], X[9,10,11,2], X[12,13,14,3], X[15,16,5,14], Z[16,17,18,7], X[18,19,10,8], Y[11,19,20,12], X[13,20,17,15]","reals":[{"id":"Tube(3_1)","mode":"INVARIANT_MATCH","ch":10}],"lh":[1,0,4,13,4,4,0,8,14,0],"ld":["T^2 (Ori), χ=0, e=[0]","Z^1","E1=(x**2 - x + 1) | E2=(1) | Δ1=t**2 - t + 1","S3:12 · D8:8 · A4:36 · S4:96 · A5:360 · SL(2,F3):72 (periph:24)","Kei=Z^1⊕[3] | Bikei=Z^2⊕[3]","C3=[9, 9] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[3], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,A4,SL2F3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"10_1^0,1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Ribbon S^2 u T^2 link","ch_d":10,"ch_lo":10,"ch_hi":10,"ex_ch":true,"c":8,"m":2,"cm":2,"cp":2,"nc":2,"types":["T^2","S^2"],"ori":"Ori","chi":2,"eul":[0,0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":true,"err_note":"Yoshikawa Table II printed E_1 = (x - 1, y - 1)(x + 1); Fox calculus on <x, y | y^{-1}x^{-1}yx^{-1}yxy^{-1}x = 1> gives E_1 = (x - 1, y - 1)(x + y).","err_print":["(x - 1)*(x + 1)","(y - 1)*(x + 1)"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1 x2^-1 x1 = 1>","e1":["x**2 - y**2","x*y - x + y**2 - y"],"d1":"2*t - 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,1], X[7,6,5,8], X[9,3,2,10], X[9,11,12,13], X[13,12,14,15], X[15,14,16,17], Z[7,18,19,20], Y[20,19,11,10], X[18,8,17,16]","reals":[{"id":"Mixed(L4a1)","mode":"MOVE_CERTIFIED","ch":10}],"lh":[3,2,12,14,12,6,7,6,15,0],"ld":["T^2 ∪ S^2 (Ori), χ=2, e=[0, 0]","Z^2","E1=(x**2 - y**2, x*y - x + y**2 - y) | E2=(1) | Δ1=2*t - 2","S3:30 · D8:64 · A4:72 · S4:312 · A5:1140 · SL(2,F3):288 (periph:86)","Kei=Z^1⊕[4] | Bikei=Z^3⊕[2]","C3=[3, 3, 3, 3] | Q6: col=36 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[4], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,A4,Dic16,SL2F3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"10_2^0,1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Ribbon S^2 u T^2 link with pi_1 = <x, y | x^2 y x^{-2} y^{-1} = 1>","ch_d":10,"ch_lo":10,"ch_hi":10,"ex_ch":true,"c":8,"m":2,"cm":2,"cp":2,"nc":2,"types":["T^2","S^2"],"ori":"Ori","chi":2,"eul":[0,0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["(x - 1)*(x + 1)","(y - 1)*(x + 1)"],"pi1":"<x1, x2 | x2^-2 x1^-1 x2^2 x1 = 1>","e1":["x**2 - 1","x*y - x + y - 1"],"d1":"t**2 - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[4,5,6,1], X[6,7,8,9], X[9,10,11,2], X[12,13,10,14], X[15,16,5,17], X[18,8,7,16], Y[18,15,19,14], Z[13,20,3,11], X[12,19,17,20]","reals":[],"lh":[3,2,13,14,13,8,7,9,16,2],"ld":["T^2 ∪ S^2 (Ori), χ=2, e=[0, 0]","Z^2","E1=(x**2 - 1, x*y - x + y - 1) | E2=(1) | Δ1=t**2 - 1","S3:30 · D8:64 · A4:72 · S4:312 · A5:1140 · SL(2,F3):288 (periph:86)","Kei=Z^2 | Bikei=Z^4","C3=[9, 9, 9, 9] | Q6: col=36 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=1, tors=[], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,A4,Dic16,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"10_1^1,1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"1-twist-spun Hopf link (T^2 u T^2, Sanderson Dlk = (1, 1))","ch_d":10,"ch_lo":10,"ch_hi":10,"ex_ch":true,"c":6,"m":4,"cm":2,"cp":2,"nc":2,"types":["T^2","T^2"],"ori":"Ori","chi":0,"eul":[0,0],"rib":"Pseudo-ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x - 1","y - 1"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1 = 1>","e1":["x - 1","y - 1"],"d1":"t - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[4,5,6,7], Y[7,8,9,1], X[10,11,2,9], Z[3,11,12,5], Z[6,13,14,15], X[15,16,17,8], Y[17,18,19,10], X[19,20,13,12], X[20,18,16,14]","reals":[],"lh":[5,2,2,5,2,2,8,5,6,0],"ld":["T^2 ∪ T^2 (Ori), χ=0, e=[0, 0]","Z^2","E1=(x - 1, y - 1) | E2=(1) | Δ1=t - 1","S3:18 · D8:40 · A4:48 · S4:120 · A5:300 · SL(2,F3):168 (periph:122)","Kei=Z^1⊕[2] | Bikei=Z^3","C3=[3, 3, 3, 3] | Q6: col=12 (nontriv=0)","dlk2=[['T^2', 'T^2(e=0)', 1], ['T^2', 'T^2(e=0)', 1]], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[2], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"10_1^0,0,1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"3-component S^2 u S^2 u T^2 ribbon link (two S^2s each linked as 6_1^{0,1} with T^2)","ch_d":10,"ch_lo":10,"ch_hi":10,"ex_ch":true,"c":8,"m":2,"cm":3,"cp":3,"nc":3,"types":["T^2","S^2","S^2"],"ori":"Ori","chi":4,"eul":[0,0,0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["0"],"pi1":"<x1, x2, x3 | x3^-1 x2^-1 x1^-1 x2 x3 x1 = 1>","e1":["0"],"d1":"0","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"Z[1,2,3,4], Y[5,6,2,1], X[7,8,9,10], X[11,7,10,6], X[11,5,12,13], X[14,8,13,12], X[9,15,16,17], X[17,16,18,3], X[18,19,20,4], X[19,15,14,20]","reals":[],"lh":[8,5,14,15,14,9,9,10,17,0],"ld":["T^2 ∪ S^2 ∪ S^2 (Ori), χ=4, e=[0, 0, 0]","Z^3","E1=(0) | E2=(z - 1, x*y - 1) | Δ1=0","S3:108 · D8:320 · A4:576 · S4:2880 · A5:18000 · SL(2,F3):4032 (periph:1656)","Kei=Z^2⊕[2] | Bikei=Z^5","C3=[9, 9, 9, 9, 9, 9, 9, 9] | Q6: col=120 (nontriv=0)","dlk2=[['T^2', 'S^2(e=0)', 0], ['T^2', 'S^2(e=0)', 0]], tlk2=[], Brunnian=False","χ=0, b1=1, tors=[2], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,A4,Dic16]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"10_1^0,-2","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Ribbon S^2 u K^2 link","ch_d":10,"ch_lo":10,"ch_hi":10,"ex_ch":true,"c":8,"m":2,"cm":2,"cp":2,"nc":2,"types":["S^2","K^2"],"ori":"Mixed","chi":2,"eul":[0,0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["2*x + y - 1","4"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1 = 1>","e1":["2*y - 2","x*y - x - 2"],"d1":"2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,1], X[7,8,2,9], X[8,10,11,3], X[10,12,5,11], X[13,14,15,12], X[16,17,18,19], Y[18,17,6,15], Z[20,9,16,19], X[7,20,14,13]","reals":[],"lh":[9,3,15,16,15,1,10,6,18,2],"ld":["S^2 ∪ K^2 (Mixed), χ=2, e=[0, 0]","Z^1 ⊕ Z/2","E1=(2*y - 2, x*y - x - 2) | E2=(1) | Δ1=2","S3:12 · D8:48 · A4:48 · S4:144 · A5:240 · SL(2,F3):144 (periph:0)","Kei=Z^1⊕[4] | Bikei=Z^2⊕[4]","C3=N/A (non-ori) | Q6: col=0 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[4], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,A4,Dic16,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"10_2^0,-2","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"S^2 u K^2 surface-link (non-ribbon candidate)","ch_d":10,"ch_lo":10,"ch_hi":10,"ex_ch":true,"c":8,"m":2,"cm":2,"cp":2,"nc":2,"types":["S^2","K^2"],"ori":"Mixed","chi":2,"eul":[0,0],"rib":"Unknown / Non-ribbon candidate","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":true,"err_note":"Yoshikawa Table II printed E_1 = (2x + y - 1, 4), omitting the generator (x + 1)(y + 1); integral HNF over Z[x^{+-1}, y]/(y^2 - 1) proves E_1 = (2x + y - 1, (x + 1)(y + 1), 4).","err_print":["2*x + y - 1","4"],"pi1":"<x1, x2 | x2^-2 x1^-1 x2^2 x1 = 1, x2^-1 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 = 1>","e1":["4*y","2*y + 2","3*x*y + x + 2*y","x*y + x + y + 1"],"d1":"2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,7], X[7,8,9,1], Y[9,10,11,2], X[11,12,5,3], Y[6,13,14,15], X[15,16,17,8], X[18,19,10,17], X[19,20,13,12], X[20,18,16,14]","reals":[],"lh":[9,3,16,16,15,1,11,6,19,0],"ld":["S^2 ∪ K^2 (Mixed), χ=2, e=[0, 0]","Z^1 ⊕ Z/2","E1=(4*y, 2*y + 2, 3*x*y + x + 2*y, x*y + x + y + 1) | E2=(1) | Δ1=2","S3:12 · D8:48 · A4:48 · S4:144 · A5:240 · SL(2,F3):144 (periph:0)","Kei=Z^1⊕[4] | Bikei=Z^2⊕[4]","C3=N/A (non-ori) | Q6: col=0 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[4], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,A4,Dic16,SL2F3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"10_1^-1,-1","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Non-orientable RP^2 u RP^2 link with dicyclic group Dic_16 of order 16","ch_d":10,"ch_lo":10,"ch_hi":10,"ex_ch":true,"c":8,"m":2,"cm":2,"cp":2,"nc":2,"types":["RP^2","RP^2"],"ori":"Non","chi":2,"eul":[-2,2],"rib":"Non-ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x + 1","y + 1","4"],"pi1":"<x1, x2 | x2^-2 x1^2 = 1, x2^-1 x1^-1 x2 x1^-1 x2 x1^-1 x2^-1 x1 = 1>","e1":["4*x*y","x*y + x","x*y + y"],"d1":"2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,7], Y[7,8,9,1], X[10,11,2,9], X[11,12,5,3], Z[6,13,14,15], X[15,16,17,8], X[18,19,10,17], X[19,20,13,12], X[20,18,16,14]","reals":[],"lh":[6,4,17,17,16,1,4,6,20,0],"ld":["RP^2 ∪ RP^2 (Non), χ=2, e=[-2, 2]","Z^0 ⊕ Z/2 ⊕ Z/2","E1=(4*x*y, x*y + x, x*y + y) | E2=(1) | Δ1=2","S3:10 · D8:36 · A4:16 · S4:76 · A5:76 · SL(2,F3):4 (periph:0)","Kei=Z^1⊕[4] | Bikei=Z^1⊕[8]","C3=N/A (non-ori) | Q6: col=0 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[4], b2=0, |σ|=0","rk≥2 (universal_cover_Dic16) | covers:[Z2,Dic16]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"10_1^-2,-2","tier_code":"yoshikawa_ch10","tier_label":"Yoshikawa (ch ≤ 10)","spoke":"","subfamily":"","desc":"Ribbon link of two Klein bottles K^2 u K^2 with pi_1 = Q_8","ch_d":10,"ch_lo":10,"ch_hi":10,"ex_ch":true,"c":6,"m":4,"cm":2,"cp":2,"nc":2,"types":["K^2","K^2"],"ori":"Non","chi":0,"eul":[0,0],"rib":"Ribbon","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":["x + 1","y + 1","2"],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 = 1, x2^-1 x1^-1 x2^-1 x1 = 1>","e1":["2*x*y","x*y + 1","x*y + x"],"d1":"2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"Z[1,2,3,4], Y[4,5,6,1], X[6,7,8,9], X[9,8,10,11], X[12,3,2,11], X[13,14,15,12], X[14,16,5,15], Z[16,17,18,7], Y[10,19,20,13], X[20,19,18,17]","reals":[{"id":"KleinTube(L2a1,11)","mode":"MOVE_CERTIFIED","ch":10}],"lh":[10,4,5,6,5,3,12,5,21,0],"ld":["K^2 ∪ K^2 (Non), χ=0, e=[0, 0]","Z^0 ⊕ Z/2 ⊕ Z/2","E1=(2*x*y, x*y + 1, x*y + x) | E2=(1) | Δ1=2","S3:10 · D8:28 · A4:16 · S4:52 · A5:76 · SL(2,F3):28 (periph:0)","Kei=Z^1⊕[2] | Bikei=Z^1⊕[4]","C3=N/A (non-ori) | Q6: col=24 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[2], b2=2, |σ|=0","rk≥16 (universal_cover_Q8) | covers:[Z2,Q8]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"11_1","tier_code":"expanded_ch11","tier_label":"Expanded Census (ch = 11)","spoke":"","subfamily":"","desc":"","ch_d":11,"ch_lo":11,"ch_hi":11,"ex_ch":true,"c":9,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"NEW_PACKET","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1 x2^-1 x1^-1 x2 x1 = 1>","e1":["2*x**2 - 2*x + 1"],"d1":"2*t**2 - 2*t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,1], X[6,7,8,9], Y[9,10,11,2], X[12,13,14,3], X[15,7,5,14], X[16,17,10,8], X[11,18,19,12], Z[13,20,21,15], X[21,22,17,16], X[20,19,18,22]","reals":[{"id":"SymUnion(4_1,1)","mode":"MOVE_CERTIFIED","ch":11},{"id":"R(b^-1*a*b^-1*a^-1)","mode":"INVARIANT_MATCH","ch":18}],"lh":[0,0,18,18,17,0,0,7,22,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(2*x**2 - 2*x + 1) | E2=(1) | Δ1=2*t**2 - 2*t + 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:180 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[5] | Bikei=Z^2⊕[5]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[5], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"11_2","tier_code":"expanded_ch11","tier_label":"Expanded Census (ch = 11)","spoke":"","subfamily":"","desc":"","ch_d":11,"ch_lo":11,"ch_hi":11,"ex_ch":true,"c":9,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1^-1 x2 x1 x2^-1 x1 = 1>","e1":["x**3 - x**2 + 2*x - 1"],"d1":"t**3 - t**2 + 2*t - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,1], X[7,8,9,6], X[10,3,2,9], Y[10,11,12,13], X[13,14,15,5], X[16,15,14,17], X[8,18,19,20], Y[20,21,12,11], X[22,17,21,19], X[16,22,18,7]","reals":[{"id":"R(b^-1*a*b*a)","mode":"INVARIANT_MATCH","ch":18}],"lh":[0,0,19,19,18,0,0,7,23,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**3 - x**2 + 2*x - 1) | E2=(1) | Δ1=t**3 - t**2 + 2*t - 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:180 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[5] | Bikei=Z^2⊕[5]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[5], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"11_1^-2","tier_code":"expanded_ch11","tier_label":"Expanded Census (ch = 11)","spoke":"","subfamily":"","desc":"","ch_d":11,"ch_lo":11,"ch_hi":11,"ex_ch":true,"c":7,"m":4,"cm":2,"cp":2,"nc":1,"types":["K^2"],"ori":"Non","chi":0,"eul":[0],"rib":"Unknown","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1, x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 = 1, x2^-2 x1^-1 x2^2 x1^-1 = 1>","e1":["3*x","x + 1"],"d1":"1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[4,5,6,1], Y[6,7,8,9], X[9,10,11,2], Y[3,12,13,14], X[15,16,5,14], Y[16,17,8,7], X[17,18,19,20], X[21,11,10,20], Y[21,22,13,12], X[22,19,18,15]","reals":[],"lh":[11,1,20,20,19,1,0,8,24,2],"ld":["K^2 (Non), χ=0, e=[0]","Z^0 ⊕ Z/2","E1=(3*x, x + 1) | E2=(1) | Δ1=1","S3:10 · D8:6 · A4:4 · S4:58 · A5:76 · SL(2,F3):2 (periph:0)","Kei=Z^1⊕[3] | Bikei=Z^1⊕[3]","C3=N/A (non-ori) | Q6: col=0 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[3], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,S3]","Symmetry open / no obstruction detected"]},{"label":"11_1^0,1","tier_code":"expanded_ch11","tier_label":"Expanded Census (ch = 11)","spoke":"","subfamily":"","desc":"","ch_d":11,"ch_lo":11,"ch_hi":11,"ex_ch":true,"c":9,"m":2,"cm":2,"cp":2,"nc":2,"types":["T^2","S^2"],"ori":"Ori","chi":2,"eul":[0,0],"rib":"Unknown","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1 x2 x1^-1 x2 x1 = 1>","e1":["x**2*y - x**2 - x*y**2 + y**2","x*y**2 - 2*x*y + x - y**2 + y"],"d1":"t**2 - 3*t + 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,1], X[7,8,2,6], Y[3,9,10,11], Z[11,10,12,13], X[14,15,16,13], X[17,7,5,16], X[18,19,9,8], X[19,18,20,12], X[20,17,21,22], X[22,21,15,14]","reals":[],"lh":[3,2,21,21,20,10,1,11,25,2],"ld":["T^2 ∪ S^2 (Ori), χ=2, e=[0, 0]","Z^2","E1=(x**2*y - x**2 - x*y**2 + y**2, x*y**2 - 2*x*y + x - y**2 + y) | E2=(1) | Δ1=t**2 - 3*t + 2","S3:24 · D8:40 · A4:72 · S4:192 · A5:600 · SL(2,F3):264 (periph:93)","Kei=Z^1⊕[6] | Bikei=Z^3⊕[3]","C3=[9, 9, 9, 9] | Q6: col=12 (nontriv=0)","dlk2=[['T^2', 'S^2(e=0)', 0]], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[6], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,A4,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"11_2^0,1","tier_code":"expanded_ch11","tier_label":"Expanded Census (ch = 11)","spoke":"","subfamily":"","desc":"","ch_d":11,"ch_lo":11,"ch_hi":11,"ex_ch":true,"c":9,"m":2,"cm":2,"cp":2,"nc":2,"types":["T^2","S^2"],"ori":"Ori","chi":2,"eul":[0,0],"rib":"Unknown","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1^-1 x2 x1 x2^-1 x1 x2 x1 = 1>","e1":["y**3 - 2*y**2 + 2*y - 1","x*y**2 - x*y + x - y**2 + y - 1"],"d1":"t**3 - 2*t**2 + 2*t - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,1], X[7,3,2,8], Z[9,8,10,11], X[12,13,14,15], X[16,17,13,12], X[18,19,7,9], X[15,20,19,18], Y[11,10,6,16], X[20,14,21,22], X[17,5,22,21]","reals":[],"lh":[3,2,22,22,21,10,13,11,26,2],"ld":["T^2 ∪ S^2 (Ori), χ=2, e=[0, 0]","Z^2","E1=(y**3 - 2*y**2 + 2*y - 1, x*y**2 - x*y + x - y**2 + y - 1) | E2=(1) | Δ1=t**3 - 2*t**2 + 2*t - 1","S3:30 · D8:40 · A4:120 · S4:384 · A5:1500 · SL(2,F3):456 (periph:141)","Kei=Z^1⊕[6] | Bikei=Z^3⊕[3]","C3=[9, 9, 9, 9] | Q6: col=12 (nontriv=0)","dlk2=[['T^2', 'S^2(e=0)', 0]], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[6], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,A4,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"11_1^0,-2","tier_code":"expanded_ch11","tier_label":"Expanded Census (ch = 11)","spoke":"","subfamily":"","desc":"","ch_d":11,"ch_lo":11,"ch_hi":11,"ex_ch":true,"c":9,"m":2,"cm":2,"cp":2,"nc":2,"types":["S^2","K^2"],"ori":"Mixed","chi":2,"eul":[0,0],"rib":"Unknown","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 = 1>","e1":["3*y - 3","3*x*y + 3*y","x*y + x + y + 1"],"d1":"t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[4,5,6,1], X[7,8,2,6], X[9,10,11,3], X[10,12,5,11], X[13,14,8,7], Z[15,13,16,17], X[18,19,20,21], X[19,22,9,20], X[15,18,21,14], Y[17,16,12,22]","reals":[],"lh":[9,3,23,23,22,3,10,11,27,2],"ld":["S^2 ∪ K^2 (Mixed), χ=2, e=[0, 0]","Z^1 ⊕ Z/2","E1=(3*y - 3, 3*x*y + 3*y, x*y + x + y + 1) | E2=(1) | Δ1=t + 1","S3:30 · D8:40 · A4:24 · S4:384 · A5:1500 · SL(2,F3):72 (periph:0)","Kei=Z^1⊕[6] | Bikei=Z^2⊕[6]","C3=N/A (non-ori) | Q6: col=24 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[6], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,Dic16]","Symmetry open / no obstruction detected"]},{"label":"11_2^0,-2","tier_code":"expanded_ch11","tier_label":"Expanded Census (ch = 11)","spoke":"","subfamily":"","desc":"","ch_d":11,"ch_lo":11,"ch_hi":11,"ex_ch":true,"c":9,"m":2,"cm":2,"cp":2,"nc":2,"types":["K^2","S^2"],"ori":"Mixed","chi":2,"eul":[0,0],"rib":"Unknown","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-2 x1^-1 x2^2 x1^-1 = 1>","e1":["x**2 + y","x*y - x + y - 1"],"d1":"t**2 + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[4,5,6,1], X[6,7,8,9], X[10,11,9,12], X[13,3,2,11], X[14,15,5,16], X[17,8,7,15], Y[17,14,18,19], Z[19,18,20,12], X[21,20,16,22], X[10,21,22,13]","reals":[],"lh":[4,3,24,24,23,1,2,9,28,2],"ld":["K^2 ∪ S^2 (Mixed), χ=2, e=[0, 0]","Z^1 ⊕ Z/2","E1=(x**2 + y, x*y - x + y - 1) | E2=(1) | Δ1=t**2 + 1","S3:18 · D8:48 · A4:24 · S4:168 · A5:300 · SL(2,F3):48 (periph:0)","Kei=Z^2 | Bikei=Z^3","C3=N/A (non-ori) | Q6: col=0 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=1, tors=[], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Dic16]","Symmetry open / no obstruction detected"]},{"label":"11_3^0,-2","tier_code":"expanded_ch11","tier_label":"Expanded Census (ch = 11)","spoke":"","subfamily":"","desc":"","ch_d":11,"ch_lo":11,"ch_hi":11,"ex_ch":true,"c":9,"m":2,"cm":2,"cp":2,"nc":2,"types":["K^2","S^2"],"ori":"Mixed","chi":2,"eul":[0,0],"rib":"Unknown","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1^-1 x2 x1 x2 x1^-1 = 1>","e1":["x**2 + y","x*y - x - y + 1"],"d1":"t**2 + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"Y[1,2,3,4], Z[4,5,6,1], X[6,7,8,2], X[9,10,11,3], X[12,13,14,11], X[13,15,16,14], X[15,17,5,16], X[17,12,18,7], X[8,18,19,20], X[20,19,21,22], X[22,21,10,9]","reals":[{"id":"KleinMixed(L4a1,1)","mode":"MOVE_CERTIFIED","ch":11}],"lh":[4,3,25,24,15,1,2,6,29,2],"ld":["K^2 ∪ S^2 (Mixed), χ=2, e=[0, 0]","Z^1 ⊕ Z/2","E1=(x**2 + y, x*y - x - y + 1) | E2=(1) | Δ1=t**2 + 1","S3:18 · D8:48 · A4:24 · S4:168 · A5:300 · SL(2,F3):48 (periph:0)","Kei=Z^1⊕[4] | Bikei=Z^2⊕[4]","C3=N/A (non-ori) | Q6: col=0 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[4], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Dic16]","Symmetry open / no obstruction detected"]},{"label":"11_1^1,-2","tier_code":"expanded_ch11","tier_label":"Expanded Census (ch = 11)","spoke":"","subfamily":"","desc":"","ch_d":11,"ch_lo":11,"ch_hi":11,"ex_ch":true,"c":7,"m":4,"cm":2,"cp":2,"nc":2,"types":["K^2","T^2"],"ori":"Mixed","chi":0,"eul":[0,0],"rib":"Unknown","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 = 1, x1^-4 = 1>","e1":["4*y","3*y + 1","x*y + 1"],"d1":"1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"Z[1,2,3,4], Y[4,5,6,1], X[6,7,8,2], X[3,9,10,11], Z[11,12,13,14], Y[14,13,15,16], X[16,17,18,5], X[17,19,7,18], X[20,10,9,8], X[20,21,22,12], X[15,22,21,19]","reals":[],"lh":[12,3,26,25,3,3,14,5,30,2],"ld":["K^2 ∪ T^2 (Mixed), χ=0, e=[0, 0]","Z^1 ⊕ Z/2","E1=(4*y, 3*y + 1, x*y + 1) | E2=(1) | Δ1=1","S3:12 · D8:40 · A4:24 · S4:96 · A5:120 · SL(2,F3):72 (periph:0)","Kei=Z^1⊕[2] | Bikei=Z^2⊕[2]","C3=N/A (non-ori) | Q6: col=24 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[2], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3,Q8]","Symmetry open / no obstruction detected"]},{"label":"11_1^0,0,-2","tier_code":"expanded_ch11","tier_label":"Expanded Census (ch = 11)","spoke":"","subfamily":"","desc":"","ch_d":11,"ch_lo":11,"ch_hi":11,"ex_ch":true,"c":9,"m":2,"cm":3,"cp":3,"nc":3,"types":["K^2","S^2","S^2"],"ori":"Mixed","chi":4,"eul":[0,0,0],"rib":"Unknown","cell":"EXACT_SINGLETON","reason":"Canonical Hub prime census class.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2, x3 | x3^-1 x1^-1 x3 x2 x1^-1 x2^-1 = 1>","e1":["0"],"d1":"0","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"Y[1,2,3,4], Y[5,6,7,8], X[1,4,6,5], X[9,10,11,3], X[7,11,12,13], X[8,13,14,15], X[15,16,9,2], X[17,18,19,10], X[12,19,18,20], X[14,20,21,22], X[22,21,17,16]","reals":[],"lh":[13,6,27,26,24,11,15,10,31,2],"ld":["K^2 ∪ S^2 ∪ S^2 (Mixed), χ=4, e=[0, 0, 0]","Z^2 ⊕ Z/2","E1=(0) | E2=(z - 1, x*y*z + 1) | Δ1=0","S3:108 · D8:320 · A4:288 · S4:2880 · A5:18000 · SL(2,F3):1728 (periph:0)","Kei=Z^2⊕[2] | Bikei=Z^4⊕[2]","C3=N/A (non-ori) | Q6: col=96 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=0, b1=1, tors=[2], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,A4,Dic16]","Symmetry open / no obstruction detected"]},{"label":"Spin(5_1)","tier_code":"exact_ch12","tier_label":"Exact ch = 12 (Spoke)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"artin_spin","desc":"Artin spin tau^0(5_1) ((2,5)-torus cinquefoil knot)","ch_d":12,"ch_lo":12,"ch_hi":12,"ex_ch":true,"c":10,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"EXACT_CH12_SPOKE","reason":"PROVEN EXACT ch = 12: constructive diagram has ch = 12 and full invariant key is disjoint from the exhaustive ch <= 11 prime census, residual shadows, and all ch <= 12 composite/split/unknot classes.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1 = 1>","e1":["x**4 - x**3 + x**2 - x + 1"],"d1":"t**4 - t**3 + t**2 - t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[5,7,8,6], X[7,9,10,8], X[12,10,9,11], Y[12,13,14,15], Z[15,14,16,4], X[13,11,17,18], X[18,17,19,20], X[20,19,21,22], X[22,21,23,24], X[24,23,1,16]","reals":[],"lh":[0,0,28,27,25,0,0,7,32,0],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**4 - x**3 + x**2 - x + 1) | E2=(1) | Δ1=t**4 - t**3 + t**2 - t + 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:420 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[5] | Bikei=Z^2⊕[5]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[5], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"Spin(5_2)","tier_code":"exact_ch12","tier_label":"Exact ch = 12 (Spoke)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"artin_spin","desc":"Artin spin tau^0(5_2) (Three-twist knot 5_2)","ch_d":12,"ch_lo":12,"ch_hi":12,"ex_ch":true,"c":10,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"EXACT_CH12_SPOKE","reason":"PROVEN EXACT ch = 12: constructive diagram has ch = 12 and full invariant key is disjoint from the exhaustive ch <= 11 prime census, residual shadows, and all ch <= 12 composite/split/unknot classes.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1^-1 x2 x1 x2 x1^-1 x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1>","e1":["2*x**2 - 3*x + 2"],"d1":"2*t**2 - 3*t + 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[8,7,9,10], X[10,9,11,12], Z[13,5,14,15], Y[11,13,15,16], X[16,17,18,12], X[17,19,20,18], X[19,21,22,20], X[21,14,23,24], X[24,23,1,22]","reals":[],"lh":[0,0,29,28,26,0,0,12,33,0],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(2*x**2 - 3*x + 2) | E2=(1) | Δ1=2*t**2 - 3*t + 2","S3:6 · D8:8 · A4:12 · S4:24 · A5:180 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[7] | Bikei=Z^2⊕[7]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[7], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"Spin(6_1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"artin_spin","desc":"Artin spin tau^0(6_1) (Stevedore knot 6_1)","ch_d":14,"ch_lo":12,"ch_hi":14,"ex_ch":false,"c":12,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 14.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1 x2 x1^-1 x2 x1^-1 x2 x1 x2^-1 x1 = 1>","e1":["2*x**2 - 5*x + 2"],"d1":"2*t**2 - 5*t + 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[8,7,9,10], X[10,9,11,12], X[12,11,13,14], Z[15,5,16,17], Y[13,15,17,18], X[18,19,20,14], X[19,21,22,20], X[21,23,24,22], X[23,25,26,24], X[25,16,27,28], X[28,27,1,26]","reals":[],"lh":[0,0,30,29,27,4,0,13,34,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(2*x**2 - 5*x + 2) | E2=(1) | Δ1=2*t**2 - 5*t + 2","S3:12 · D8:8 · A4:12 · S4:72 · A5:120 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[9] | Bikei=Z^2⊕[9]","C3=[9, 9] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[9], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3]","Symmetry open / no obstruction detected"]},{"label":"Spin(6_2)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"artin_spin","desc":"Artin spin tau^0(6_2) (Knot 6_2)","ch_d":14,"ch_lo":12,"ch_hi":14,"ex_ch":false,"c":12,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 14.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2 x1 x2^-1 x1 x2 x1^-1 x2 x1 = 1>","e1":["x**4 - 3*x**3 + 3*x**2 - 3*x + 1"],"d1":"t**4 - 3*t**3 + 3*t**2 - 3*t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[5,9,10,7], X[9,11,12,10], X[14,12,11,13], Y[14,15,16,17], Z[17,16,18,8], X[15,13,19,20], X[20,19,21,22], X[22,21,23,24], X[24,25,26,18], X[25,23,27,28], X[28,27,1,26]","reals":[],"lh":[0,0,31,0,28,0,0,14,35,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**4 - 3*x**3 + 3*x**2 - 3*x + 1) | E2=(1) | Δ1=t**4 - 3*t**3 + 3*t**2 - 3*t + 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:60 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[11] | Bikei=Z^2⊕[11]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[11], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"Spin(6_3)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"artin_spin","desc":"Artin spin tau^0(6_3) (Knot 6_3)","ch_d":14,"ch_lo":12,"ch_hi":14,"ex_ch":false,"c":12,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 14.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1^-1 x2 x1 x2^-1 x1^-1 x2^-1 x1 x2 x1 x2^-1 x1^-1 x2 x1 x2 x1^-1 x2^-1 x1 x2 x1 = 1>","e1":["x**4 - 3*x**3 + 5*x**2 - 3*x + 1"],"d1":"t**4 - 3*t**3 + 5*t**2 - 3*t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[5,9,10,7], X[8,10,11,12], X[14,11,9,13], Y[14,15,16,17], Z[17,16,18,12], X[15,13,19,20], X[20,21,22,18], X[21,19,23,24], X[24,25,26,22], X[25,23,27,28], X[28,27,1,26]","reals":[],"lh":[0,0,32,30,29,0,0,15,36,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**4 - 3*x**3 + 5*x**2 - 3*x + 1) | E2=(1) | Δ1=t**4 - 3*t**3 + 5*t**2 - 3*t + 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:180 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[13] | Bikei=Z^2⊕[13]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[13], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"Spin(7_1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"artin_spin","desc":"Artin spin tau^0(7_1) ((2,7)-torus septafoil knot)","ch_d":16,"ch_lo":12,"ch_hi":16,"ex_ch":false,"c":14,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 16.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1^-1 x2^-1 x1^-1 x2^-1 x1 x2 x1 x2 x1 x2 x1 = 1>","e1":["x**6 - x**5 + x**4 - x**3 + x**2 - x + 1"],"d1":"t**6 - t**5 + t**4 - t**3 + t**2 - t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[5,7,8,6], X[7,9,10,8], X[9,11,12,10], X[11,13,14,12], X[16,14,13,15], Y[16,17,18,19], Z[19,18,20,4], X[17,15,21,22], X[22,21,23,24], X[24,23,25,26], X[26,25,27,28], X[28,27,29,30], X[30,29,31,32], X[32,31,1,20]","reals":[],"lh":[0,0,33,0,30,0,0,12,37,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**6 - x**5 + x**4 - x**3 + x**2 - x + 1) | E2=(1) | Δ1=t**6 - t**5 + t**4 - t**3 + t**2 - t + 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:60 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[7] | Bikei=Z^2⊕[7]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[7], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"Spin(7_2)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"artin_spin","desc":"Artin spin tau^0(7_2) (Five-twist knot 7_2)","ch_d":16,"ch_lo":12,"ch_hi":16,"ex_ch":false,"c":14,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 16.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1 x2^-1 x1 x2 x1^-1 x2 x1^-1 x2 x1 x2^-1 x1 x2^-1 x1 = 1>","e1":["3*x**2 - 5*x + 3"],"d1":"3*t**2 - 5*t + 3","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[8,7,9,10], X[10,9,11,12], X[12,11,13,14], X[14,13,15,16], Z[17,5,18,19], Y[15,17,19,20], X[20,21,22,16], X[21,23,24,22], X[23,25,26,24], X[25,27,28,26], X[27,29,30,28], X[29,18,31,32], X[32,31,1,30]","reals":[],"lh":[0,0,34,12,31,0,0,14,38,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(3*x**2 - 5*x + 3) | E2=(1) | Δ1=3*t**2 - 5*t + 3","S3:6 · D8:8 · A4:36 · S4:48 · A5:180 · SL(2,F3):72 (periph:0)","Kei=Z^1⊕[11] | Bikei=Z^2⊕[11]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[11], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,A4,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"Spin(7_3)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"artin_spin","desc":"Artin spin tau^0(7_3) (Knot 7_3)","ch_d":16,"ch_lo":12,"ch_hi":16,"ex_ch":false,"c":14,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 16.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1^-1 x2^-1 x1 x2 x1 x2 x1^-1 x2^-1 x1^-1 x2^-1 x1 x2 x1 x2 x1 x2^-1 x1^-1 x2^-1 x1^-1 x2 x1 x2 x1 = 1>","e1":["2*x**4 - 3*x**3 + 3*x**2 - 3*x + 2"],"d1":"2*t**4 - 3*t**3 + 3*t**2 - 3*t + 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[5,7,8,6], X[4,8,9,10], X[10,9,11,12], X[12,11,13,14], X[14,13,15,16], Z[17,7,18,19], Y[15,17,19,20], X[20,21,22,16], X[21,23,24,22], X[23,25,26,24], X[25,27,28,26], X[27,18,29,30], X[30,29,31,32], X[32,31,1,28]","reals":[],"lh":[0,0,35,12,32,0,0,15,39,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(2*x**4 - 3*x**3 + 3*x**2 - 3*x + 2) | E2=(1) | Δ1=2*t**4 - 3*t**3 + 3*t**2 - 3*t + 2","S3:6 · D8:8 · A4:36 · S4:48 · A5:180 · SL(2,F3):72 (periph:0)","Kei=Z^1⊕[13] | Bikei=Z^2⊕[13]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[13], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,A4,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"Spin(7_4)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"artin_spin","desc":"Artin spin tau^0(7_4) (Knot 7_4)","ch_d":16,"ch_lo":12,"ch_hi":16,"ex_ch":false,"c":14,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 16.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1 x2 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1 x2 x1^-1 x2 x1 x2^-1 x1 x2^-1 x1^-1 x2 x1^-1 x2 x1 x2^-1 x1 = 1>","e1":["4*x**2 - 7*x + 4"],"d1":"4*t**2 - 7*t + 4","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[5,7,8,6], X[4,8,9,10], X[7,11,12,9], X[11,13,14,12], X[16,14,13,15], Y[16,17,18,19], Z[19,18,20,10], X[17,15,21,22], X[22,21,23,24], X[24,23,25,26], X[26,27,28,20], X[27,25,29,30], X[30,29,31,32], X[32,31,1,28]","reals":[],"lh":[0,0,36,31,33,4,0,16,40,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(4*x**2 - 7*x + 4) | E2=(1) | Δ1=4*t**2 - 7*t + 4","S3:12 · D8:8 · A4:12 · S4:72 · A5:360 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[15] | Bikei=Z^2⊕[15]","C3=[9, 9] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[15], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3]","Symmetry open / no obstruction detected"]},{"label":"Spin(7_5)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"artin_spin","desc":"Artin spin tau^0(7_5) (Knot 7_5)","ch_d":16,"ch_lo":12,"ch_hi":16,"ex_ch":false,"c":14,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 16.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2 x1 = 1>","e1":["2*x**4 - 4*x**3 + 5*x**2 - 4*x + 2"],"d1":"2*t**4 - 4*t**3 + 5*t**2 - 4*t + 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[8,7,9,10], X[5,11,12,9], X[11,13,14,12], X[16,14,13,15], Y[16,17,18,19], Z[19,18,20,10], X[17,15,21,22], X[22,21,23,24], X[24,23,25,26], X[26,27,28,20], X[27,29,30,28], X[29,25,31,32], X[32,31,1,30]","reals":[],"lh":[0,0,37,32,34,0,0,17,41,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(2*x**4 - 4*x**3 + 5*x**2 - 4*x + 2) | E2=(1) | Δ1=2*t**4 - 4*t**3 + 5*t**2 - 4*t + 2","S3:6 · D8:8 · A4:12 · S4:24 · A5:60 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[17] | Bikei=Z^2⊕[17]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[17], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"Spin(7_6)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"artin_spin","desc":"Artin spin tau^0(7_6) (Knot 7_6)","ch_d":16,"ch_lo":12,"ch_hi":16,"ex_ch":false,"c":14,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 16.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2, x3 | x3^-1 x1 x2^-1 x3^-1 x2 x1^-1 x3 x1^-1 = 1, x3^-1 x2^-1 x3 x2^-1 x3^-1 x2 x3 x1^-1 x3 x1 x3^-1 x2^-1 x3 x2 = 1>","e1":["x**4 - 5*x**3 + 7*x**2 - 5*x + 1"],"d1":"t**4 - 5*t**3 + 7*t**2 - 5*t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[5,9,10,7], X[9,11,12,10], X[8,12,13,14], X[14,13,15,16], Z[17,11,18,19], Y[15,17,19,20], X[20,21,22,16], X[21,23,24,22], X[23,18,25,26], X[26,25,27,28], X[28,29,30,24], X[29,27,31,32], X[32,31,1,30]","reals":[],"lh":[0,0,38,0,35,0,0,18,42,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**4 - 5*x**3 + 7*x**2 - 5*x + 1) | E2=(1) | Δ1=t**4 - 5*t**3 + 7*t**2 - 5*t + 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:60 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[19] | Bikei=Z^2⊕[19]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[19], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"Spin(7_7)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"artin_spin","desc":"Artin spin tau^0(7_7) (Knot 7_7)","ch_d":16,"ch_lo":12,"ch_hi":16,"ex_ch":false,"c":14,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 16.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2 x1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 x2^-1 x1 x2 x1^-1 x2 x1 = 1>","e1":["x**4 - 5*x**3 + 9*x**2 - 5*x + 1"],"d1":"t**4 - 5*t**3 + 9*t**2 - 5*t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[5,9,10,7], X[8,10,11,12], X[9,13,14,11], X[12,14,15,16], Z[17,13,18,19], Y[15,17,19,20], X[20,21,22,16], X[21,18,23,24], X[24,25,26,22], X[25,23,27,28], X[28,29,30,26], X[29,27,31,32], X[32,31,1,30]","reals":[],"lh":[0,0,39,33,36,4,0,19,43,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**4 - 5*x**3 + 9*x**2 - 5*x + 1) | E2=(1) | Δ1=t**4 - 5*t**3 + 9*t**2 - 5*t + 1","S3:12 · D8:8 · A4:12 · S4:72 · A5:120 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[21] | Bikei=Z^2⊕[21]","C3=[9, 9] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[21], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3]","Symmetry open / no obstruction detected"]},{"label":"SymUnion(5_1,1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"symmetric_union_2knot","desc":"1-twisted symmetric-union ribbon 2-knot U_1(5_1)","ch_d":13,"ch_lo":12,"ch_hi":13,"ex_ch":false,"c":11,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 13.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1^-1 x2 x1 x2^-1 x1 = 1>","e1":["2*x - 3"],"d1":"2*t - 3","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[5,7,8,6], X[7,9,10,8], X[4,10,11,12], Y[13,14,15,16], Y[11,16,15,17], X[18,14,13,9], X[17,19,20,12], X[19,18,21,22], X[22,21,23,24], X[24,23,25,26], X[26,25,1,20]","reals":[],"lh":[0,0,40,18,37,0,0,7,44,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(2*x - 3) | E2=(1) | Δ1=2*t - 3","S3:6 · D8:8 · A4:12 · S4:24 · A5:180 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[5] | Bikei=Z^2⊕[5]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[5], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"SymUnion(5_2,1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"symmetric_union_2knot","desc":"1-twisted symmetric-union ribbon 2-knot U_1(5_2)","ch_d":13,"ch_lo":12,"ch_hi":13,"ex_ch":false,"c":11,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 13.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2 x1 x2^-1 x1 = 1>","e1":["2*x**2 - 4*x + 1"],"d1":"2*t**2 - 4*t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[8,7,9,10], X[10,9,11,12], Z[13,5,14,15], Z[16,17,13,15], X[11,17,16,18], X[18,19,20,12], X[19,21,22,20], X[21,23,24,22], X[23,14,25,26], X[26,25,1,24]","reals":[],"lh":[0,0,41,0,38,0,0,12,45,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(2*x**2 - 4*x + 1) | E2=(1) | Δ1=2*t**2 - 4*t + 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:60 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[7] | Bikei=Z^2⊕[7]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[7], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"SymUnion(6_1,1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"symmetric_union_2knot","desc":"1-twisted symmetric-union ribbon 2-knot U_1(6_1)","ch_d":15,"ch_lo":12,"ch_hi":15,"ex_ch":false,"c":13,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 15.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1 x2^-1 x1 x2 x1^-1 x2 x1^-1 x2 x1 x2^-1 x1 = 1>","e1":["3*x**2 - 4*x + 2"],"d1":"3*t**2 - 4*t + 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[8,7,9,10], X[10,9,11,12], X[12,11,13,14], Z[15,5,16,17], Z[18,19,15,17], X[13,19,18,20], X[20,21,22,14], X[21,23,24,22], X[23,25,26,24], X[25,27,28,26], X[27,16,29,30], X[30,29,1,28]","reals":[],"lh":[0,0,42,11,39,4,0,13,46,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(3*x**2 - 4*x + 2) | E2=(1) | Δ1=3*t**2 - 4*t + 2","S3:12 · D8:8 · A4:12 · S4:48 · A5:120 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[9] | Bikei=Z^2⊕[9]","C3=[9, 9] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[9], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3]","Symmetry open / no obstruction detected"]},{"label":"SymUnion(6_2,1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"symmetric_union_2knot","desc":"1-twisted symmetric-union ribbon 2-knot U_1(6_2)","ch_d":15,"ch_lo":12,"ch_hi":15,"ex_ch":false,"c":13,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 15.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 x2^-1 x1 x2 x1^-1 x2 x1 = 1>","e1":["x**3 - 4*x**2 + 4*x - 2"],"d1":"t**3 - 4*t**2 + 4*t - 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[5,9,10,7], X[9,11,12,10], X[8,12,13,14], Z[15,11,16,17], Y[13,18,19,20], X[18,15,17,19], X[20,21,22,14], X[21,16,23,24], X[24,23,25,26], X[26,27,28,22], X[27,25,29,30], X[30,29,1,28]","reals":[],"lh":[0,0,43,34,40,0,0,14,47,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**3 - 4*x**2 + 4*x - 2) | E2=(1) | Δ1=t**3 - 4*t**2 + 4*t - 2","S3:6 · D8:8 · A4:12 · S4:24 · A5:60 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[11] | Bikei=Z^2⊕[11]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[11], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"SymUnion(6_3,1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 1: Spun & Symmetric-Union 2-Knots","subfamily":"symmetric_union_2knot","desc":"1-twisted symmetric-union ribbon 2-knot U_1(6_3)","ch_d":15,"ch_lo":12,"ch_hi":15,"ex_ch":false,"c":13,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 15.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 x2^-1 x1 x2 x1^-1 x2 x1 x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2 x1 = 1>","e1":["2*x**3 - 6*x**2 + 4*x - 1"],"d1":"2*t**3 - 6*t**2 + 4*t - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[5,9,10,7], X[8,10,11,12], X[12,11,13,14], Z[15,9,16,17], Y[13,18,19,20], X[18,15,17,19], X[20,21,22,14], X[21,23,24,22], X[23,16,25,26], X[26,27,28,24], X[27,25,29,30], X[30,29,1,28]","reals":[],"lh":[0,0,44,0,41,0,0,15,48,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(2*x**3 - 6*x**2 + 4*x - 1) | E2=(1) | Δ1=2*t**3 - 6*t**2 + 4*t - 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:60 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[13] | Bikei=Z^2⊕[13]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[13], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"R(b^2*a)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 2: 1-Fusion Ribbon 2-Knots","subfamily":"ribbon_1fusion","desc":"Non-reciprocal degree-3 1-fusion ribbon 2-knot (Delta = x^3 - x + 1)","ch_d":14,"ch_lo":12,"ch_hi":14,"ex_ch":false,"c":12,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 14.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-2 x1^-1 x2^-1 x1 x2^2 x1 = 1>","e1":["x**3 - x + 1"],"d1":"t**3 - t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"Y[1,2,3,4], Y[5,6,7,8], X[9,10,11,12], X[9,14,15,13], X[1,17,10,16], X[2,16,13,15], X[18,11,19,20], X[21,20,22,6], X[17,4,23,19], X[23,3,7,22], X[24,25,26,21], X[26,27,12,18], X[25,24,5,28], X[27,28,8,14]","reals":[],"lh":[0,0,45,34,42,0,0,0,49,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**3 - x + 1) | E2=(1) | Δ1=t**3 - t + 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:60 · SL(2,F3):24 (periph:0)","Kei=Z^1 | Bikei=Z^2","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"R(b^2*a^-1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 2: 1-Fusion Ribbon 2-Knots","subfamily":"ribbon_1fusion","desc":"Golden-ratio non-reciprocal 1-fusion ribbon 2-knot (Delta = x^2 - x - 1)","ch_d":14,"ch_lo":12,"ch_hi":14,"ex_ch":false,"c":12,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 14.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-2 x1 x2^-1 x1^-1 x2^2 x1 = 1>","e1":["x**2 + x - 1"],"d1":"t**2 + t - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"Y[1,2,3,4], Y[5,6,7,8], X[10,1,11,9], X[12,13,14,2], X[3,14,15,16], X[4,16,17,18], X[19,9,20,21], X[22,20,23,6], X[18,17,24,11], X[24,15,7,23], X[22,25,26,21], X[10,19,27,12], X[25,5,28,26], X[28,8,13,27]","reals":[],"lh":[0,0,46,12,43,0,0,0,50,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**2 + x - 1) | E2=(1) | Δ1=t**2 + t - 1","S3:6 · D8:8 · A4:36 · S4:48 · A5:180 · SL(2,F3):72 (periph:0)","Kei=Z^1 | Bikei=Z^2","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,A4,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"R(b^3*a)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 2: 1-Fusion Ribbon 2-Knots","subfamily":"ribbon_1fusion","desc":"Non-reciprocal degree-4 1-fusion ribbon 2-knot (Delta = x^4 - x + 1)","ch_d":18,"ch_lo":12,"ch_hi":18,"ex_ch":false,"c":16,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 18.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-3 x1^-1 x2^-1 x1 x2^3 x1 = 1>","e1":["x**4 - x + 1"],"d1":"t**4 - t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"Y[1,2,3,4], Z[5,6,7,8], X[9,1,10,11], X[9,12,13,2], X[3,13,14,15], X[4,15,16,17], X[18,10,19,20], X[21,20,22,23], X[17,16,24,19], X[24,14,25,22], X[23,26,27,21], X[27,28,29,18], X[26,25,30,31], X[28,31,32,33], X[5,11,29,34], X[6,34,33,35], X[35,32,36,7], X[36,30,12,8]","reals":[],"lh":[0,0,47,11,44,4,0,4,51,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**4 - x + 1) | E2=(1) | Δ1=t**4 - t + 1","S3:12 · D8:8 · A4:12 · S4:48 · A5:120 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[3] | Bikei=Z^2⊕[3]","C3=[9, 9] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[3], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3]","Symmetry open / no obstruction detected"]},{"label":"R(b^3*a^-1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 2: 1-Fusion Ribbon 2-Knots","subfamily":"ribbon_1fusion","desc":"Non-reciprocal degree-3 1-fusion ribbon 2-knot (Delta = x^3 - x^2 - 1)","ch_d":18,"ch_lo":12,"ch_hi":18,"ex_ch":false,"c":16,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 18.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-3 x1 x2^-1 x1^-1 x2^3 x1 = 1>","e1":["x**3 + x - 1"],"d1":"t**3 + t - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"Y[1,2,3,4], Y[5,6,7,8], X[9,10,11,12], X[9,14,15,13], X[1,17,10,16], X[2,16,13,15], X[18,11,19,20], X[21,20,22,23], X[17,4,24,19], X[24,3,25,22], X[23,26,27,21], X[27,28,6,18], X[26,25,29,30], X[28,30,31,7], X[32,33,34,8], X[34,35,12,5], X[33,32,31,36], X[35,36,29,14]","reals":[],"lh":[0,0,48,35,45,4,0,4,52,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**3 + x - 1) | E2=(1) | Δ1=t**3 + t - 1","S3:12 · D8:8 · A4:12 · S4:72 · A5:120 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[3] | Bikei=Z^2⊕[3]","C3=[9, 9] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[3], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3]","Symmetry open / no obstruction detected"]},{"label":"R(b^2*a^2)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 2: 1-Fusion Ribbon 2-Knots","subfamily":"ribbon_1fusion","desc":"Symmetric degree-4 1-fusion ribbon 2-knot (Delta = x^4 - x^2 + 1)","ch_d":18,"ch_lo":12,"ch_hi":18,"ex_ch":false,"c":16,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 18.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-2 x1^-2 x2^-1 x1^2 x2^2 x1 = 1>","e1":["x**4 - x**2 + 1"],"d1":"t**4 - t**2 + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"Y[1,2,3,4], Y[5,6,7,8], X[9,10,11,12], X[9,14,15,13], X[1,17,10,16], X[2,16,13,15], X[18,11,19,20], X[21,20,22,6], X[17,4,23,19], X[23,3,7,22], X[24,25,26,21], X[26,27,12,18], X[25,28,29,30], X[27,30,31,14], X[8,32,33,34], X[5,34,35,24], X[32,31,36,33], X[36,29,28,35]","reals":[],"lh":[0,0,49,36,46,0,0,0,53,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**4 - x**2 + 1) | E2=(1) | Δ1=t**4 - t**2 + 1","S3:6 · D8:8 · A4:36 · S4:48 · A5:300 · SL(2,F3):72 (periph:0)","Kei=Z^1 | Bikei=Z^2","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,A4,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"R(b^2*a^-2)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 2: 1-Fusion Ribbon 2-Knots","subfamily":"ribbon_1fusion","desc":"Non-monic non-reciprocal 1-fusion ribbon 2-knot (Delta = x^2 - 2)","ch_d":18,"ch_lo":12,"ch_hi":18,"ex_ch":false,"c":16,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 18.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-2 x1^2 x2^-1 x1^-2 x2^2 x1 = 1>","e1":["2*x**2 - 1"],"d1":"2*t**2 - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"Y[1,2,3,4], Y[5,6,7,8], X[10,1,11,9], X[12,13,14,2], X[3,14,15,16], X[4,16,17,18], X[19,9,20,21], X[22,20,23,6], X[18,17,24,11], X[24,15,7,23], X[22,25,26,21], X[10,19,27,12], X[28,29,30,26], X[30,31,13,27], X[32,33,34,8], X[34,35,25,5], X[33,32,31,36], X[35,36,29,28]","reals":[],"lh":[0,0,50,34,47,0,0,0,49,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(2*x**2 - 1) | E2=(1) | Δ1=2*t**2 - 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:60 · SL(2,F3):24 (periph:0)","Kei=Z^1 | Bikei=Z^2","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"R(b^-1*a^2*b*a^-1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 2: 1-Fusion Ribbon 2-Knots","subfamily":"ribbon_1fusion","desc":"4-syllable non-reciprocal 1-fusion ribbon 2-knot (Delta = x^3 - 2x^2 - x + 1)","ch_d":22,"ch_lo":12,"ch_hi":22,"ex_ch":false,"c":20,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 22.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-2 x2 x1^-1 x2^-1 x1^2 x2 x1^-1 x2 x1 = 1>","e1":["x**3 - 2*x**2 - x + 1"],"d1":"t**3 - 2*t**2 - t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"Z[1,2,3,4], Y[5,6,7,8], X[4,9,10,11], X[1,11,12,13], X[9,14,15,10], X[15,16,17,12], X[18,19,20,21], X[22,21,23,2], X[24,16,25,20], X[25,14,3,23], X[26,27,28,22], X[28,29,19,18], X[27,30,31,32], X[29,32,33,24], X[34,13,35,36], X[37,36,38,6], X[17,33,39,35], X[39,31,7,38], X[37,40,41,42], X[34,42,43,26], X[40,5,44,41], X[44,8,30,43]","reals":[],"lh":[0,0,51,0,48,0,0,0,54,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**3 - 2*x**2 - x + 1) | E2=(1) | Δ1=t**3 - 2*t**2 - t + 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:60 · SL(2,F3):24 (periph:0)","Kei=Z^1 | Bikei=Z^2","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"R(b^2*a*b^-1*a)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 2: 1-Fusion Ribbon 2-Knots","subfamily":"ribbon_1fusion","desc":"Non-monic non-reciprocal 1-fusion ribbon 2-knot (Delta = x^3 - 2x^2 + 2)","ch_d":22,"ch_lo":12,"ch_hi":22,"ex_ch":false,"c":20,"m":2,"cm":2,"cp":2,"nc":1,"types":["S^2"],"ori":"Ori","chi":2,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 22.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-2 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1 x2^2 x1 = 1>","e1":["x**3 - 2*x + 2"],"d1":"t**3 - 2*t + 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"Y[1,2,3,4], Y[5,6,7,8], X[9,10,11,12], X[9,14,15,13], X[1,17,10,16], X[2,16,13,15], X[18,11,19,20], X[21,20,22,23], X[17,4,24,19], X[24,3,25,22], X[26,27,28,21], X[28,29,12,18], X[27,30,31,32], X[29,32,33,14], X[23,35,36,34], X[36,38,6,37], X[35,25,33,39], X[38,39,31,7], X[40,41,42,37], X[42,43,26,34], X[41,40,5,44], X[43,44,8,30]","reals":[],"lh":[0,0,52,35,49,4,0,4,55,2],"ld":["S^2 (Ori), χ=2, e=[0]","Z^1","E1=(x**3 - 2*x + 2) | E2=(1) | Δ1=t**3 - 2*t + 2","S3:12 · D8:8 · A4:12 · S4:72 · A5:120 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[3] | Bikei=Z^2⊕[3]","C3=[9, 9] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[3], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3]","Symmetry open / no obstruction detected"]},{"label":"Tube(4_1)","tier_code":"exact_ch12","tier_label":"Exact ch = 12 (Spoke)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"satoh_tube","desc":"Satoh ribbon torus-link Tube(4_1) (Figure-eight knot)","ch_d":12,"ch_lo":12,"ch_hi":12,"ex_ch":true,"c":8,"m":4,"cm":2,"cp":2,"nc":1,"types":["T^2"],"ori":"Ori","chi":0,"eul":[0],"rib":"Unknown","cell":"EXACT_CH12_SPOKE","reason":"PROVEN EXACT ch = 12: constructive diagram has ch = 12 and full invariant key is disjoint from the exhaustive ch <= 11 prime census, residual shadows, and all ch <= 12 composite/split/unknot classes.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2 x1 = 1>","e1":["x**2 - 3*x + 1"],"d1":"t**2 - 3*t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[8,7,9,10], Z[11,5,12,13], Y[9,11,13,14], Z[15,10,16,17], Y[1,15,17,18], X[14,19,20,16], X[19,21,22,20], X[21,12,23,24], X[24,23,18,22]","reals":[],"lh":[1,0,9,37,9,0,0,20,56,0],"ld":["T^2 (Ori), χ=0, e=[0]","Z^1","E1=(x**2 - 3*x + 1) | E2=(1) | Δ1=t**2 - 3*t + 1","S3:6 · D8:8 · A4:36 · S4:48 · A5:300 · SL(2,F3):72 (periph:24)","Kei=Z^1⊕[5] | Bikei=Z^2⊕[5]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[5], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3,A4,SL2F3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"Tube(5_1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"satoh_tube","desc":"Satoh ribbon torus-link Tube(5_1) ((2,5)-torus cinquefoil knot)","ch_d":14,"ch_lo":12,"ch_hi":14,"ex_ch":false,"c":10,"m":4,"cm":2,"cp":2,"nc":1,"types":["T^2"],"ori":"Ori","chi":0,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 14.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1 = 1>","e1":["x**4 - x**3 + x**2 - x + 1"],"d1":"t**4 - t**3 + t**2 - t + 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[2,5,6,3], X[5,7,8,6], X[7,9,10,8], X[4,10,11,12], Z[13,9,14,15], Y[11,13,15,16], Z[17,12,18,19], Y[1,17,19,20], X[16,21,22,18], X[21,14,23,24], X[24,23,25,26], X[26,25,27,28], X[28,27,20,22]","reals":[],"lh":[1,0,28,27,25,0,0,20,57,2],"ld":["T^2 (Ori), χ=0, e=[0]","Z^1","E1=(x**4 - x**3 + x**2 - x + 1) | E2=(1) | Δ1=t**4 - t**3 + t**2 - t + 1","S3:6 · D8:8 · A4:12 · S4:24 · A5:420 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[5] | Bikei=Z^2⊕[5]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[5], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"Tube(5_2)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"satoh_tube","desc":"Satoh ribbon torus-link Tube(5_2) (Three-twist knot 5_2)","ch_d":14,"ch_lo":12,"ch_hi":14,"ex_ch":false,"c":10,"m":4,"cm":2,"cp":2,"nc":1,"types":["T^2"],"ori":"Ori","chi":0,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 14.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 = 1>","e1":["2*x**2 - 3*x + 2"],"d1":"2*t**2 - 3*t + 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[8,7,9,10], X[10,9,11,12], Z[13,5,14,15], Y[11,13,15,16], Z[17,12,18,19], Y[1,17,19,20], X[16,21,22,18], X[21,23,24,22], X[23,25,26,24], X[25,14,27,28], X[28,27,20,26]","reals":[],"lh":[1,0,29,28,26,0,0,21,58,2],"ld":["T^2 (Ori), χ=0, e=[0]","Z^1","E1=(2*x**2 - 3*x + 2) | E2=(1) | Δ1=2*t**2 - 3*t + 2","S3:6 · D8:8 · A4:12 · S4:24 · A5:180 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[7] | Bikei=Z^2⊕[7]","C3=[3, 3] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[7], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3]","Symmetry open / no obstruction detected"]},{"label":"Tube(6_1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"satoh_tube","desc":"Satoh ribbon torus-link Tube(6_1) (Stevedore knot 6_1)","ch_d":16,"ch_lo":12,"ch_hi":16,"ex_ch":false,"c":12,"m":4,"cm":2,"cp":2,"nc":1,"types":["T^2"],"ori":"Ori","chi":0,"eul":[0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 16.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2 x1 x2^-1 x1^-1 x2 x1 = 1>","e1":["2*x**2 - 5*x + 2"],"d1":"2*t**2 - 5*t + 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[8,7,9,10], X[10,9,11,12], X[12,11,13,14], Z[15,5,16,17], Y[13,15,17,18], Z[19,14,20,21], Y[1,19,21,22], X[18,23,24,20], X[23,25,26,24], X[25,27,28,26], X[27,29,30,28], X[29,16,31,32], X[32,31,22,30]","reals":[],"lh":[1,0,30,29,27,4,0,22,59,2],"ld":["T^2 (Ori), χ=0, e=[0]","Z^1","E1=(2*x**2 - 5*x + 2) | E2=(1) | Δ1=2*t**2 - 5*t + 2","S3:12 · D8:8 · A4:12 · S4:72 · A5:120 · SL(2,F3):24 (periph:0)","Kei=Z^1⊕[9] | Bikei=Z^2⊕[9]","C3=[9, 9] | Q6: col=6 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[9], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3]","Symmetry open / no obstruction detected"]},{"label":"Tube(L4a1)","tier_code":"exact_ch12","tier_label":"Exact ch = 12 (Spoke)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"satoh_tube","desc":"Satoh ribbon torus-link Tube(L4a1) (Solomon's knot (2,4)-torus link)","ch_d":12,"ch_lo":12,"ch_hi":12,"ex_ch":true,"c":8,"m":4,"cm":2,"cp":2,"nc":2,"types":["T^2","T^2"],"ori":"Ori","chi":0,"eul":[0,0],"rib":"Unknown","cell":"EXACT_CH12_SPOKE","reason":"PROVEN EXACT ch = 12: constructive diagram has ch = 12 and full invariant key is disjoint from the exhaustive ch <= 11 prime census, residual shadows, and all ch <= 12 composite/split/unknot classes.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1 x2^-1 x1 = 1>","e1":["x**2 - y**2","x*y - x + y**2 - y"],"d1":"2*t - 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[2,5,6,3], X[5,7,8,6], X[4,8,9,10], Z[11,7,12,13], Y[9,11,13,14], Z[15,10,16,17], Y[1,15,17,18], X[14,19,20,16], X[19,12,21,22], X[22,21,23,24], X[24,23,18,20]","reals":[],"lh":[5,2,12,38,12,6,0,23,60,0],"ld":["T^2 ∪ T^2 (Ori), χ=0, e=[0, 0]","Z^2","E1=(x**2 - y**2, x*y - x + y**2 - y) | E2=(1) | Δ1=2*t - 2","S3:30 · D8:64 · A4:72 · S4:312 · A5:1140 · SL(2,F3):288 (periph:148)","Kei=Z^1⊕[4] | Bikei=Z^3⊕[2]","C3=[3, 3, 3, 3] | Q6: col=36 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[4], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,A4,Dic16,SL2F3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"Tube(L5a1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"satoh_tube","desc":"Satoh ribbon torus-link Tube(L5a1) (Whitehead link)","ch_d":14,"ch_lo":12,"ch_hi":14,"ex_ch":false,"c":10,"m":4,"cm":2,"cp":2,"nc":2,"types":["T^2","T^2"],"ori":"Ori","chi":0,"eul":[0,0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 14.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 x2^-1 x1 x2 x1^-1 x2 x1 = 1>","e1":["x**2*y - x**2 - 2*x*y + 2*x + y - 1","x*y**2 - 2*x*y + x - y**2 + 2*y - 1"],"d1":"t**3 - 3*t**2 + 3*t - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[5,9,10,7], X[8,10,11,12], Z[13,9,14,15], Y[11,13,15,16], Z[17,12,18,19], Y[1,17,19,20], X[16,21,22,18], X[21,14,23,24], X[24,25,26,22], X[25,23,27,28], X[28,27,20,26]","reals":[],"lh":[5,2,53,39,50,6,0,24,61,2],"ld":["T^2 ∪ T^2 (Ori), χ=0, e=[0, 0]","Z^2","E1=(x**2*y - x**2 - 2*x*y + 2*x + y - 1, x*y**2 - 2*x*y + x - y**2 + 2*y - 1) | E2=(1) | Δ1=t**3 - 3*t**2 + 3*t - 1","S3:30 · D8:64 · A4:96 · S4:336 · A5:1140 · SL(2,F3):384 (periph:96)","Kei=Z^1⊕[8] | Bikei=Z^3⊕[4]","C3=[3, 3, 3, 3] | Q6: col=36 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[8], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,A4,Dic16,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"Tube(L6a1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"satoh_tube","desc":"Satoh ribbon torus-link Tube(L6a1) (Link L6a1 (6_3^2))","ch_d":16,"ch_lo":12,"ch_hi":16,"ex_ch":false,"c":12,"m":4,"cm":2,"cp":2,"nc":2,"types":["T^2","T^2"],"ori":"Ori","chi":0,"eul":[0,0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 16.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2 x1 = 1>","e1":["x**2*y - 2*x**2 - 3*x*y + 3*x + 2*y - 1","x*y**2 - 3*x*y + 2*x - 2*y**2 + 3*y - 1"],"d1":"t**3 - 5*t**2 + 5*t - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[8,7,9,10], X[5,11,12,9], X[10,12,13,14], Z[15,11,16,17], Y[13,15,17,18], Z[19,14,20,21], Y[1,19,21,22], X[18,23,24,20], X[23,16,25,26], X[26,27,28,24], X[27,29,30,28], X[29,25,31,32], X[32,31,22,30]","reals":[],"lh":[5,2,54,40,51,8,0,25,62,2],"ld":["T^2 ∪ T^2 (Ori), χ=0, e=[0, 0]","Z^2","E1=(x**2*y - 2*x**2 - 3*x*y + 3*x + 2*y - 1, x*y**2 - 3*x*y + 2*x - 2*y**2 + 3*y - 1) | E2=(1) | Δ1=t**3 - 5*t**2 + 5*t - 1","S3:36 · D8:64 · A4:72 · S4:504 · A5:2040 · SL(2,F3):288 (periph:148)","Kei=Z^1⊕[12] | Bikei=Z^3⊕[6]","C3=[9, 9, 9, 9] | Q6: col=36 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[12], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,A4,Dic16,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"Tube(L6a2)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"satoh_tube","desc":"Satoh ribbon torus-link Tube(L6a2) (Link L6a2 (6_2^2))","ch_d":16,"ch_lo":12,"ch_hi":16,"ex_ch":false,"c":12,"m":4,"cm":2,"cp":2,"nc":2,"types":["T^2","T^2"],"ori":"Ori","chi":0,"eul":[0,0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 16.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2, x3 | x3^-1 x1^-1 x3 x1^-1 x3^-1 x1 x3 x2^-1 x3 x2 x3^-1 x2 = 1, x3^-1 x2^-1 x3 x2^-1 x3 x2 x3^-1 x2 x1^-1 x3 x1 x3^-1 x1 x2^-1 x3 x2^-1 x3^-1 x2 = 1, x3^-1 x1^-1 x3 x1^-1 x3^-1 x1 x3^-1 x1^-1 x3 x1^-1 x3 x1 x3^-1 x1 x3 x1^-1 x3 x1 x3^-1 x1 = 1>","e1":["x**3*y - x**2*y + x**2 - x*y**3 + x*y**2 - y**2","2*x**3*y**2 - x**3*y + 4*x**2*y**3 - 6*x**2*y**2 + 3*x**2*y - x**2 + 2*x*y**4 - 5*x*y**3 + 7*x*y**2 - 4*x*y + 2*y**3 - 3*y**2","2*x**4*y**2 - x**4*y + 2*x**3*y**3 - 2*x**3*y**2 + 2*x**3*y - x**3 + x**2*y**3 - x**2 - x - y","4*x**5*y**2 - 3*x**5*y + 2*x**4*y**3 - 5*x**4*y**2 + 6*x**4*y - 3*x**4 - x**3*y**4 + 3*x**3*y**3 - x**3 + x**2*y**5 - 2*x**2*y**4 - y**3"],"d1":"2*t**3 - 3*t**2 + 3*t - 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[2,5,6,3], X[5,7,8,6], X[4,8,9,10], X[10,9,11,12], X[12,11,13,14], Z[15,7,16,17], Y[13,15,17,18], Z[19,14,20,21], Y[1,19,21,22], X[18,23,24,20], X[23,25,26,24], X[25,27,28,26], X[27,16,29,30], X[30,29,31,32], X[32,31,22,28]","reals":[],"lh":[5,2,55,41,52,2,16,26,63,2],"ld":["T^2 ∪ T^2 (Ori), χ=0, e=[0, 0]","Z^2","E1=(x**3*y - x**2*y + x**2 - x*y**3 + x*y**2 - y**2, 2*x**3*y**2 - x**3*y + 4*x**2*y**3 - 6*x**2*y**2 + 3*x**2*y - x**2 + 2*x*y**4 - 5*x*y**3 + 7*x*y**2 - 4*x*y + 2*y**3 - 3*y**2, 2*x**4*y**2 - x**4*y + 2*x**3*y**3 - 2*x**3*y**2 + 2*x**3*y - x**3 + x**2*y**3 - x**2 - x - y, 4*x**5*y**2 - 3*x**5*y + 2*x**4*y**3 - 5*x**4*y**2 + 6*x**4*y - 3*x**4 - x**3*y**4 + 3*x**3*y**3 - x**3 + x**2*y**5 - 2*x**2*y**4 - y**3) | E2=(1) | Δ1=2*t**3 - 3*t**2 + 3*t - 2","S3:18 · D8:40 · A4:96 · S4:168 · A5:1260 · SL(2,F3):360 (periph:138)","Kei=Z^1⊕[10] | Bikei=Z^3⊕[5]","C3=[3, 3, 3, 3] | Q6: col=12 (nontriv=0)","dlk2=[['T^2', 'T^2(e=0)', 0], ['T^2', 'T^2(e=0)', 0]], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[10], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3,A4,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"Tube(L6a3)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"satoh_tube","desc":"Satoh ribbon torus-link Tube(L6a3) ((2,6)-torus link L6a3 (6_1^2))","ch_d":16,"ch_lo":12,"ch_hi":16,"ex_ch":false,"c":12,"m":4,"cm":2,"cp":2,"nc":2,"types":["T^2","T^2"],"ori":"Ori","chi":0,"eul":[0,0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 16.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1^-1 x2 x1 x2^-1 x1 x2^-1 x1 = 1>","e1":["x**3 - y**3","x**2*y - x**2 + x*y**2 - x*y + y**3 - y**2"],"d1":"3*t - 3","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[2,5,6,3], X[5,7,8,6], X[7,9,10,8], X[9,11,12,10], X[4,12,13,14], Z[15,11,16,17], Y[13,15,17,18], Z[19,14,20,21], Y[1,19,21,22], X[18,23,24,20], X[23,16,25,26], X[26,25,27,28], X[28,27,29,30], X[30,29,31,32], X[32,31,22,24]","reals":[],"lh":[5,2,56,42,53,10,16,27,64,2],"ld":["T^2 ∪ T^2 (Ori), χ=0, e=[0, 0]","Z^2","E1=(x**3 - y**3, x**2*y - x**2 + x*y**2 - x*y + y**3 - y**2) | E2=(1) | Δ1=3*t - 3","S3:24 · D8:40 · A4:120 · S4:288 · A5:1440 · SL(2,F3):456 (periph:162)","Kei=Z^1⊕[6] | Bikei=Z^3⊕[3]","C3=[9, 9, 9, 9] | Q6: col=12 (nontriv=0)","dlk2=[['T^2', 'T^2(e=0)', 0], ['T^2', 'T^2(e=0)', 0]], tlk2=[], Brunnian=False","χ=4, b1=0, tors=[6], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,A4,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"Tube(L6a4)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"satoh_tube","desc":"Satoh ribbon torus-link Tube(L6a4) (Borromean rings (Brunnian 3-bridge link))","ch_d":22,"ch_lo":12,"ch_hi":22,"ex_ch":false,"c":16,"m":6,"cm":3,"cp":3,"nc":3,"types":["T^2","T^2","T^2"],"ori":"Ori","chi":0,"eul":[0,0,0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 22.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2, x3 | x3^-1 x1^-1 x3 x2^-1 x3^-1 x2 x1 x2^-1 x3 x2 = 1, x3^-1 x1^-1 x3 x1 x2^-1 x1^-1 x3^-1 x1 x3 x2 = 1, x3^-1 x1 x2 x1^-1 x2^-1 x3 x2 x1 x2^-1 x1^-1 = 1>","e1":["x**2*y*z - x**2*y - x**2*z + x**2 - 2*x*y*z + 2*x*y + 2*x*z - 2*x + y*z - y - z + 1","x*y**2*z - x*y**2 - 2*x*y*z + 2*x*y + x*z - x - y**2*z + y**2 + 2*y*z - 2*y - z + 1","x*y*z**2 - 2*x*y*z + x*y - x*z**2 + 2*x*z - x - y*z**2 + 2*y*z - y + z**2 - 2*z + 1"],"d1":"t**4 - 4*t**3 + 6*t**2 - 4*t + 1","brunn":true,"chiral":false,"q6_pos":false,"q_hs4":false,"epd":"X[1,2,3,4], X[2,5,6,7], X[7,8,9,3], X[8,6,10,11], X[11,12,13,9], X[12,10,14,15], X[15,16,17,13], X[17,18,19,4], Z[20,5,21,22], Y[14,20,22,23], Z[24,16,25,26], Y[18,24,26,27], Z[28,19,29,30], Y[1,28,30,31], X[29,27,32,33], X[32,25,34,35], X[23,36,37,34], X[35,37,38,39], X[36,40,41,38], X[39,41,42,43], X[40,21,44,42], X[43,44,31,33]","reals":[],"lh":[14,5,57,43,54,12,17,28,65,2],"ld":["T^2 ∪ T^2 ∪ T^2 (Ori), χ=0, e=[0, 0, 0]","Z^3","E1=(x**2*y*z - x**2*y - x**2*z + x**2 - 2*x*y*z + 2*x*y + 2*x*z - 2*x + y*z - y - z + 1, x*y**2*z - x*y**2 - 2*x*y*z + 2*x*y + x*z - x - y**2*z + y**2 + 2*y*z - 2*y - z + 1, x*y*z**2 - 2*x*y*z + x*y - x*z**2 + 2*x*z - x - y*z**2 + 2*y*z - y + z**2 - 2*z + 1) | E2=(x*y - x - y + 1, x*z - x - z + 1, y*z - y - z + 1) | Δ1=t**4 - 4*t**3 + 6*t**2 - 4*t + 1","S3:138 · D8:512 · A4:672 · S4:3168 · A5:15060 · SL(2,F3):4224 (periph:2664)","Kei=Z^1⊕[4, 4] | Bikei=Z^4⊕[2, 2]","C3=[3, 3, 3, 3, 3, 3, 3, 3] | Q6: col=216 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=True","χ=4, b1=0, tors=[4, 4], b2=2, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,A4,Dic16]","Symmetry open / no obstruction detected"]},{"label":"Mixed(L5a1)","tier_code":"exact_ch12","tier_label":"Exact ch = 12 (Spoke)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"mixed_sphere_torus","desc":"Mixed S^2 u T^2 Whitehead surface-link (exact ch = 12)","ch_d":12,"ch_lo":12,"ch_hi":12,"ex_ch":true,"c":10,"m":2,"cm":2,"cp":2,"nc":2,"types":["S^2","T^2"],"ori":"Ori","chi":2,"eul":[0,0],"rib":"Unknown","cell":"EXACT_CH12_SPOKE","reason":"PROVEN EXACT ch = 12: constructive diagram has ch = 12 and full invariant key is disjoint from the exhaustive ch <= 11 prime census, residual shadows, and all ch <= 12 composite/split/unknot classes.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 x2^-1 x1 x2 x1^-1 x2 x1 = 1>","e1":["x**2*y - x**2 - 2*x*y + 2*x + y - 1","x*y**2 - 2*x*y + x - y**2 + 2*y - 1"],"d1":"t**3 - 3*t**2 + 3*t - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[5,9,10,7], X[8,10,11,12], Z[13,9,14,15], Y[11,13,15,16], X[16,17,18,12], X[17,14,19,20], X[20,21,22,18], X[21,19,23,24], X[24,23,1,22]","reals":[],"lh":[15,2,53,44,50,6,0,29,66,0],"ld":["S^2 ∪ T^2 (Ori), χ=2, e=[0, 0]","Z^2","E1=(x**2*y - x**2 - 2*x*y + 2*x + y - 1, x*y**2 - 2*x*y + x - y**2 + 2*y - 1) | E2=(1) | Δ1=t**3 - 3*t**2 + 3*t - 1","S3:30 · D8:64 · A4:96 · S4:336 · A5:1140 · SL(2,F3):384 (periph:48)","Kei=Z^1⊕[8] | Bikei=Z^3⊕[4]","C3=[3, 3, 3, 3] | Q6: col=36 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[8], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,A4,Dic16,SL2F3]","Unoriented-amphicheiral (constructive SO(4) Yoshikawa path)"]},{"label":"Mixed(L6a1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"mixed_sphere_torus","desc":"Mixed S^2 u T^2 L6a1 surface-link","ch_d":14,"ch_lo":12,"ch_hi":14,"ex_ch":false,"c":12,"m":2,"cm":2,"cp":2,"nc":2,"types":["S^2","T^2"],"ori":"Ori","chi":2,"eul":[0,0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 14.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 x2^-1 x1 x2 x1^-1 x2^-1 x1 x2 x1^-1 x2 x1 = 1>","e1":["x**2*y - 2*x**2 - 3*x*y + 3*x + 2*y - 1","x*y**2 - 3*x*y + 2*x - 2*y**2 + 3*y - 1"],"d1":"t**3 - 5*t**2 + 5*t - 1","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[8,7,9,10], X[5,11,12,9], X[14,12,11,13], Y[14,15,16,17], Z[17,16,18,10], X[15,13,19,20], X[20,19,21,22], X[22,23,24,18], X[23,25,26,24], X[25,21,27,28], X[28,27,1,26]","reals":[],"lh":[15,2,54,45,51,8,0,30,67,2],"ld":["S^2 ∪ T^2 (Ori), χ=2, e=[0, 0]","Z^2","E1=(x**2*y - 2*x**2 - 3*x*y + 3*x + 2*y - 1, x*y**2 - 3*x*y + 2*x - 2*y**2 + 3*y - 1) | E2=(1) | Δ1=t**3 - 5*t**2 + 5*t - 1","S3:36 · D8:64 · A4:72 · S4:504 · A5:2040 · SL(2,F3):288 (periph:86)","Kei=Z^1⊕[12] | Bikei=Z^3⊕[6]","C3=[9, 9, 9, 9] | Q6: col=36 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[12], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,A4,Dic16,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"Mixed(L6a2)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"mixed_sphere_torus","desc":"Mixed S^2 u T^2 L6a2 surface-link","ch_d":14,"ch_lo":12,"ch_hi":14,"ex_ch":false,"c":12,"m":2,"cm":2,"cp":2,"nc":2,"types":["S^2","T^2"],"ori":"Ori","chi":2,"eul":[0,0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 14.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2^-1 x1^-1 x2 x1 x2 x1^-1 x2^-1 x1^-1 x2 x1 x2 x1 x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1>","e1":["x**3*y - x**2*y + x**2 - x*y**3 + x*y**2 - y**2","x**2*y**2 - x**2*y + x*y**3 - 2*x*y**2 + 2*x*y - x + y**2 - y"],"d1":"2*t**3 - 3*t**2 + 3*t - 2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[5,7,8,6], X[4,8,9,10], X[10,9,11,12], X[14,11,7,13], Y[14,15,16,17], Z[17,16,18,12], X[15,13,19,20], X[20,21,22,18], X[21,23,24,22], X[23,19,25,26], X[26,25,27,28], X[28,27,1,24]","reals":[],"lh":[15,2,55,46,52,2,18,31,68,2],"ld":["S^2 ∪ T^2 (Ori), χ=2, e=[0, 0]","Z^2","E1=(x**3*y - x**2*y + x**2 - x*y**3 + x*y**2 - y**2, x**2*y**2 - x**2*y + x*y**3 - 2*x*y**2 + 2*x*y - x + y**2 - y) | E2=(1) | Δ1=2*t**3 - 3*t**2 + 3*t - 2","S3:18 · D8:40 · A4:96 · S4:168 · A5:1260 · SL(2,F3):360 (periph:69)","Kei=Z^1⊕[10] | Bikei=Z^3⊕[5]","C3=[3, 3, 3, 3] | Q6: col=12 (nontriv=0)","dlk2=[['T^2', 'S^2(e=0)', 0]], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[10], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,A4,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"Mixed(L6a3)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"mixed_sphere_torus","desc":"Mixed S^2 u T^2 (2,6)-torus surface-link","ch_d":14,"ch_lo":12,"ch_hi":14,"ex_ch":false,"c":12,"m":2,"cm":2,"cp":2,"nc":2,"types":["S^2","T^2"],"ori":"Ori","chi":2,"eul":[0,0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 14.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1^-1 x2 x1 x2^-1 x1 x2^-1 x1 = 1>","e1":["x**3 - y**3","x**2*y - x**2 + x*y**2 - x*y + y**3 - y**2"],"d1":"3*t - 3","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[5,7,8,6], X[7,9,10,8], X[9,11,12,10], X[14,12,11,13], Y[14,15,16,17], Z[17,16,18,4], X[15,13,19,20], X[20,19,21,22], X[22,21,23,24], X[24,23,25,26], X[26,25,27,28], X[28,27,1,18]","reals":[],"lh":[15,2,56,47,53,10,18,11,69,2],"ld":["S^2 ∪ T^2 (Ori), χ=2, e=[0, 0]","Z^2","E1=(x**3 - y**3, x**2*y - x**2 + x*y**2 - x*y + y**3 - y**2) | E2=(1) | Δ1=3*t - 3","S3:24 · D8:40 · A4:120 · S4:288 · A5:1440 · SL(2,F3):456 (periph:93)","Kei=Z^1⊕[6] | Bikei=Z^3⊕[3]","C3=[9, 9, 9, 9] | Q6: col=12 (nontriv=0)","dlk2=[['T^2', 'S^2(e=0)', 0]], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[6], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,A4,SL2F3]","Symmetry open / no obstruction detected"]},{"label":"Mixed(L6a4,01)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"mixed_sphere_torus","desc":"Brunnian 3-component S^2 u T^2 u T^2 Borromean surface-link","ch_d":16,"ch_lo":12,"ch_hi":16,"ex_ch":false,"c":12,"m":4,"cm":3,"cp":3,"nc":3,"types":["T^2","S^2","T^2"],"ori":"Ori","chi":2,"eul":[0,0,0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 16.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2, x3 | x3^-1 x2^-1 x1^-1 x2 x1 x3 x1^-1 x2^-1 x1 x2 = 1, x3^-1 x2^-1 x3 x1^-1 x3^-1 x2 x3 x2^-1 x1 x2 = 1>","e1":["x**2*y*z - x**2*y - x**2*z + x**2 - 2*x*y*z + 2*x*y + 2*x*z - 2*x + y*z - y - z + 1","x*y**2*z - x*y**2 - 2*x*y*z + 2*x*y + x*z - x - y**2*z + y**2 + 2*y*z - 2*y - z + 1","x*y*z**2 - 2*x*y*z + x*y - x*z**2 + 2*x*z - x - y*z**2 + 2*y*z - y + z**2 - 2*z + 1"],"d1":"t**4 - 4*t**3 + 6*t**2 - 4*t + 1","brunn":true,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[2,3,4,1], X[5,6,7,8], X[8,10,11,9], X[10,7,12,13], X[13,14,15,11], X[14,12,16,17], Z[18,6,19,20], Y[16,18,20,21], Z[22,3,23,15], Z[24,1,25,5], X[21,26,27,17], X[22,27,28,29], X[26,30,31,28], X[29,31,32,4], X[30,19,25,32], X[2,24,9,23]","reals":[],"lh":[16,5,57,48,54,12,19,32,70,2],"ld":["T^2 ∪ S^2 ∪ T^2 (Ori), χ=2, e=[0, 0, 0]","Z^3","E1=(x**2*y*z - x**2*y - x**2*z + x**2 - 2*x*y*z + 2*x*y + 2*x*z - 2*x + y*z - y - z + 1, x*y**2*z - x*y**2 - 2*x*y*z + 2*x*y + x*z - x - y**2*z + y**2 + 2*y*z - 2*y - z + 1, x*y*z**2 - 2*x*y*z + x*y - x*z**2 + 2*x*z - x - y*z**2 + 2*y*z - y + z**2 - 2*z + 1) | E2=(x*y - x - y + 1, x*z - x - z + 1, y*z - y - z + 1) | Δ1=t**4 - 4*t**3 + 6*t**2 - 4*t + 1","S3:138 · D8:512 · A4:672 · S4:3168 · A5:15060 · SL(2,F3):4224 (periph:1776)","Kei=Z^1⊕[4, 4] | Bikei=Z^4⊕[2, 2]","C3=[3, 3, 3, 3, 3, 3, 3, 3] | Q6: col=216 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=True","χ=2, b1=0, tors=[4, 4], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,Q8,A4,Dic16]","Symmetry open / no obstruction detected"]},{"label":"KleinMixed(L5a1,1)","tier_code":"spoke_ch_ge_12","tier_label":"Spoke Catalog (ch ≥ 12)","spoke":"Spoke 3: Satoh Tubes & Mixed Plat Surface-Links","subfamily":"klein_twisted_plat","desc":"Mixed S^2 u K^2 Whitehead surface-link (ch in [12, 13])","ch_d":13,"ch_lo":12,"ch_hi":13,"ex_ch":false,"c":11,"m":2,"cm":2,"cp":2,"nc":2,"types":["S^2","K^2"],"ori":"Mixed","chi":2,"eul":[0,0],"rib":"Unknown","cell":"SPOKE_BOUNDED","reason":"Certified ch >= 12 (disjoint from exhaustive ch <= 11 prime, residual, and composite/split catalogs); constructive diagram gives ch <= 13.","nw":"","err":false,"err_note":"","err_print":[],"pi1":"<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2^-1 x1 x2^-1 x1^-1 x2 x1 x2^-1 x1 x2 x1^-1 x2^-1 x1 = 1>","e1":["2*y + 2","2*x*y - 2*x - 4*y","x**2*y - x**2 - x*y - x - 3*y - 1"],"d1":"2","brunn":false,"chiral":false,"q6_pos":false,"q_hs4":true,"epd":"X[1,2,3,4], X[2,5,6,3], X[4,6,7,8], X[5,9,10,7], X[8,10,11,12], Z[13,9,14,15], Y[11,16,17,18], X[16,13,15,17], X[18,19,20,12], X[19,14,21,22], X[22,23,24,20], X[23,21,25,26], X[26,25,1,24]","reals":[],"lh":[9,3,58,49,55,1,0,29,71,2],"ld":["S^2 ∪ K^2 (Mixed), χ=2, e=[0, 0]","Z^1 ⊕ Z/2","E1=(2*y + 2, 2*x*y - 2*x - 4*y, x**2*y - x**2 - x*y - x - 3*y - 1) | E2=(1) | Δ1=2","S3:18 · D8:48 · A4:48 · S4:192 · A5:420 · SL(2,F3):48 (periph:0)","Kei=Z^1⊕[8] | Bikei=Z^2⊕[8]","C3=N/A (non-ori) | Q6: col=0 (nontriv=0)","dlk2=[], tlk2=[], Brunnian=False","χ=2, b1=0, tors=[8], b2=0, |σ|=0","rk≥? (None) | covers:[Z2,Z3,S3,A4]","Symmetry open / no obstruction detected"]}]}</script>
+  <script>
+  (async function () {
+    const dataEl = document.getElementById('atlas-data');
+    let DATA;
+    if (dataEl.getAttribute('data-encoding') === 'deflate-b64') {
+      const bin = atob(dataEl.textContent.trim());
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate'));
+      DATA = JSON.parse(await new Response(stream).text());
+    } else {
+      DATA = JSON.parse(dataEl.textContent);
+    }
+    const ENTRIES = DATA.entries;
+    const BY_LABEL = Object.fromEntries(ENTRIES.map((e) => [e.label, e]));
+
+    const PALETTE_LIGHT = ['#1E3A8A', '#C2410C', '#0F766E', '#7E22CE', '#B45309', '#BE123C'];
+    const PALETTE_DARK  = ['#60A5FA', '#FB923C', '#2DD4BF', '#C084FC', '#FBBF24', '#FB7185'];
+    const TIKZ_RGB = [[30,58,138],[194,65,12],[15,118,110],[126,34,206],[180,83,9],[190,18,60]];
+
+    const layoutCache = new Map();
+
+    /* ---------- Exact IRLS p-Laplacian Tutte & Splitting Engine ---------- */
+    function norm2(vx, vy) {
+      const d = Math.hypot(vx, vy);
+      return d < 1e-12 ? [1.0, 0.0] : [vx / d, vy / d];
+    }
+
+    function solveLinearSystem(aMat, rhsX, rhsY) {
+      const n = aMat.length;
+      if (n === 0) return [[], []];
+      const aug = aMat.map((row, i) => [...row, rhsX[i], rhsY[i]]);
+      for (let col = 0; col < n; col++) {
+        let piv = col;
+        let best = Math.abs(aug[col][col]);
+        for (let r = col + 1; r < n; r++) {
+          const v = Math.abs(aug[r][col]);
+          if (v > best) { best = v; piv = r; }
+        }
+        if (best < 1e-12) throw new Error('Non-planar or singular Tutte block');
+        if (piv !== col) { const tmp = aug[col]; aug[col] = aug[piv]; aug[piv] = tmp; }
+        const inv = 1.0 / aug[col][col];
+        const rc = aug[col];
+        for (let j = col; j < n + 2; j++) rc[j] *= inv;
+        for (let r = 0; r < n; r++) {
+          if (r === col) continue;
+          const f = aug[r][col];
+          if (Math.abs(f) > 1e-15) {
+            const rr = aug[r];
+            for (let j = col; j < n + 2; j++) rr[j] -= f * rc[j];
+          }
+        }
+      }
+      return [aug.map((r) => r[n]), aug.map((r) => r[n + 1])];
+    }
+
+    function parseEpd(epdStr) {
+      const s = (epdStr || '').trim();
+      if (!s || s === 'O[1]' || s === '0_1') {
+        return { n: 0, opp: [], vtype: [], freeLoops: 1 };
+      }
+      let freeLoops = 0;
+      const oMatches = s.match(/O\s*\[\s*1\s*\]/g);
+      if (oMatches) freeLoops = oMatches.length;
+      const re = /([XYZ])\s*\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]/g;
+      const items = [];
+      let m;
+      while ((m = re.exec(s)) !== null) {
+        items.push([m[1], Number(m[2]), Number(m[3]), Number(m[4]), Number(m[5])]);
+      }
+      if (items.length === 0 && freeLoops > 0) {
+        return { n: 0, opp: [], vtype: [], freeLoops };
+      }
+      if (items.length === 0) throw new Error('Could not parse any X/Y/Z[a,b,c,d] quadruples from EPD.');
+      const n = items.length;
+      const vtype = [];
+      const edgeOcc = new Map();
+      for (let v = 0; v < n; v++) {
+        const [k, a, b, c, d] = items[v];
+        vtype.push(k === 'X' ? 'X0' : k);
+        [a, b, c, d].forEach((lbl, slot) => {
+          if (!edgeOcc.has(lbl)) edgeOcc.set(lbl, []);
+          edgeOcc.get(lbl).push(4 * v + slot);
+        });
+      }
+      const opp = new Array(4 * n).fill(0);
+      for (const [lbl, darts] of edgeOcc.entries()) {
+        if (darts.length !== 2) throw new Error(`Edge label ${lbl} appears ${darts.length} times (expected 2).`);
+        opp[darts[0]] = darts[1];
+        opp[darts[1]] = darts[0];
+      }
+      return { n, opp, vtype, freeLoops };
+    }
+
+    function dartSurfaceComponents(diag) {
+      const { n, opp, vtype, freeLoops } = diag;
+      const parent = Array.from({ length: 4 * n }, (_, i) => i);
+      const find = (x) => { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; };
+      const union = (a, b) => { const ra = find(a), rb = find(b); if (ra !== rb) parent[rb] = ra; };
+      for (let d = 0; d < 4 * n; d++) union(d, opp[d]);
+      for (let v = 0; v < n; v++) {
+        if (vtype[v] === 'X0' || vtype[v] === 'X1') {
+          union(4 * v, 4 * v + 2); union(4 * v + 1, 4 * v + 3);
+        } else {
+          union(4 * v, 4 * v + 1); union(4 * v + 1, 4 * v + 2); union(4 * v + 2, 4 * v + 3);
+        }
+      }
+      const rootMap = new Map();
+      const comp = new Array(4 * n).fill(0);
+      for (let d = 0; d < 4 * n; d++) {
+        const r = find(d);
+        if (!rootMap.has(r)) rootMap.set(r, rootMap.size);
+        comp[d] = rootMap.get(r);
+      }
+      return { dartComp: comp, graphComps: rootMap.size, totalComps: rootMap.size + freeLoops };
+    }
+
+    function countResolutionCircles(diag, sign) {
+      const { n, opp, vtype, freeLoops } = diag;
+      const vis = new Array(4 * n).fill(false);
+      let circles = freeLoops;
+      for (let start = 0; start < 4 * n; start++) {
+        if (vis[start]) continue;
+        circles++;
+        let cur = start;
+        while (!vis[cur]) {
+          vis[cur] = true;
+          const v = cur >> 2, s = cur & 3, vt = vtype[v];
+          let partner;
+          if (vt === 'X0' || vt === 'X1') {
+            partner = (v << 2) | (s ^ 2);
+          } else {
+            const p03 = (vt === 'Y' && sign === 1) || (vt === 'Z' && sign === -1);
+            const map = p03 ? [3, 2, 1, 0] : [1, 0, 3, 2];
+            partner = (v << 2) | map[s];
+          }
+          vis[partner] = true;
+          cur = opp[partner];
+        }
+      }
+      return circles;
+    }
+
+    function layoutConnectedBlock(m, localOpp, localVtype) {
+      if (m === 1) {
+        if (localOpp[0] === 2) throw new Error('Non-planar 1-vertex crossing loop.');
+        const sub = [[0, 0]];
+        for (let s = 0; s < 4; s++) sub.push([0.65 * Math.cos(0.5 * Math.PI * s), 0.65 * Math.sin(0.5 * Math.PI * s)]);
+        return sub;
+      }
+      const visited = new Array(4 * m).fill(false);
+      const faces = [];
+      for (let st = 0; st < 4 * m; st++) {
+        if (visited[st]) continue;
+        const cyc = [];
+        let cur = st;
+        while (!visited[cur]) {
+          visited[cur] = true;
+          cyc.push(cur);
+          const od = localOpp[cur];
+          cur = (od & ~3) | (((od & 3) + 3) & 3);
+        }
+        faces.push(cyc);
+      }
+      if (faces.length !== m + 2) {
+        throw new Error(`Non-planar shadow: V=${m}, E=${2 * m}, F=${faces.length} (expected ${m + 2}).`);
+      }
+      const faceWalks = faces.map((cyc) => {
+        const w = [];
+        for (const hd of cyc) w.push(hd >> 2, m + hd, m + localOpp[hd]);
+        return w;
+      });
+      let outerIdx = 0;
+      let bestKey = [-1, -1, -1, 1];
+      for (let fi = 0; fi < faces.length; fi++) {
+        const wf = faceWalks[fi];
+        const simple = new Set(wf).size === wf.length ? 1 : 0;
+        const mkCnt = faces[fi].reduce((acc, hd) => acc + ((localVtype[hd >> 2] === 'Y' || localVtype[hd >> 2] === 'Z') ? 1 : 0), 0);
+        const key = [simple, faces[fi].length, mkCnt, -fi];
+        for (let k = 0; k < 4; k++) {
+          if (key[k] !== bestKey[k]) { if (key[k] > bestKey[k]) { bestKey = key; outerIdx = fi; } break; }
+        }
+      }
+      const wOut = [];
+      const seenOut = new Set();
+      for (const nd of faceWalks[outerIdx]) { if (!seenOut.has(nd)) { seenOut.add(nd); wOut.push(nd); } }
+      const interior = [];
+      for (let fi = 0; fi < faces.length; fi++) if (fi !== outerIdx) interior.push(fi);
+      const totalAug = 5 * m + interior.length;
+
+      const fixedPos = new Map();
+      const L = wOut.length;
+      for (let j = 0; j < L; j++) {
+        const th = Math.PI - (2.0 * Math.PI * j) / L;
+        fixedPos.set(wOut[j], [Math.cos(th), Math.sin(th)]);
+      }
+
+      const augEdges = [];
+      for (let hd = 0; hd < 4 * m; hd++) {
+        augEdges.push([hd >> 2, m + hd, 1.35, true]);
+        const od = localOpp[hd];
+        if (hd < od) augEdges.push([m + hd, m + od, 1.0, true]);
+      }
+      interior.forEach((fi, idxIn) => {
+        const cf = 5 * m + idxIn;
+        const deg = faces[fi].length;
+        const uniq = [...new Set(faceWalks[fi])];
+        for (const nd of uniq) {
+          const wr = deg <= 2 ? (nd < m ? 0.85 : 0.65) : (nd < m ? 0.42 : 0.28);
+          augEdges.push([cf, nd, wr, false]);
+        }
+      });
+
+      const freeNodes = [];
+      const freeIdx = new Map();
+      for (let nd = 0; nd < totalAug; nd++) {
+        if (!fixedPos.has(nd)) { freeIdx.set(nd, freeNodes.length); freeNodes.push(nd); }
+      }
+      const nFree = freeNodes.length;
+      const curX = new Array(totalAug).fill(0);
+      const curY = new Array(totalAug).fill(0);
+      for (const [nd, [fx, fy]] of fixedPos.entries()) { curX[nd] = fx; curY[nd] = fy; }
+
+      for (let it = 0; it < 10; it++) {
+        const mat = Array.from({ length: nFree }, () => new Array(nFree).fill(0));
+        const rx = new Array(nFree).fill(0);
+        const ry = new Array(nFree).fill(0);
+        for (const [u, v, bw, isPrim] of augEdges) {
+          let w = bw;
+          if (it > 0) {
+            const dist = Math.hypot(curX[u] - curX[v], curY[u] - curY[v]);
+            w = bw * Math.pow(dist + 0.035, isPrim ? 1.35 : 1.05);
+          }
+          const iu = freeIdx.get(u);
+          const iv = freeIdx.get(v);
+          if (iu !== undefined) {
+            mat[iu][iu] += w;
+            if (iv !== undefined) mat[iu][iv] -= w;
+            else { rx[iu] += w * curX[v]; ry[iu] += w * curY[v]; }
+          }
+          if (iv !== undefined) {
+            mat[iv][iv] += w;
+            if (iu !== undefined) mat[iv][iu] -= w;
+            else { rx[iv] += w * curX[u]; ry[iv] += w * curY[u]; }
+          }
+        }
+        const [sx, sy] = solveLinearSystem(mat, rx, ry);
+        for (let i = 0; i < nFree; i++) { curX[freeNodes[i]] = sx[i]; curY[freeNodes[i]] = sy[i]; }
+      }
+
+      const cosStep = Math.max(Math.cos((2.0 * Math.PI) / Math.max(L, 6)), 0.68);
+      const rPuff = Math.min(1.58, 1.14 / cosStep);
+      for (const hd of faces[outerIdx]) {
+        for (const nd of [m + hd, m + localOpp[hd]]) {
+          if (fixedPos.has(nd)) { curX[nd] *= rPuff; curY[nd] *= rPuff; }
+        }
+      }
+      return Array.from({ length: 5 * m }, (_, i) => [curX[i], curY[i]]);
+    }
+
+    function buildSplines(m, localOpp, localVtype, localScomp, subPos, resolution) {
+      const vPos = subPos.slice(0, m);
+      const uPos = subPos.slice(m, 5 * m);
+      const xs = subPos.map((p) => p[0]);
+      const ys = subPos.map((p) => p[1]);
+      const diagSpan = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), 1.0);
+
+      const vAngles = [];
+      const vMinArm = [];
+      for (let v = 0; v < m; v++) {
+        const [vx, vy] = vPos[v];
+        let csum = 0, ssum = 0, minD = Infinity;
+        for (let s = 0; s < 4; s++) {
+          const [ux, uy] = uPos[4 * v + s];
+          const dx = ux - vx, dy = uy - vy;
+          const d = Math.hypot(dx, dy);
+          if (d < minD) minD = d;
+          const ang = Math.atan2(dy, dx) - s * 0.5 * Math.PI;
+          csum += Math.cos(ang); ssum += Math.sin(ang);
+        }
+        vAngles.push(Math.atan2(ssum, csum));
+        vMinArm.push(minD);
+      }
+
+      function slotTangent(cv, cs) {
+        const [px, py] = vPos[cv];
+        const [qx, qy] = uPos[4 * cv + cs];
+        const dx = qx - px, dy = qy - py;
+        const natD = Math.hypot(dx, dy);
+        const natU = norm2(dx, dy);
+        const phi = vAngles[cv] + cs * 0.5 * Math.PI;
+        const orthU = [Math.cos(phi), Math.sin(phi)];
+        let uv = orthU;
+        if (orthU[0] * natU[0] + orthU[1] * natU[1] < 0.65) {
+          uv = norm2(0.45 * orthU[0] + 0.55 * natU[0], 0.45 * orthU[1] + 0.55 * natU[1]);
+          const oq = uPos[4 * cv + (cs ^ 2)];
+          const oppU = norm2(oq[0] - px, oq[1] - py);
+          const axU = norm2(natU[0] - oppU[0], natU[1] - oppU[1]);
+          if (axU[0] * natU[0] + axU[1] * natU[1] > 0.35) uv = axU;
+        }
+        return [uv, natD];
+      }
+
+      const bzs = [];
+      const mks = [];
+      for (let hd = 0; hd < 4 * m; hd++) {
+        const od = localOpp[hd];
+        if (hd >= od) continue;
+        const qh = uPos[hd], qo = uPos[od];
+        const mid = [0.5 * (qh[0] + qo[0]), 0.5 * (qh[1] + qo[1])];
+        const scomp = localScomp[hd];
+        for (const [cv, cs, cq] of [[hd >> 2, hd & 3, qh], [od >> 2, od & 3, qo]]) {
+          const vt = localVtype[cv];
+          const isUnder = (vt === 'X0' && (cs & 1) === 0) || (vt === 'X1' && (cs & 1) === 1);
+          const isSm = resolution !== 0 && (vt === 'Y' || vt === 'Z');
+          const pc = vPos[cv];
+          const [uv, natD] = slotTangent(cv, cs);
+          const gapR = Math.min(0.32 * vMinArm[cv], 0.056 * diagSpan);
+          let p0, layer, l1;
+          if (isUnder) {
+            p0 = [pc[0] + gapR * uv[0], pc[1] + gapR * uv[1]];
+            layer = 0;
+            l1 = Math.min(0.34 * natD, 0.36 * vMinArm[cv]);
+          } else if (isSm) {
+            const gapS = Math.min(0.42 * vMinArm[cv], 0.072 * diagSpan);
+            p0 = [pc[0] + gapS * uv[0], pc[1] + gapS * uv[1]];
+            layer = 1;
+            l1 = Math.min(0.28 * Math.max(natD - gapS, 0.22 * natD), 0.30 * vMinArm[cv]);
+          } else {
+            p0 = pc;
+            layer = 1;
+            l1 = Math.min(0.34 * natD, 0.36 * vMinArm[cv]);
+          }
+          const p1 = [p0[0] + l1 * uv[0], p0[1] + l1 * uv[1]];
+          bzs.push([p0, p1, cq, mid, scomp, layer]);
+        }
+      }
+
+      for (let v = 0; v < m; v++) {
+        const vt = localVtype[v];
+        if (vt !== 'Y' && vt !== 'Z') continue;
+        const [vx, vy] = vPos[v];
+        const [sa, sb] = vt === 'Y' ? [0, 1] : [1, 2];
+        const ua = norm2(uPos[4 * v + sa][0] - vx, uPos[4 * v + sa][1] - vy);
+        const ub = norm2(uPos[4 * v + sb][0] - vx, uPos[4 * v + sb][1] - vy);
+        const bis = norm2(ua[0] + ub[0], ua[1] + ub[1]);
+        const br = Math.min(0.32 * vMinArm[v], 0.058 * diagSpan);
+        mks.push([[vx - br * bis[0], vy - br * bis[1]], [vx + br * bis[0], vy + br * bis[1]], [vx, vy], vt, localScomp[4 * v]]);
+        if (resolution !== 0) {
+          const gapS = Math.min(0.42 * vMinArm[v], 0.072 * diagSpan);
+          const uvs = [0, 1, 2, 3].map((si) => slotTangent(v, si)[0]);
+          const pairs = ((vt === 'Y' && resolution === -1) || (vt === 'Z' && resolution === 1))
+            ? [[0, 1], [2, 3]] : [[0, 3], [1, 2]];
+          for (const [ia, ib] of pairs) {
+            const pa = [vx + gapS * uvs[ia][0], vy + gapS * uvs[ia][1]];
+            const pb = [vx + gapS * uvs[ib][0], vy + gapS * uvs[ib][1]];
+            const ca = [pa[0] - 0.56 * gapS * uvs[ia][0], pa[1] - 0.56 * gapS * uvs[ia][1]];
+            const cb = [pb[0] - 0.56 * gapS * uvs[ib][0], pb[1] - 0.56 * gapS * uvs[ib][1]];
+            bzs.push([pa, ca, cb, pb, localScomp[4 * v + ia], 1]);
+          }
+        }
+      }
+      return { vPos, bzs, mks };
+    }
+
+    function getSplittingBundle(epdStr) {
+      if (layoutCache.has(epdStr)) return layoutCache.get(epdStr);
+      const diag = parseEpd(epdStr);
+      const { n, opp, vtype, freeLoops } = diag;
+      const { dartComp, graphComps, totalComps } = dartSurfaceComponents(diag);
+
+      const compOfV = new Array(n).fill(-1);
+      const blocks = [];
+      for (let sv = 0; sv < n; sv++) {
+        if (compOfV[sv] !== -1) continue;
+        const bvs = [sv];
+        compOfV[sv] = blocks.length;
+        const q = [sv];
+        while (q.length) {
+          const u = q.pop();
+          for (let s = 0; s < 4; s++) {
+            const w = opp[4 * u + s] >> 2;
+            if (compOfV[w] === -1) { compOfV[w] = blocks.length; bvs.push(w); q.push(w); }
+          }
+        }
+        bvs.sort((a, b) => a - b);
+        blocks.push(bvs);
+      }
+
+      const solved = blocks.map((bvs) => {
+        const m = bvs.length;
+        const g2l = new Map(bvs.map((gv, lv) => [gv, lv]));
+        const lOpp = new Array(4 * m);
+        const lVt = bvs.map((gv) => vtype[gv]);
+        const lSc = new Array(4 * m);
+        for (let lv = 0; lv < m; lv++) {
+          const gv = bvs[lv];
+          for (let s = 0; s < 4; s++) {
+            const od = opp[4 * gv + s];
+            lOpp[4 * lv + s] = 4 * g2l.get(od >> 2) + (od & 3);
+            lSc[4 * lv + s] = dartComp[4 * gv + s];
+          }
+        }
+        const subPos = layoutConnectedBlock(m, lOpp, lVt);
+        return { m, lOpp, lVt, lSc, subPos };
+      });
+
+      function assemble(resMode, refBbox) {
+        let cursorX = 0;
+        const gap = 0.45;
+        const allBz = [], allMk = [], allCc = [];
+        for (const blk of solved) {
+          const sp0 = buildSplines(blk.m, blk.lOpp, blk.lVt, blk.lSc, blk.subPos, 0);
+          const sp = resMode === 0 ? sp0 : buildSplines(blk.m, blk.lOpp, blk.lVt, blk.lSc, blk.subPos, resMode);
+          const px = [];
+          for (const b of sp0.bzs) for (let k = 0; k < 4; k++) px.push(b[k][0]);
+          const xmin = Math.min(...px), xmax = Math.max(...px);
+          const sh = cursorX - xmin;
+          for (const b of sp.bzs) {
+            allBz.push([[b[0][0] + sh, b[0][1]], [b[1][0] + sh, b[1][1]], [b[2][0] + sh, b[2][1]], [b[3][0] + sh, b[3][1]], b[4], b[5]]);
+          }
+          for (const mk of sp.mks) {
+            allMk.push([[mk[0][0] + sh, mk[0][1]], [mk[1][0] + sh, mk[1][1]], [mk[2][0] + sh, mk[2][1]], mk[3], mk[4]]);
+          }
+          cursorX += (xmax - xmin) + gap;
+        }
+        for (let i = 0; i < freeLoops; i++) {
+          const r = 0.72, cx = cursorX + r;
+          allCc.push([[cx, 0.0], r, graphComps + i]);
+          cursorX += 2 * r + gap;
+        }
+        let bbox = refBbox;
+        if (!bbox) {
+          const xs = [], ys = [];
+          for (const b of allBz) for (let k = 0; k < 4; k++) { xs.push(b[k][0]); ys.push(b[k][1]); }
+          for (const mk of allMk) { xs.push(mk[0][0], mk[1][0]); ys.push(mk[0][1], mk[1][1]); }
+          for (const cc of allCc) { xs.push(cc[0][0] - cc[1], cc[0][0] + cc[1]); ys.push(cc[0][1] - cc[1], cc[0][1] + cc[1]); }
+          bbox = xs.length ? [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] : [-1, -1, 1, 1];
+        }
+        return { bzs: allBz, mks: allMk, ccs: allCc, bbox };
+      }
+
+      const zero = assemble(0, null);
+      const minus = assemble(-1, zero.bbox);
+      const plus = assemble(1, zero.bbox);
+      const cCnt = vtype.filter((t) => t === 'X0' || t === 'X1').length;
+      const mCnt = vtype.filter((t) => t === 'Y' || t === 'Z').length;
+      const cm = countResolutionCircles(diag, -1);
+      const cp = countResolutionCircles(diag, 1);
+      const bundle = { minus, zero, plus, bbox: zero.bbox, totalComps, n, cCnt, mCnt, cm, cp, chi: cm - mCnt + cp };
+      layoutCache.set(epdStr, bundle);
+      return bundle;
+    }
+
+    function renderTikzFromZero(zero, label) {
+      const [xmin, ymin, xmax, ymax] = zero.bbox;
+      const span = Math.max(xmax - xmin, ymax - ymin, 1e-3);
+      const cx = 0.5 * (xmin + xmax), cy = 0.5 * (ymin + ymax);
+      const sc = 5.4 / span;
+      const tx = (p) => [((p[0] - cx) * sc).toFixed(4), ((p[1] - cy) * sc).toFixed(4)];
+      const used = new Set([...zero.bzs.map((b) => b[4]), ...zero.ccs.map((c) => c[2])]);
+      const lines = [`% Canonical ch-diagram for ${label}`, `\\begin{tikzpicture}[line join=round]`];
+      [...used].sort((a, b) => a - b).forEach((ci) => {
+        const [r, g, b] = TIKZ_RGB[ci % TIKZ_RGB.length];
+        lines.push(`  \\definecolor{skcomp${ci}}{RGB}{${r},${g},${b}}`);
+      });
+      lines.push(`  \\definecolor{skmark}{RGB}{15,23,42}`);
+      for (const cc of zero.ccs) {
+        const [x, y] = tx(cc[0]);
+        lines.push(`  \\draw[skcomp${cc[2]}, line width=1.15pt] (${x},${y}) circle (${(cc[1] * sc).toFixed(4)});`);
+      }
+      for (const [layerIdx, cap] of [[0, 'butt'], [1, 'round']]) {
+        for (const b of zero.bzs) {
+          if (b[5] !== layerIdx) continue;
+          const p0 = tx(b[0]), p1 = tx(b[1]), p2 = tx(b[2]), p3 = tx(b[3]);
+          lines.push(`  \\draw[skcomp${b[4]}, line width=1.15pt, line cap=${cap}] (${p0[0]},${p0[1]}) .. controls (${p1[0]},${p1[1]}) and (${p2[0]},${p2[1]}) .. (${p3[0]},${p3[1]});`);
+        }
+      }
+      for (const mk of zero.mks) {
+        const pa = tx(mk[0]), pb = tx(mk[1]), pc = tx(mk[2]);
+        lines.push(`  \\draw[white, line width=2.8pt, line cap=round] (${pa[0]},${pa[1]}) -- (${pb[0]},${pb[1]});`);
+        lines.push(`  \\draw[skmark, line width=1.85pt, line cap=round] (${pa[0]},${pa[1]}) -- (${pb[0]},${pb[1]});`);
+        lines.push(`  \\fill[skmark] (${pc[0]},${pc[1]}) circle (1.2pt);`);
+      }
+      lines.push(`\\end{tikzpicture}`);
+      return lines.join('\n');
+    }
+
+    /* ---------- Theme & SVG Rendering ---------- */
+    function isLightTheme() {
+      const root = document.documentElement;
+      if (root.classList.contains('light')) return true;
+      if (root.classList.contains('dark')) return false;
+      const bg = getComputedStyle(document.body).backgroundColor || '';
+      const m = bg.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+      if (!m) return true;
+      return (0.299 * Number(m[1]) + 0.587 * Number(m[2]) + 0.114 * Number(m[3])) / 255 > 0.5;
+    }
+
+    function getPalette() {
+      return isLightTheme() ? PALETTE_LIGHT : PALETTE_DARK;
+    }
+
+    function esc(s) {
+      return String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function fmtCh(e) {
+      return (e.ex_ch || e.ch_lo === e.ch_hi) ? String(e.ch_lo) : `[${e.ch_lo}, ${e.ch_hi}]`;
+    }
+
+    function renderSliceSvgInner(slice, bbox, resMode, strokeW) {
+      const [xmin, ymin, xmax, ymax] = bbox;
+      const span = Math.max(xmax - xmin, ymax - ymin, 1e-3);
+      const cx = 0.5 * (xmin + xmax), cy = 0.5 * (ymin + ymax);
+      const scale = (300 - 44) / span;
+      const tr = (p) => [(150 + (p[0] - cx) * scale).toFixed(2), (150 - (p[1] - cy) * scale).toFixed(2)];
+      const pal = getPalette();
+      const parts = [];
+
+      if (resMode !== 0) {
+        for (const mk of slice.mks) {
+          const pa = tr(mk[0]), pb = tr(mk[1]);
+          parts.push(`<line x1="${pa[0]}" y1="${pa[1]}" x2="${pb[0]}" y2="${pb[1]}" stroke="var(--muted-foreground)" stroke-opacity="0.55" stroke-width="1.4" stroke-dasharray="2.5,2.5" stroke-linecap="round"/>`);
+        }
+      }
+      for (const cc of slice.ccs) {
+        const pc = tr(cc[0]);
+        const col = pal[cc[2] % pal.length];
+        parts.push(`<circle cx="${pc[0]}" cy="${pc[1]}" r="${(cc[1] * scale).toFixed(2)}" fill="none" stroke="${col}" stroke-width="${strokeW}"/>`);
+      }
+      for (const [layerIdx, cap] of [[0, 'butt'], [1, 'round']]) {
+        for (const b of slice.bzs) {
+          if (b[5] !== layerIdx) continue;
+          const p0 = tr(b[0]), p1 = tr(b[1]), p2 = tr(b[2]), p3 = tr(b[3]);
+          const col = pal[b[4] % pal.length];
+          parts.push(`<path d="M ${p0[0]} ${p0[1]} C ${p1[0]} ${p1[1]}, ${p2[0]} ${p2[1]}, ${p3[0]} ${p3[1]}" fill="none" stroke="${col}" stroke-width="${strokeW}" stroke-linecap="${cap}"/>`);
+        }
+      }
+      if (resMode === 0) {
+        for (const mk of slice.mks) {
+          const pa = tr(mk[0]), pb = tr(mk[1]), pc = tr(mk[2]);
+          parts.push(`<line x1="${pa[0]}" y1="${pa[1]}" x2="${pb[0]}" y2="${pb[1]}" stroke="var(--background)" stroke-width="${(strokeW * 2.45).toFixed(2)}" stroke-linecap="round"/>`);
+          parts.push(`<line x1="${pa[0]}" y1="${pa[1]}" x2="${pb[0]}" y2="${pb[1]}" stroke="var(--foreground)" stroke-width="${(strokeW * 1.65).toFixed(2)}" stroke-linecap="round"/>`);
+          parts.push(`<circle cx="${pc[0]}" cy="${pc[1]}" r="${(strokeW * 0.72).toFixed(2)}" fill="var(--foreground)"/>`);
+        }
+      }
+      return parts.join('');
+    }
+
+    function renderSingleSvgFromEpd(epd, label, maxPx) {
+      const b = getSplittingBundle(epd);
+      return `<svg viewBox="0 0 300 300" class="w-full mx-auto block" style="max-width:${maxPx}px" role="img" aria-label="${esc(label)} diagram">${renderSliceSvgInner(b.zero, b.bbox, 0, 2.85)}</svg>`;
+    }
+
+    function renderMovieTriptychFromEpd(epd) {
+      const b = getSplittingBundle(epd);
+      const panels = [
+        { slice: b.minus, mode: -1, title: `t = -\u03b5 : L\u208b(D)`, meta: `${b.cm} circle${b.cm === 1 ? '' : 's'}` },
+        { slice: b.zero,  mode: 0,  title: `t = 0 : Marked D`,      meta: `c=${b.cCnt}, m=${b.mCnt}` },
+        { slice: b.plus,  mode: 1,  title: `t = +\u03b5 : L\u208a(D)`, meta: `${b.cp} circle${b.cp === 1 ? '' : 's'}` },
+      ];
+      const cards = panels.map((p) => (
+        `<div class="bg-[var(--background)] border border-[var(--border)] rounded-lg p-2 flex flex-col items-center">` +
+          `<div class="w-full flex items-center justify-between text-xs font-mono px-1 pb-1 border-b border-[var(--card-border)]">` +
+            `<span class="font-semibold text-[var(--foreground)]">${esc(p.title)}</span>` +
+            `<span class="text-[var(--muted-foreground)]">${esc(p.meta)}</span>` +
+          `</div>` +
+          `<svg viewBox="0 0 300 300" class="w-full max-w-[225px] block mt-1">${renderSliceSvgInner(p.slice, b.bbox, p.mode, 2.75)}</svg>` +
+        `</div>`
+      )).join('');
+      return (
+        `<div class="space-y-2">` +
+          `<div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">${cards}</div>` +
+          `<div class="text-center text-xs font-mono text-[var(--muted-foreground)] bg-[var(--background)] border border-[var(--border)] rounded-lg py-1.5 px-2">` +
+            `Hyperbolic splitting Euler balance: \u03c7(F) = c\u208b &minus; m + c\u208a = ${b.cm} &minus; ${b.mCnt} + ${b.cp} = ${b.chi}` +
+          `</div>` +
+        `</div>`
+      );
+    }
+
+    /* ---------- UI State & Views ---------- */
+    let state = {
+      mainTab: 'explorer',
+      selectedLabel: '10_1^0,1',
+      diagramMode: 'zero',
+      cmpA: 'R(b^2*a)',
+      cmpB: 'R(b^2*a^-1)',
+    };
+
+    function matchesFilters(e) {
+      const q = document.getElementById('f-search').value.trim().toLowerCase();
+      const tier = document.getElementById('f-tier').value;
+      const topo = document.getElementById('f-topo').value;
+      const ori = document.getElementById('f-ori').value;
+      const prop = document.getElementById('f-prop').value;
+
+      if (tier === 'hub' && !(e.tier_code === 'yoshikawa_ch10' || e.tier_code === 'expanded_ch11')) return false;
+      if (tier === 'spoke' && !(e.tier_code === 'exact_ch12' || e.tier_code === 'spoke_ch_ge_12')) return false;
+      if (['yoshikawa_ch10', 'expanded_ch11', 'exact_ch12'].includes(tier) && e.tier_code !== tier) return false;
+
+      if (topo === 's2_knot' && !(e.nc === 1 && e.types[0] === 'S^2')) return false;
+      if (topo === 't2_knot' && !(e.nc === 1 && e.types[0] === 'T^2')) return false;
+      if (topo === 'nonori_knot' && !(e.nc === 1 && e.ori === 'Non')) return false;
+      if (topo === 'link_2' && e.nc !== 2) return false;
+      if (topo === 'link_3' && e.nc !== 3) return false;
+      if (topo === 'brunnian' && !e.brunn) return false;
+
+      if (ori !== 'all' && e.ori !== ori) return false;
+
+      if (prop === 'exact_ch' && !e.ex_ch) return false;
+      if (prop === 'hub_realized' && e.reals.length === 0) return false;
+      if (prop === 'chiral' && !e.chiral) return false;
+      if (prop === 'q6_triple' && !e.q6_pos) return false;
+      if (prop === 'erratum' && !e.err) return false;
+
+      if (q) {
+        const hay = [
+          e.label, e.desc, e.types.join(' '), e.spoke, e.subfamily,
+          e.e1.join(' '), e.d1, e.pi1, e.reals.map((r) => r.id).join(' '),
+        ].join(' ').toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    }
+
+    function renderCatalogList() {
+      const filtered = ENTRIES.filter(matchesFilters);
+      document.getElementById('filter-count').textContent = `${filtered.length} of ${ENTRIES.length} surface-links`;
+      if (filtered.length > 0 && !filtered.some((e) => e.label === state.selectedLabel)) {
+        state.selectedLabel = filtered[0].label;
+      }
+      const listEl = document.getElementById('catalog-list');
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="p-6 text-center text-xs text-[var(--muted-foreground)]">No surface-links match the active filters.</div>`;
+        document.getElementById('detail-panel').innerHTML = `<div class="p-6 text-center text-xs text-[var(--muted-foreground)]">Reset filters to inspect a surface-link.</div>`;
+        return;
+      }
+      listEl.innerHTML = filtered.map((e) => {
+        const active = e.label === state.selectedLabel;
+        const rowCls = active ? 'bg-[var(--secondary)]' : 'hover:bg-[var(--background)]';
+        const badge = e.ex_ch
+          ? `<span class="px-1.5 py-0.5 rounded text-xs font-mono bg-[var(--background)] border border-[var(--border)]">ch=${fmtCh(e)}</span>`
+          : `<span class="px-1.5 py-0.5 rounded text-xs font-mono text-[var(--muted-foreground)] border border-[var(--border)]">ch&isin;${fmtCh(e)}</span>`;
+        return (
+          `<button type="button" data-select-label="${esc(e.label)}" class="w-full text-left px-3 py-2.5 transition flex items-center justify-between gap-2 ${rowCls}">` +
+            `<div class="min-w-0">` +
+              `<div class="flex items-center gap-2">` +
+                `<span class="font-mono text-xs font-bold text-[var(--foreground)] truncate">${esc(e.label)}</span>` +
+                `<span class="text-xs text-[var(--muted-foreground)] truncate">${esc(e.types.join(' \u222a '))}</span>` +
+              `</div>` +
+              `<div class="text-xs text-[var(--muted-foreground)] truncate mt-0.5">${esc(e.desc || e.tier_label)}</div>` +
+            `</div>` +
+            `<div class="shrink-0">${badge}</div>` +
+          `</button>`
+        );
+      }).join('');
+      listEl.querySelectorAll('[data-select-label]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.selectedLabel = btn.getAttribute('data-select-label');
+          renderCatalogList();
+        });
+      });
+      renderDetailPanel(BY_LABEL[state.selectedLabel]);
+    }
+
+    function renderDetailPanel(e) {
+      if (!e) return;
+      const pal = getPalette();
+      const compDots = e.types.map((ct, idx) => {
+        const col = pal[idx % pal.length];
+        const eul = e.eul[idx];
+        return (
+          `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-mono bg-[var(--background)] border border-[var(--border)]">` +
+            `<span class="w-2.5 h-2.5 rounded-full inline-block" style="background:${col}"></span>` +
+            `${esc(ct)} (e=${eul >= 0 ? '+' + eul : eul})` +
+          `</span>`
+        );
+      }).join('');
+
+      let stageHtml = '';
+      if (state.diagramMode === 'zero') {
+        stageHtml = `<div class="bg-[var(--background)] border border-[var(--border)] rounded-xl p-3">${renderSingleSvgFromEpd(e.epd, e.label, 320)}</div>`;
+      } else if (state.diagramMode === 'movie') {
+        stageHtml = renderMovieTriptychFromEpd(e.epd);
+      } else {
+        const tikzCode = renderTikzFromZero(getSplittingBundle(e.epd).zero, e.label);
+        stageHtml = (
+          `<div class="space-y-2.5 text-xs">` +
+            `<div>` +
+              `<div class="flex items-center justify-between mb-1">` +
+                `<span class="font-semibold text-[var(--muted-foreground)]">Canonical Planar EPD (${e.ch_d} vertices)</span>` +
+                `<button type="button" data-copy-text="${esc(e.epd)}" class="text-xs text-[var(--link)] hover:underline">Copy EPD</button>` +
+              `</div>` +
+              `<pre class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] font-mono text-xs overflow-x-auto whitespace-pre-wrap break-all">${esc(e.epd)}</pre>` +
+            `</div>` +
+            `<div>` +
+              `<div class="flex items-center justify-between mb-1">` +
+                `<span class="font-semibold text-[var(--muted-foreground)]">LaTeX / TikZ Snippet</span>` +
+                `<button type="button" data-copy-text="${esc(tikzCode)}" class="text-xs text-[var(--link)] hover:underline">Copy TikZ</button>` +
+              `</div>` +
+              `<pre class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] font-mono text-xs max-h-56 overflow-y-auto">${esc(tikzCode)}</pre>` +
+            `</div>` +
+          `</div>`
+        );
+      }
+
+      const errBanner = e.err ? (
+        `<div class="p-2.5 rounded-lg border border-[var(--warning)] bg-[var(--background)] text-xs space-y-0.5">` +
+          `<div class="font-bold text-[var(--warning)]">Verified Yoshikawa Table II Erratum</div>` +
+          `<div class="text-[var(--foreground)]">${esc(e.err_note)} (Printed: <code class="font-mono">${esc(e.err_print.join(', '))}</code>)</div>` +
+        `</div>`
+      ) : '';
+
+      const hubRealHtml = e.reals.length > 0 ? (
+        `<div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs space-y-1.5">` +
+          `<div class="font-semibold text-[var(--foreground)]">Constructive Parametric Spoke Realizations (${e.reals.length})</div>` +
+          `<div class="flex flex-wrap gap-1.5">` +
+            e.reals.map((r) => (
+              `<span class="px-2 py-0.5 rounded font-mono text-xs bg-[var(--card)] border border-[var(--border)]">` +
+                `${esc(r.id)} &middot; <span class="text-[var(--muted-foreground)]">${esc(r.mode)} (ch=${r.ch})</span>` +
+              `</span>`
+            )).join('') +
+          `</div>` +
+        `</div>`
+      ) : '';
+
+      const modeBtn = (id, lbl) => {
+        const cls = state.diagramMode === id
+          ? 'bg-[var(--primary)] text-[var(--primary-foreground)] border-transparent'
+          : 'bg-[var(--background)] text-[var(--foreground)] border-[var(--border)]';
+        return `<button type="button" data-diag-mode="${id}" class="px-2.5 py-1 rounded-md text-xs font-medium border transition ${cls}">${lbl}</button>`;
+      };
+
+      const el = document.getElementById('detail-panel');
+      el.innerHTML = (
+        `<div class="flex flex-wrap items-start justify-between gap-2 pb-3 border-b border-[var(--card-border)]">` +
+          `<div class="space-y-1">` +
+            `<div class="flex flex-wrap items-center gap-2">` +
+              `<h2 class="text-base font-bold font-mono text-[var(--foreground)]">${esc(e.label)}</h2>` +
+              `<span class="px-2 py-0.5 rounded text-xs bg-[var(--secondary)] text-[var(--secondary-foreground)]">${esc(e.tier_label)}</span>` +
+              `<span class="px-2 py-0.5 rounded text-xs font-mono border border-[var(--border)]">${esc(e.cell)}</span>` +
+            `</div>` +
+            `<p class="text-xs text-[var(--muted-foreground)]">${esc(e.desc)}</p>` +
+            `<div class="flex flex-wrap gap-1.5 pt-1">${compDots}</div>` +
+          `</div>` +
+          `<div class="flex flex-wrap gap-1.5">` +
+            modeBtn('zero', 'Marked Diagram D') +
+            modeBtn('movie', '3-Slice Movie') +
+            modeBtn('code', 'EPD & TikZ') +
+          `</div>` +
+        `</div>` +
+        errBanner +
+        stageHtml +
+        hubRealHtml +
+        `<div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">` +
+          `<div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1">` +
+            `<div class="font-semibold text-[var(--muted-foreground)]">Complexity &amp; Equivalence Cell</div>` +
+            `<div><span class="text-[var(--muted-foreground)]">ch(F):</span> <span class="font-mono font-semibold">${e.ex_ch ? e.ch_lo + ' (EXACT)' : '[' + e.ch_lo + ', ' + e.ch_hi + ']'}</span> (diag=${e.ch_d}: c=${e.c}, m=${e.m})</div>` +
+            `<div><span class="text-[var(--muted-foreground)]">Orientability / &chi;(F):</span> <span class="font-mono">${esc(e.ori)} / &chi;=${e.chi}</span> &middot; Ribbon: <span class="font-mono">${esc(e.rib)}</span></div>` +
+            `<div><span class="text-[var(--muted-foreground)]">Notes:</span> ${esc(e.reason)}${e.nw ? ' &middot; ' + esc(e.nw) : ''}</div>` +
+          `</div>` +
+          `<div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1">` +
+            `<div class="font-semibold text-[var(--muted-foreground)]">Knot Group &amp; Alexander Ideals</div>` +
+            `<div class="truncate" title="${esc(e.pi1)}"><span class="text-[var(--muted-foreground)]">&pi;&#8321;:</span> <code class="font-mono">${esc(e.pi1)}</code></div>` +
+            `<div><span class="text-[var(--muted-foreground)]">H&#8321;:</span> <span class="font-mono">${esc(e.ld[1])}</span></div>` +
+            `<div><span class="text-[var(--muted-foreground)]">Ideals:</span> <code class="font-mono">${esc(e.ld[2])}</code></div>` +
+          `</div>` +
+          `<div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1">` +
+            `<div class="font-semibold text-[var(--muted-foreground)]">Tier-2 Quandle, Cocycle &amp; Quotients</div>` +
+            `<div class="font-mono text-xs break-words">${esc(e.ld[3])}</div>` +
+            `<div><code class="font-mono">${esc(e.ld[4])}</code></div>` +
+            `<div><code class="font-mono">${esc(e.ld[5])}</code></div>` +
+          `</div>` +
+          `<div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1">` +
+            `<div class="font-semibold text-[var(--muted-foreground)]">Tier-3 Branched Cover &Sigma;&#8322;, &pi;&#8322; &amp; Symmetry</div>` +
+            `<div><span class="text-[var(--muted-foreground)]">&Sigma;&#8322;(F):</span> <code class="font-mono">${esc(e.ld[7])}</code>${e.q_hs4 ? ' <span class="px-1 rounded bg-[var(--secondary)] text-xs">Q-HS&#8308;</span>' : ''}</div>` +
+            `<div><span class="text-[var(--muted-foreground)]">&pi;&#8322;:</span> <code class="font-mono">${esc(e.ld[8])}</code></div>` +
+            `<div><span class="text-[var(--muted-foreground)]">Symmetry:</span> ${esc(e.ld[9])}</div>` +
+          `</div>` +
+        `</div>` +
+        `<div class="flex flex-wrap items-center justify-end gap-2 pt-1">` +
+          `<button type="button" id="btn-load-sandbox" class="px-2.5 py-1 rounded text-xs border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)]">Open in EPD Sandbox</button>` +
+          `<button type="button" id="btn-send-cmp-a" class="px-2.5 py-1 rounded text-xs border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)]">Set as Compare A</button>` +
+          `<button type="button" id="btn-send-cmp-b" class="px-2.5 py-1 rounded text-xs border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)]">Set as Compare B</button>` +
+        `</div>`
+      );
+
+      el.querySelectorAll('[data-diag-mode]').forEach((b) => {
+        b.addEventListener('click', () => { state.diagramMode = b.getAttribute('data-diag-mode'); renderDetailPanel(e); });
+      });
+      el.querySelectorAll('[data-copy-text]').forEach((b) => {
+        b.addEventListener('click', () => {
+          const txt = b.getAttribute('data-copy-text');
+          if (navigator.clipboard) navigator.clipboard.writeText(txt);
+          const prev = b.textContent;
+          b.textContent = 'Copied!';
+          setTimeout(() => { b.textContent = prev; }, 1200);
+        });
+      });
+      document.getElementById('btn-load-sandbox').addEventListener('click', () => {
+        document.getElementById('sandbox-epd').value = e.epd;
+        setMainTab('sandbox');
+      });
+      document.getElementById('btn-send-cmp-a').addEventListener('click', () => {
+        state.cmpA = e.label; document.getElementById('cmp-a').value = e.label; setMainTab('compare');
+      });
+      document.getElementById('btn-send-cmp-b').addEventListener('click', () => {
+        state.cmpB = e.label; document.getElementById('cmp-b').value = e.label; setMainTab('compare');
+      });
+    }
+
+    const LAYER_NAMES = [
+      '1. Intrinsic Topology & Normal Euler',
+      '2. Abelianized H\u2081(S\u2074 \\ F)',
+      '3. Alexander Ideals (E\u2081, E\u2082, \u0394\u2081)',
+      '4. Finite & SL(2,F\u2083) Quotients',
+      '5. Kei, Bikei & Alexander Biquandle',
+      '6. Mochizuki 3-Cocycle & Q\u2086 Triple-Points',
+      '7. Mod-2 Double/Triple Linking & Sublinks',
+      '8. 4D Double Branched Cover \u03a3\u2082(F)',
+      '9. Lomonaco \u03c0\u2082 & Finite Cover Homology',
+      '10. O(4) Symmetry & Chirality Profile',
+    ];
+
+    function renderCompareView() {
+      const a = BY_LABEL[state.cmpA] || ENTRIES[0];
+      const b = BY_LABEL[state.cmpB] || ENTRIES[1];
+      let sepCount = 0;
+
+      const rowsHtml = LAYER_NAMES.map((name, idx) => {
+        const diff = a.lh[idx] !== b.lh[idx];
+        if (diff) sepCount += 1;
+        const badge = diff
+          ? `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-[var(--primary)] text-[var(--primary-foreground)]">SEPARATES</span>`
+          : `<span class="px-2 py-0.5 rounded text-xs text-[var(--muted-foreground)] border border-[var(--border)]">MATCH</span>`;
+        return (
+          `<tr class="border-t border-[var(--card-border)] ${diff ? 'bg-[var(--secondary)]' : ''}">` +
+            `<td class="px-3 py-2 font-medium text-xs">${esc(name)}</td>` +
+            `<td class="px-3 py-2 font-mono text-xs break-words">${esc(a.ld[idx])}</td>` +
+            `<td class="px-3 py-2 font-mono text-xs break-words">${esc(b.ld[idx])}</td>` +
+            `<td class="px-3 py-2 text-right">${badge}</td>` +
+          `</tr>`
+        );
+      }).join('');
+
+      const verdict = a.label === b.label
+        ? `Identical entry selected (${esc(a.label)}).`
+        : sepCount > 0
+          ? `Strictly separated by ${sepCount} of 10 exact invariant layers (${esc(a.label)} \u2260 ${esc(b.label)} in R\u2074).`
+          : `All 10 invariant layers agree on ${esc(a.label)} and ${esc(b.label)}.`;
+
+      document.getElementById('compare-output').innerHTML = (
+        `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">` +
+          [a, b].map((x) => (
+            `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 space-y-2">` +
+              `<div class="flex items-center justify-between text-xs border-b border-[var(--card-border)] pb-2">` +
+                `<span class="font-mono font-bold text-sm">${esc(x.label)}</span>` +
+                `<span class="text-[var(--muted-foreground)]">${esc(x.types.join(' \u222a '))} &middot; ch=${fmtCh(x)}</span>` +
+              `</div>` +
+              `<div class="bg-[var(--background)] border border-[var(--border)] rounded-lg p-2">${renderSingleSvgFromEpd(x.epd, x.label, 230)}</div>` +
+              `<div class="text-xs text-[var(--muted-foreground)] truncate">${esc(x.desc)}</div>` +
+            `</div>`
+          )).join('') +
+        `</div>` +
+        `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl overflow-hidden">` +
+          `<div class="px-4 py-2.5 border-b border-[var(--card-border)] flex items-center justify-between text-xs">` +
+            `<span class="font-bold text-[var(--foreground)]">${esc(verdict)}</span>` +
+            `<span class="font-mono text-[var(--muted-foreground)]">${sepCount}/10 layers separating</span>` +
+          `</div>` +
+          `<div class="overflow-x-auto">` +
+            `<table class="w-full text-left border-collapse">` +
+              `<thead>` +
+                `<tr class="text-xs text-[var(--muted-foreground)] bg-[var(--background)]">` +
+                  `<th class="px-3 py-2">Filtration Layer</th>` +
+                  `<th class="px-3 py-2 font-mono">${esc(a.label)}</th>` +
+                  `<th class="px-3 py-2 font-mono">${esc(b.label)}</th>` +
+                  `<th class="px-3 py-2 text-right">Status</th>` +
+                `</tr>` +
+              `</thead>` +
+              `<tbody>${rowsHtml}</tbody>` +
+            `</table>` +
+          `</div>` +
+        `</div>`
+      );
+    }
+
+    function renderSandboxView() {
+      const out = document.getElementById('sandbox-output');
+      const raw = document.getElementById('sandbox-epd').value;
+      try {
+        const b = getSplittingBundle(raw);
+        const tikz = renderTikzFromZero(b.zero, 'custom_epd');
+        out.innerHTML = (
+          `<div class="space-y-4">` +
+            `<div class="flex flex-wrap items-center justify-between gap-2 text-xs pb-2 border-b border-[var(--card-border)]">` +
+              `<span class="font-semibold">Planar Diagram Verified: ch_diag = ${b.n} (c=${b.cCnt} classical, m=${b.mCnt} marked) &middot; Surface components = ${b.totalComps} &middot; &chi;(F) = ${b.chi}</span>` +
+            `</div>` +
+            renderMovieTriptychFromEpd(raw) +
+            `<details class="text-xs">` +
+              `<summary class="cursor-pointer font-semibold text-[var(--link)]">Show Generated LaTeX / TikZ Source</summary>` +
+              `<pre class="mt-2 p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] font-mono text-xs max-h-52 overflow-y-auto">${esc(tikz)}</pre>` +
+            `</details>` +
+          `</div>`
+        );
+      } catch (err) {
+        out.innerHTML = `<div class="text-xs text-[var(--error)] font-mono">EPD Parse / Planarity Error: ${esc(err.message)}</div>`;
+      }
+    }
+
+    function renderOverviewView() {
+      const c = DATA.counts;
+      const exact12 = ENTRIES.filter((e) => e.tier_code === 'exact_ch12');
+      const hubRealized = ENTRIES.filter((e) => e.reals.length > 0);
+      document.getElementById('view-overview').innerHTML = (
+        `<div class="grid grid-cols-2 lg:grid-cols-4 gap-3">` +
+          `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">` +
+            `<div class="text-xs text-[var(--muted-foreground)]">Unified Distinct Classes</div>` +
+            `<div class="text-xl font-bold font-mono mt-1">${c.total_distinct_classes}</div>` +
+            `<div class="text-xs text-[var(--muted-foreground)] mt-1">33 Hub + 41 Spoke (ch &ge; 12)</div>` +
+          `</div>` +
+          `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">` +
+            `<div class="text-xs text-[var(--muted-foreground)]">Exact ch(F) Certified</div>` +
+            `<div class="text-xl font-bold font-mono mt-1">${c.yoshikawa_ch10 + c.expanded_ch11 + c.exact_ch12}</div>` +
+            `<div class="text-xs text-[var(--muted-foreground)] mt-1">23 (ch&le;10) + 10 (ch=11) + 5 (ch=12)</div>` +
+          `</div>` +
+          `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">` +
+            `<div class="text-xs text-[var(--muted-foreground)]">Hub Classes Realized by Spokes</div>` +
+            `<div class="text-xl font-bold font-mono mt-1">${c.hub_realized_count} / 33</div>` +
+            `<div class="text-xs text-[var(--muted-foreground)] mt-1">12 move-certified via C mountain-pass</div>` +
+          `</div>` +
+          `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">` +
+            `<div class="text-xs text-[var(--muted-foreground)]">Compiled Family Diagrams</div>` +
+            `<div class="text-xl font-bold font-mono mt-1">${c.compiled_family_instances}</div>` +
+            `<div class="text-xs text-[var(--muted-foreground)] mt-1">Spokes 1–3 constructive compilers</div>` +
+          `</div>` +
+        `</div>` +
+        `<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">` +
+          `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-2.5">` +
+            `<h3 class="text-sm font-bold">5 Certified Exact ch(F) = 12 Surface-Links</h3>` +
+            `<p class="text-xs text-[var(--muted-foreground)]">Compiled into 12-vertex planar ch-diagrams and proven disjoint from the complete ch &le; 11 prime + composite + split reference catalog:</p>` +
+            `<div class="divide-y divide-[var(--card-border)]">` +
+              exact12.map((e) => (
+                `<button type="button" data-jump="${esc(e.label)}" class="w-full py-2 text-left flex items-center justify-between hover:bg-[var(--background)] px-2 rounded text-xs">` +
+                  `<div><span class="font-mono font-bold">${esc(e.label)}</span> &middot; <span class="text-[var(--muted-foreground)]">${esc(e.desc)}</span></div>` +
+                  `<span class="font-mono text-xs px-1.5 py-0.5 rounded border border-[var(--border)]">${esc(e.types.join(' \u222a '))}</span>` +
+                `</button>`
+              )).join('') +
+            `</div>` +
+          `</div>` +
+          `<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-2.5">` +
+            `<h3 class="text-sm font-bold">15 Canonical Hub Entries Realized by Parametric Spokes</h3>` +
+            `<div class="max-h-72 overflow-y-auto divide-y divide-[var(--card-border)]">` +
+              hubRealized.map((e) => (
+                `<button type="button" data-jump="${esc(e.label)}" class="w-full py-2 text-left flex items-center justify-between gap-2 hover:bg-[var(--background)] px-2 rounded text-xs">` +
+                  `<span class="font-mono font-bold shrink-0">${esc(e.label)}</span>` +
+                  `<span class="font-mono text-xs text-[var(--muted-foreground)] truncate">${esc(e.reals.map((r) => r.id + ' [' + r.mode + ']').join(', '))}</span>` +
+                `</button>`
+              )).join('') +
+            `</div>` +
+          `</div>` +
+        `</div>`
+      );
+      document.getElementById('view-overview').querySelectorAll('[data-jump]').forEach((b) => {
+        b.addEventListener('click', () => {
+          state.selectedLabel = b.getAttribute('data-jump');
+          document.getElementById('btn-reset-filters').click();
+          setMainTab('explorer');
+        });
+      });
+    }
+
+    function setMainTab(tab) {
+      state.mainTab = tab;
+      ['explorer', 'compare', 'sandbox', 'overview'].forEach((t) => {
+        const btn = document.getElementById('tab-' + t);
+        const sec = document.getElementById('view-' + t);
+        if (t === tab) {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium transition border bg-[var(--primary)] text-[var(--primary-foreground)] border-transparent';
+          sec.classList.remove('hidden');
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium transition border bg-[var(--background)] text-[var(--foreground)] border-[var(--border)]';
+          sec.classList.add('hidden');
+        }
+      });
+      if (tab === 'explorer') renderCatalogList();
+      if (tab === 'compare') renderCompareView();
+      if (tab === 'sandbox') renderSandboxView();
+      if (tab === 'overview') renderOverviewView();
+    }
+
+    document.querySelectorAll('[data-main-tab]').forEach((b) => {
+      b.addEventListener('click', () => setMainTab(b.getAttribute('data-main-tab')));
+    });
+    ['f-search', 'f-tier', 'f-topo', 'f-ori', 'f-prop'].forEach((id) => {
+      const el = document.getElementById(id);
+      el.addEventListener(id === 'f-search' ? 'input' : 'change', renderCatalogList);
+    });
+    document.getElementById('btn-reset-filters').addEventListener('click', () => {
+      document.getElementById('f-search').value = '';
+      document.getElementById('f-tier').value = 'all';
+      document.getElementById('f-topo').value = 'all';
+      document.getElementById('f-ori').value = 'all';
+      document.getElementById('f-prop').value = 'all';
+      renderCatalogList();
+    });
+    document.getElementById('btn-render-epd').addEventListener('click', renderSandboxView);
+
+    const optsHtml = ENTRIES.map((e) =>
+      `<option value="${esc(e.label)}">${esc(e.label)} — ${esc(e.types.join(' u '))} (ch=${fmtCh(e)})</option>`
+    ).join('');
+    const selA = document.getElementById('cmp-a');
+    const selB = document.getElementById('cmp-b');
+    selA.innerHTML = optsHtml;
+    selB.innerHTML = optsHtml;
+    selA.value = state.cmpA;
+    selB.value = state.cmpB;
+    selA.addEventListener('change', () => { state.cmpA = selA.value; renderCompareView(); });
+    selB.addEventListener('change', () => { state.cmpB = selB.value; renderCompareView(); });
+
+    const PRESETS = [
+      ['8_1', '9_1', 'Spun vs Ribbon 3_1'],
+      ['11_1', '11_2', 'ch=11 2-Knots'],
+      ['R(b^2*a)', 'R(b^2*a^-1)', 'Non-Reciprocal Z-HS4 Pair'],
+      ['10_2', '10_3', '2- vs 3-Twist Spun'],
+      ['10_1^0,0,1', '11_1^0,0,-2', '3-Comp Links'],
+    ];
+    const presetWrap = document.getElementById('compare-presets');
+    presetWrap.innerHTML = PRESETS.map(([pa, pb, lbl], idx) =>
+      `<button type="button" data-preset="${idx}" class="px-2 py-1 rounded-md text-xs bg-[var(--background)] border border-[var(--border)] hover:bg-[var(--secondary)]">${esc(lbl)}</button>`
+    ).join('');
+    presetWrap.querySelectorAll('[data-preset]').forEach((b) => {
+      b.addEventListener('click', () => {
+        const [pa, pb] = PRESETS[Number(b.getAttribute('data-preset'))];
+        state.cmpA = pa; state.cmpB = pb;
+        selA.value = pa; selB.value = pb;
+        renderCompareView();
+      });
+    });
+
+    window.addEventListener('themechange', () => setMainTab(state.mainTab));
+    setMainTab('explorer');
+  })();
+  </script>
+</body>
+</html>

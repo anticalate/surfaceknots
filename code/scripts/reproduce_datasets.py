@@ -299,7 +299,17 @@ def main() -> None:
     parser.add_argument("--ch11-enumerate", action="store_true", help="Run checkpointed ch=11 enumeration/tunneling")
     parser.add_argument("--ch11-export", action="store_true", help="Stratify & export expanded_ch11.{json,csv}")
     parser.add_argument("--gallery", action="store_true", help="Render SVG & TikZ gallery into pics/{svg,tikz}")
+    parser.add_argument(
+        "--extended-gallery",
+        action="store_true",
+        help="Render splitting movie triptychs & showcase Spoke family SVG/TikZ into pics/",
+    )
     parser.add_argument("--families", action="store_true", help="Build & export parametric family catalogs and Hub join")
+    parser.add_argument(
+        "--atlas",
+        action="store_true",
+        help="Export self-contained interactive Web Atlas to expo/surfaceknots_atlas.html",
+    )
     parser.add_argument("--max-seconds", type=float, default=3600.0)
     args = parser.parse_args()
 
@@ -335,6 +345,14 @@ def main() -> None:
 
         manifest = export_canonical_gallery(args.data_dir, args.pics_dir)
         print(f"Exported {len(manifest)} SVG + TikZ diagram pairs to {args.pics_dir}")
+    if args.extended_gallery:
+        from surfaceknots.drawing import export_extended_gallery
+
+        ext = export_extended_gallery(args.data_dir, args.pics_dir)
+        print(
+            f"Exported extended gallery: {len(ext['canonical'])} canonical, "
+            f"{len(ext['families'])} family SVG+TikZ, {len(ext['movies'])} splitting movies."
+        )
     if args.families:
         from surfaceknots.families import export_family_datasets
 
@@ -346,6 +364,12 @@ def main() -> None:
             f"{len(fam_res['exact_ch_12_certified_instances'])} proven exact ch=12 classes "
             f"({fam_res['exact_ch_12_certified_instances']})."
         )
+    if args.atlas:
+        from surfaceknots.atlas import export_interactive_atlas
+
+        out_atlas = args.data_dir.parents[1] / "expo" / "surfaceknots_atlas.html"
+        counts = export_interactive_atlas(args.data_dir, out_atlas)
+        print(f"Exported interactive Web Atlas ({counts['total_distinct_classes']} classes) to {out_atlas}")
 
 
 if __name__ == "__main__":

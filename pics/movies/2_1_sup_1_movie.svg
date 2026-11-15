@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 796 348" width="796" height="348" role="img" aria-label="2_1^1 hyperbolic splitting movie">
+  <rect x="1" y="1" width="794" height="346" rx="12" fill="#FAFAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="18" y="24" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0F172A">2_1^1</text>
+  <text x="18" y="41" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#475569">ch_diag=2 | T^2 | Unknotted torus T^2 (ch = 2)</text>
+  <text x="138.0" y="66" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="600" fill="#334155">t = -ε : L₋(D)  [1 circle]</text>
+  <rect x="14" y="74" width="248" height="248" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.2"/>
+  <line x1="53.86" y1="198.00" x2="76.02" y2="198.00" stroke="#94A3B8" stroke-width="1.35" stroke-dasharray="2.4,2.4" stroke-linecap="round"/>
+  <line x1="222.14" y1="190.45" x2="205.92" y2="205.55" stroke="#94A3B8" stroke-width="1.35" stroke-dasharray="2.4,2.4" stroke-linecap="round"/>
+  <path d="M 55.92 186.59 C 49.48 178.44, 80.60 96.00, 139.49 96.00" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 223.05 186.59 C 229.49 178.44, 198.38 96.00, 139.49 96.00" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 55.92 209.41 C 49.48 217.56, 80.60 300.00, 139.49 300.00" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 223.05 209.41 C 229.49 217.56, 198.38 300.00, 139.49 300.00" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 75.23 208.29 C 79.20 212.26, 99.46 200.79, 139.49 200.79" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 203.74 208.29 C 199.77 212.26, 179.51 200.79, 139.49 200.79" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 75.23 187.71 C 79.20 183.74, 99.46 195.21, 139.49 195.21" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 203.74 187.71 C 199.77 183.74, 179.51 195.21, 139.49 195.21" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 55.92 186.59 C 60.97 192.98, 60.97 203.02, 55.92 209.41" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 75.23 208.29 C 69.47 202.53, 69.47 193.47, 75.23 187.71" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 203.74 187.71 C 209.50 193.47, 218.00 192.98, 223.05 186.59" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 203.74 208.29 C 209.50 202.53, 218.00 203.02, 223.05 209.41" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <text x="398.0" y="66" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="600" fill="#334155">t = 0 : Marked D  [c=0, m=2]</text>
+  <rect x="274" y="74" width="248" height="248" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/>
+  <path d="M 324.94 198.00 C 317.21 188.22, 340.60 96.00, 399.49 96.00" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 474.03 198.00 C 481.76 188.22, 458.38 96.00, 399.49 96.00" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 324.94 198.00 C 317.21 207.78, 340.60 300.00, 399.49 300.00" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 474.03 198.00 C 481.76 207.78, 458.38 300.00, 399.49 300.00" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 324.94 198.00 C 333.27 206.33, 359.46 200.79, 399.49 200.79" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 474.03 198.00 C 465.70 206.33, 439.51 200.79, 399.49 200.79" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 324.94 198.00 C 333.27 189.67, 359.46 195.21, 399.49 195.21" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 474.03 198.00 C 465.70 189.67, 439.51 195.21, 399.49 195.21" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <line x1="313.86" y1="198.00" x2="336.02" y2="198.00" stroke="#FFFFFF" stroke-width="5.95" stroke-linecap="round"/>
+  <line x1="313.86" y1="198.00" x2="336.02" y2="198.00" stroke="#0F172A" stroke-width="3.93" stroke-linecap="round"/>
+  <circle cx="324.94" cy="198.00" r="1.71" fill="#0F172A"/>
+  <line x1="482.14" y1="190.45" x2="465.92" y2="205.55" stroke="#FFFFFF" stroke-width="5.95" stroke-linecap="round"/>
+  <line x1="482.14" y1="190.45" x2="465.92" y2="205.55" stroke="#0F172A" stroke-width="3.93" stroke-linecap="round"/>
+  <circle cx="474.03" cy="198.00" r="1.71" fill="#0F172A"/>
+  <text x="658.0" y="66" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="600" fill="#334155">t = +ε : L₊(D)  [1 circle]</text>
+  <rect x="534" y="74" width="248" height="248" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.2"/>
+  <line x1="573.86" y1="198.00" x2="596.02" y2="198.00" stroke="#94A3B8" stroke-width="1.35" stroke-dasharray="2.4,2.4" stroke-linecap="round"/>
+  <line x1="742.14" y1="190.45" x2="725.92" y2="205.55" stroke="#94A3B8" stroke-width="1.35" stroke-dasharray="2.4,2.4" stroke-linecap="round"/>
+  <path d="M 575.92 186.59 C 569.48 178.44, 600.60 96.00, 659.49 96.00" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 743.05 186.59 C 749.49 178.44, 718.38 96.00, 659.49 96.00" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 575.92 209.41 C 569.48 217.56, 600.60 300.00, 659.49 300.00" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 743.05 209.41 C 749.49 217.56, 718.38 300.00, 659.49 300.00" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 595.23 208.29 C 599.20 212.26, 619.46 200.79, 659.49 200.79" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 723.74 208.29 C 719.77 212.26, 699.51 200.79, 659.49 200.79" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 595.23 187.71 C 599.20 183.74, 619.46 195.21, 659.49 195.21" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 723.74 187.71 C 719.77 183.74, 699.51 195.21, 659.49 195.21" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 575.92 186.59 C 580.97 192.98, 589.47 193.47, 595.23 187.71" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 575.92 209.41 C 580.97 203.02, 589.47 202.53, 595.23 208.29" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 723.74 187.71 C 729.50 193.47, 729.50 202.53, 723.74 208.29" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <path d="M 743.05 209.41 C 738.00 203.02, 738.00 192.98, 743.05 186.59" fill="none" stroke="#1E3A8A" stroke-width="2.38" stroke-linecap="round"/>
+  <text x="268.0" y="202.0" text-anchor="middle" font-family="ui-sans-serif, sans-serif" font-size="13" font-weight="700" fill="#64748B">→</text>
+  <text x="528.0" y="202.0" text-anchor="middle" font-family="ui-sans-serif, sans-serif" font-size="13" font-weight="700" fill="#64748B">→</text>
+  <text x="398.0" y="340" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#475569">Hyperbolic splitting cobordism:  χ(F) = c₋ − m + c₊ = 1 − 2 + 1 = 0</text>
+</svg>
