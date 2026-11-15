@@ -98,3 +98,29 @@ def test_canonical_gallery_files_exist_and_parse(tmp_path: Path) -> None:
         )
         assert res.returncode == 0, f"pdflatex failed:\n{res.stdout}\n{res.stderr}"
         assert (tmp_path / "sample.pdf").exists()
+
+
+def test_splitting_movie_and_extended_gallery() -> None:
+    from surfaceknots.drawing import compute_splitting_layouts, render_splitting_movie_svg
+
+    d = MarkedDiagram.from_epd(YOSHIKAWA_BY_LABEL["10_1^0,1"].canonical_epd)
+    lay_m, lay_0, lay_p = compute_splitting_layouts(d)
+
+    # Pixel-registered: identical vertex coordinates and bounding box across all 3 slices
+    assert lay_m.vertex_positions == lay_0.vertex_positions == lay_p.vertex_positions
+    assert lay_m.bbox == lay_0.bbox == lay_p.bbox
+    # Each marked vertex adds 2 hyperbolic bridge Beziers in L_- and L_+
+    assert len(lay_m.beziers) == len(lay_0.beziers) + 2 * d.num_marked
+    assert len(lay_p.beziers) == len(lay_0.beziers) + 2 * d.num_marked
+
+    movie_svg = render_splitting_movie_svg(d, title="10_1^0,1", subtitle="movie test")
+    root = ET.fromstring(movie_svg)
+    assert root.tag.endswith("svg")
+    assert "Hyperbolic splitting cobordism" in movie_svg
+
+    # Verify exported extended gallery files in pics/families and pics/movies
+    assert (PICS_DIR / "families" / "svg" / "Tube_4_1.svg").exists()
+    assert (PICS_DIR / "families" / "tikz" / "Tube_4_1.tex").exists()
+    assert (PICS_DIR / "movies" / "11_1_sup_0_0_m2_movie.svg").exists()
+    assert (PICS_DIR / "movies" / "Mixed_L6a4_01_movie.svg").exists()
+

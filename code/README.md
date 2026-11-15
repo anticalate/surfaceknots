@@ -29,8 +29,9 @@ On first import of `surfaceknots.fast_enum`, the C99 enumeration and tunneling k
   - [`tier3.py`](./src/surfaceknots/invariants/tier3.py): Tier-3 4D invariants — Lomonaco second homotopy $\pi_2(S^4 \setminus F)$ $\mathbb{Z}$-ranks and regular finite-cover Betti profiles via Poincaré–Lefschetz duality, double branched cover $\Sigma_2(S^4, F)$ homology $H_1(\Sigma_2; \mathbb{Z})$, $b_2(\Sigma_2)$, and $|\sigma(\Sigma_2)|$, Kamada–Oshiro octahedral symmetric quandle $(X_6, \rho)$ colorings and non-orientable 3-cocycle state sums, and full $\mathrm{O}(4)$ chirality / orientation symmetry profiles.
 - [`yoshikawa_data.py`](./src/surfaceknots/yoshikawa_data.py): Canonical diagrams, 10-layer invariant filtration, two-tier equivalence-cell classification (`EXACT_SINGLETON`, `NEW_PACKET`, `AMBIGUOUS_SHADOW`), nearest separating witnesses, and automated proof of all three Yoshikawa (1994) Table II errata (`9_1^{1,-2}`, `10_1^{0,1}`, `10_2^{0,-2}`).
 - [`ch11_census.py`](./src/surfaceknots/ch11_census.py): Connected-sum / split-union / unknot reference catalog up to $\operatorname{ch} \le 12$, post-flype C mountain-pass tunneling, and exact stratification/export of the expanded $\operatorname{ch} = 11$ census.
-- [`drawing.py`](./src/surfaceknots/drawing.py): Automated planar layout engine (face-area maximizing Tutte harmonic embedding with $p$-Laplacian IRLS vertex repulsion and Bézier parallel-edge routing) and vector SVG + standalone TikZ/PGF exporters for `/pics`.
+- [`drawing.py`](./src/surfaceknots/drawing.py): Automated planar layout engine (face-area maximizing Tutte harmonic embedding with $p$-Laplacian IRLS vertex repulsion and Bézier parallel-edge routing), pixel-registered 3-panel hyperbolic splitting movie triptychs ($L_-(D) \to D \to L_+(D)$), and vector SVG + standalone TikZ/PGF exporters for `/pics`.
 - [`families.py`](./src/surfaceknots/families.py): Constructive planar diagram compilers for Spoke 1 ($\tau^0(K)$ Artin spins and $U_m(K)$ twisted symmetric-union 2-knots), Spoke 2 (NORTH/SOUTH alternating planar 1-fusion ribbon words $R(w)$), and Spoke 3 ($\operatorname{Tube}(L)$ Satoh tubes, mixed sphere–torus links, and non-orientable Klein-bottle twisted links), with automated Hub cross-join and certified $[\operatorname{ch}_{\min}, \operatorname{ch}_{\max}]$ bounds.
+- [`atlas.py`](./src/surfaceknots/atlas.py): Self-contained interactive KnotInfo-style Web Atlas generator (`../expo/surfaceknots_atlas.html`) uniting all **74** distinct surface-link classes ($33$ Hub + $41$ Spoke $\operatorname{ch} \ge 12$) with client-side IRLS $p$-Laplacian Tutte SVG/movie rendering, LaTeX/TikZ export, a 10-layer pairwise invariant separator, and a live custom EPD sandbox.
 
 ## Machine-Verified Datasets (`code/data/`)
 
@@ -38,13 +39,13 @@ On first import of `surfaceknots.fast_enum`, the C99 enumeration and tunneling k
 - [`data/expanded_ch11.json`](./data/expanded_ch11.json) & [`data/expanded_ch11.csv`](./data/expanded_ch11.csv): Expanded $\operatorname{ch} = 11$ census stratified into **10** certified new weakly prime invariant classes ($12$ diagrams: $11_1, 11_2, 11_1^{-2}$, six 2-component links, and the 3-component non-orientable link $11_1^{0,0,-2}$) and $93$ documented `AMBIGUOUS_SHADOW` diagram collisions.
 - [`data/families/family_catalog.json`](./data/families/family_catalog.json), [`data/families/family_catalog.csv`](./data/families/family_catalog.csv), & [`data/families/hub_realizations.json`](./data/families/hub_realizations.json): Parametric Spoke 1–3 surface-link catalog cross-joined against the $\operatorname{ch} \le 11$ Hub, including certified exact $\operatorname{ch}(F) = 12$ proofs.
 
-To regenerate datasets and diagrams from `code/` via [`scripts/reproduce_datasets.py`](./scripts/reproduce_datasets.py):
+To regenerate datasets, galleries, and the interactive Web Atlas from `code/` via [`scripts/reproduce_datasets.py`](./scripts/reproduce_datasets.py):
 
 ```bash
 PYTHONPATH=src .venv/bin/python scripts/reproduce_datasets.py --yoshikawa
 PYTHONPATH=src .venv/bin/python scripts/reproduce_datasets.py --ch11-enumerate --ch11-export
-PYTHONPATH=src .venv/bin/python scripts/reproduce_datasets.py --gallery
-PYTHONPATH=src .venv/bin/python scripts/reproduce_datasets.py --families
+PYTHONPATH=src .venv/bin/python scripts/reproduce_datasets.py --gallery --extended-gallery
+PYTHONPATH=src .venv/bin/python scripts/reproduce_datasets.py --families --atlas
 ```
 
 ## Quickstart Example

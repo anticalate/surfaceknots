@@ -74,3 +74,70 @@ Every surface-link $F \subset \mathbb{R}^4$ in hyperbolic splitting position is 
 | :---: | :---: | :---: |
 | ![11_1.a](./svg/11_1_a.svg) | ![11_1.b](./svg/11_1_b.svg) | ![11_1.c](./svg/11_1_c.svg) |
 | **`11_1.a`** (`S^2`)<br>[SVG](./svg/11_1_a.svg) · [TikZ](./tikz/11_1_a.tex) | **`11_1.b`** (`S^2`)<br>[SVG](./svg/11_1_b.svg) · [TikZ](./tikz/11_1_b.tex) | **`11_1.c`** (`S^2`)<br>[SVG](./svg/11_1_c.svg) · [TikZ](./tikz/11_1_c.tex) |
+
+---
+
+## 6. Hyperbolic Splitting Movie Triptychs ($L_-(D) \to D \to L_+(D)$)
+
+Each triptych shares a single pixel-registered Tutte $p$-Laplacian layout across all three level slices ($t = -\varepsilon, 0, +\varepsilon$), displaying the classical resolution circles $c_-$ and $c_+$, faint dashed saddle attachment loci, and the topological Euler balance $\chi(F) = c_- - m + c_+$.
+
+### `2_1^1` (`T^2`) — Unknotted torus T^2 (ch = 2)
+
+![2_1^1 splitting movie](./movies/2_1_sup_1_movie.svg)
+
+### `2_1^-1` (`RP^2`) — Standard projective plane RP^2 with e = +2 (ch = 2)
+
+![2_1^-1 splitting movie](./movies/2_1_sup_m1_movie.svg)
+
+### `8_1` (`S^2`) — Artin spun trefoil 2-knot Spin(3_1) (ch = 8)
+
+![8_1 splitting movie](./movies/8_1_movie.svg)
+
+### `9_1` (`S^2`) — 1-fusion ribbon trefoil 2-knot (ch = 9)
+
+![9_1 splitting movie](./movies/9_1_movie.svg)
+
+### `10_2` (`S^2`) — 2-twist-spun trefoil; chiral via Mochizuki 3-cocycle & Q_6 (ch = 10)
+
+![10_2 splitting movie](./movies/10_2_movie.svg)
+
+### `10_1^0,1` (`T^2 u S^2`) — Mixed sphere-torus link Mixed(L4a1) (ch = 10)
+
+![10_1^0,1 splitting movie](./movies/10_1_sup_0_1_movie.svg)
+
+### `10_1^1,1` (`T^2 u T^2`) — Satoh tube of Hopf link Tube(L2a1) (ch = 10)
+
+![10_1^1,1 splitting movie](./movies/10_1_sup_1_1_movie.svg)
+
+### `11_1` (`S^2`) — Symmetric-union figure-eight 2-knot SymUnion(4_1,1) (ch = 11)
+
+![11_1 splitting movie](./movies/11_1_movie.svg)
+
+### `11_1^-2` (`K^2`) — First prime knotted Klein bottle K^2 with e = 0 (ch = 11)
+
+![11_1^-2 splitting movie](./movies/11_1_sup_m2_movie.svg)
+
+### `11_1^0,0,-2` (`K^2 u S^2 u S^2`) — Newly discovered 3-component Klein-sphere-sphere link (ch = 11)
+
+![11_1^0,0,-2 splitting movie](./movies/11_1_sup_0_0_m2_movie.svg)
+
+### `Tube(4_1)` (`T^2`) — Certified exact ch = 12 Satoh figure-eight torus
+
+![Tube(4_1) splitting movie](./movies/Tube_4_1_movie.svg)
+
+### `Mixed(L6a4,01)` (`T^2 u S^2 u T^2`) — Brunnian 3-component Borromean mixed link (ch <= 16)
+
+![Mixed(L6a4,01) splitting movie](./movies/Mixed_L6a4_01_movie.svg)
+
+---
+
+## 7. Certified Exact $\operatorname{ch}(F) = 12$ & Parametric Spoke Showcase
+
+| Diagram 1 | Diagram 2 | Diagram 3 |
+| :---: | :---: | :---: |
+| ![Spin(5_1)](./families/svg/Spin_5_1.svg) | ![Spin(5_2)](./families/svg/Spin_5_2.svg) | ![Tube(4_1)](./families/svg/Tube_4_1.svg) |
+| **`Spin(5_1)`** (`S^2; ch=12 (EXACT)`)<br>[SVG](./families/svg/Spin_5_1.svg) · [TikZ](./families/tikz/Spin_5_1.tex) | **`Spin(5_2)`** (`S^2; ch=12 (EXACT)`)<br>[SVG](./families/svg/Spin_5_2.svg) · [TikZ](./families/tikz/Spin_5_2.tex) | **`Tube(4_1)`** (`T^2; ch=12 (EXACT)`)<br>[SVG](./families/svg/Tube_4_1.svg) · [TikZ](./families/tikz/Tube_4_1.tex) |
+| ![Tube(L4a1)](./families/svg/Tube_L4a1.svg) | ![Mixed(L5a1)](./families/svg/Mixed_L5a1.svg) | ![Mixed(L6a4,01)](./families/svg/Mixed_L6a4_01.svg) |
+| **`Tube(L4a1)`** (`T^2 u T^2; ch=12 (EXACT)`)<br>[SVG](./families/svg/Tube_L4a1.svg) · [TikZ](./families/tikz/Tube_L4a1.tex) | **`Mixed(L5a1)`** (`S^2 u T^2; ch=12 (EXACT)`)<br>[SVG](./families/svg/Mixed_L5a1.svg) · [TikZ](./families/tikz/Mixed_L5a1.tex) | **`Mixed(L6a4,01)`** (`T^2 u S^2 u T^2; ch in [12,16]`)<br>[SVG](./families/svg/Mixed_L6a4_01.svg) · [TikZ](./families/tikz/Mixed_L6a4_01.tex) |
+| ![Tube(L6a4)](./families/svg/Tube_L6a4.svg) | ![R(b^2*a)](./families/svg/R_bp2_a.svg) | ![R(b^2*a^-1)](./families/svg/R_bp2_am1.svg) |
+| **`Tube(L6a4)`** (`T^2 u T^2 u T^2; ch in [12,22]`)<br>[SVG](./families/svg/Tube_L6a4.svg) · [TikZ](./families/tikz/Tube_L6a4.tex) | **`R(b^2*a)`** (`S^2; ch in [12,14]`)<br>[SVG](./families/svg/R_bp2_a.svg) · [TikZ](./families/tikz/R_bp2_a.tex) | **`R(b^2*a^-1)`** (`S^2; ch in [12,14]`)<br>[SVG](./families/svg/R_bp2_am1.svg) · [TikZ](./families/tikz/R_bp2_am1.tex) |

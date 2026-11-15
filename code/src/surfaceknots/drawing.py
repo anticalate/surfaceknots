@@ -18,6 +18,7 @@ import html
 import json
 import math
 from pathlib import Path
+import re
 
 from surfaceknots.diagrams import MarkedDiagram
 
@@ -88,10 +89,14 @@ class DiagramLayout:
 
 
 def label_to_stem(label: str) -> str:
-    """Convert a surface-link catalog label (e.g. `'10_1^0,0,1'`, `'7_1^0,-2'`, `'11_1.a'`)
-    into a collision-free, filesystem- and TeX-safe stem (`[0-9A-Za-z_]+`).
+    """Convert a surface-link catalog label (e.g. `'10_1^0,0,1'`, `'7_1^0,-2'`, `'11_1.a'`,
+    `'Spin(5_1)'`, `'R(b^2*a^-1)'`) into a collision-free, filesystem- and TeX-safe stem (`[0-9A-Za-z_]+`).
     """
     s = label.strip()
+    if "(" in s:
+        s_fam = s.replace("^-", "m").replace("^", "p").replace("-", "m")
+        s_fam = re.sub(r"[^0-9A-Za-z]+", "_", s_fam).strip("_")
+        return s_fam
     suffix = ""
     if "." in s:
         s, sub = s.split(".", 1)
@@ -333,7 +338,7 @@ def _layout_connected_block(
         if not _verify_ccw_cyclic_order(vx, vy, qs):
             raise RuntimeError(f"CCW cyclic dart order violated at vertex {v}")
 
-    return _build_splines_from_positions(m, local_opp, local_vtype, local_dart_scomp, sub_pos)
+    return sub_pos
 
 
 def _build_splines_from_positions(
@@ -342,17 +347,19 @@ def _build_splines_from_positions(
     local_vtype: list[str],
     local_dart_scomp: list[int],
     sub_pos: list[tuple[float, float]],
+    resolution: int = 0,
 ) -> tuple[
     list[tuple[float, float]],
     list[float],
     list[CubicBezierSegment],
     list[SaddleMarkerBar],
 ]:
-    """Fit orthogonal crossing frames, under-crossing gaps, cubic Bezier splines, and `Y`/`Z` bars."""
+    """Fit orthogonal crossing frames, under-crossing gaps, cubic Bezier splines, and `Y`/`Z` bars
+    (when `resolution == 0`) or `C^1` hyperbolic saddle smoothings (when `resolution in (-1, 1)`).
+    """
     v_pos = sub_pos[:m]
     u_pos = sub_pos[m : 5 * m]
 
-    # Characteristic diagram radius
     xs = [p[0] for p in sub_pos]
     ys = [p[1] for p in sub_pos]
     diag_span = max(max(xs) - min(xs), max(ys) - min(ys), 1.0)
@@ -374,13 +381,30 @@ def _build_splines_from_positions(
         v_angles.append(math.atan2(ssum, csum))
         v_min_arm.append(min_d)
 
+    def _slot_unit_tangent(cur_v: int, cur_s: int) -> tuple[tuple[float, float], float]:
+        p_center = v_pos[cur_v]
+        cur_q = u_pos[4 * cur_v + cur_s]
+        nat_dx = cur_q[0] - p_center[0]
+        nat_dy = cur_q[1] - p_center[1]
+        nat_d = math.hypot(nat_dx, nat_dy)
+        nat_u = _norm2(nat_dx, nat_dy)
+        phi_slot = v_angles[cur_v] + cur_s * (0.5 * math.pi)
+        orth_u = (math.cos(phi_slot), math.sin(phi_slot))
+        dot_uo = orth_u[0] * nat_u[0] + orth_u[1] * nat_u[1]
+        if dot_uo < 0.65:
+            uv = _norm2(0.45 * orth_u[0] + 0.55 * nat_u[0], 0.45 * orth_u[1] + 0.55 * nat_u[1])
+            opp_q = u_pos[4 * cur_v + (cur_s ^ 2)]
+            opp_u = _norm2(opp_q[0] - p_center[0], opp_q[1] - p_center[1])
+            axis_u = _norm2(nat_u[0] - opp_u[0], nat_u[1] - opp_u[1])
+            if axis_u[0] * nat_u[0] + axis_u[1] * nat_u[1] > 0.35:
+                uv = axis_u
+        else:
+            uv = orth_u
+        return uv, nat_d
+
     beziers: list[CubicBezierSegment] = []
     markers: list[SaddleMarkerBar] = []
 
-    # Build two `C^1`-joined Bezier segments for each undirected edge `hd < od`
-    # Since `mid = 0.5 * (qh + qo)`, setting `p2 = qh` on the `hd` side and `p2 = qo` on the `od`
-    # side gives `B'_hd(1) = 3*(mid - qh) = 1.5*(qo - qh) = -B'_od(1)`: exact `C^1` continuity
-    # at `mid` while keeping every spline strictly inside its disjoint Tutte edge corridor!
     for hd in range(4 * m):
         od = local_opp[hd]
         if hd >= od:
@@ -401,38 +425,25 @@ def _build_splines_from_positions(
         ):
             vt = local_vtype[cur_v]
             is_under = (vt == "X0" and (cur_s & 1) == 0) or (vt == "X1" and (cur_s & 1) == 1)
+            is_smoothed_saddle = resolution != 0 and vt in ("Y", "Z")
             p_center = v_pos[cur_v]
-            nat_dx = cur_q[0] - p_center[0]
-            nat_dy = cur_q[1] - p_center[1]
-            nat_d = math.hypot(nat_dx, nat_dy)
-            nat_u = _norm2(nat_dx, nat_dy)
-
-            phi_slot = v_angles[cur_v] + cur_s * (0.5 * math.pi)
-            orth_u = (math.cos(phi_slot), math.sin(phi_slot))
-            # If the orthogonal ray deviates by > 50 deg from the Tutte corridor ray `nat_u`
-            # (e.g. on tight 2-vertex multi-edge bigons like `2_1^1`), clamp toward `nat_u`
-            # so `p1` never leaves the private face sector of `cur_q`!
-            dot_uo = orth_u[0] * nat_u[0] + orth_u[1] * nat_u[1]
-            if dot_uo < 0.65:
-                uv = _norm2(0.45 * orth_u[0] + 0.55 * nat_u[0], 0.45 * orth_u[1] + 0.55 * nat_u[1])
-                # Keep opposite slots `(cur_s, cur_s ^ 2)` collinear at classical crossings:
-                opp_q = u_pos[4 * cur_v + (cur_s ^ 2)]
-                opp_u = _norm2(opp_q[0] - p_center[0], opp_q[1] - p_center[1])
-                axis_u = _norm2(nat_u[0] - opp_u[0], nat_u[1] - opp_u[1])
-                if axis_u[0] * nat_u[0] + axis_u[1] * nat_u[1] > 0.35:
-                    uv = axis_u
-            else:
-                uv = orth_u
+            uv, nat_d = _slot_unit_tangent(cur_v, cur_s)
 
             gap_r = min(0.32 * v_min_arm[cur_v], 0.056 * diag_span)
             if is_under:
                 p0 = (p_center[0] + gap_r * uv[0], p_center[1] + gap_r * uv[1])
                 layer = 0
+                l1 = min(0.34 * nat_d, 0.36 * v_min_arm[cur_v])
+            elif is_smoothed_saddle:
+                gap_s = min(0.42 * v_min_arm[cur_v], 0.072 * diag_span)
+                p0 = (p_center[0] + gap_s * uv[0], p_center[1] + gap_s * uv[1])
+                layer = 1
+                l1 = min(0.28 * max(nat_d - gap_s, 0.22 * nat_d), 0.30 * v_min_arm[cur_v])
             else:
                 p0 = p_center
                 layer = 1
+                l1 = min(0.34 * nat_d, 0.36 * v_min_arm[cur_v])
 
-            l1 = min(0.34 * nat_d, 0.36 * v_min_arm[cur_v])
             p1 = (p0[0] + l1 * uv[0], p0[1] + l1 * uv[1])
             p2 = cur_q
 
@@ -447,12 +458,10 @@ def _build_splines_from_positions(
                 )
             )
 
-    # Build marked saddle bars (`Y`: `phi + pi/4` spanning `(0,1)-(2,3)`; `Z`: `phi + 3*pi/4` spanning `(1,2)-(3,0)`)
     for v in range(m):
         vt = local_vtype[v]
         if vt not in ("Y", "Z"):
             continue
-        # Bisect actual quadrant `(0,1)` for `Y` or `(1,2)` for `Z` directly so bar is always centered between branches!
         vx, vy = v_pos[v]
         s_a, s_b = (0, 1) if vt == "Y" else (1, 2)
         ua = _norm2(u_pos[4 * v + s_a][0] - vx, u_pos[4 * v + s_a][1] - vy)
@@ -469,17 +478,43 @@ def _build_splines_from_positions(
                 surface_component=local_dart_scomp[4 * v],
             )
         )
+        if resolution != 0:
+            gap_s = min(0.42 * v_min_arm[v], 0.072 * diag_span)
+            uvs = [_slot_unit_tangent(v, s_i)[0] for s_i in range(4)]
+            pairs = (
+                ((0, 1), (2, 3))
+                if ((vt == "Y" and resolution == -1) or (vt == "Z" and resolution == 1))
+                else ((0, 3), (1, 2))
+            )
+            for sa, sb in pairs:
+                pa = (vx + gap_s * uvs[sa][0], vy + gap_s * uvs[sa][1])
+                pb = (vx + gap_s * uvs[sb][0], vy + gap_s * uvs[sb][1])
+                ca = (pa[0] - 0.56 * gap_s * uvs[sa][0], pa[1] - 0.56 * gap_s * uvs[sa][1])
+                cb = (pb[0] - 0.56 * gap_s * uvs[sb][0], pb[1] - 0.56 * gap_s * uvs[sb][1])
+                beziers.append(
+                    CubicBezierSegment(
+                        p0=pa,
+                        p1=ca,
+                        p2=cb,
+                        p3=pb,
+                        surface_component=local_dart_scomp[4 * v + sa],
+                        layer=1,
+                    )
+                )
 
     return v_pos, v_angles, beziers, markers
 
 
-def compute_diagram_layout(d: MarkedDiagram) -> DiagramLayout:
-    """Compute a complete, crossing-free `DiagramLayout` for any planar `MarkedDiagram`."""
+def compute_splitting_layouts(
+    d: MarkedDiagram,
+) -> tuple[DiagramLayout, DiagramLayout, DiagramLayout]:
+    """Compute pixel-registered `(L_-(d), d, L_+(d))` layouts sharing identical vertex and
+    Tutte corridor coordinates across all three hyperbolic splitting slices.
+    """
     n = d.num_vertices
     dart_scomp, total_scomps = d._dart_surface_components()
     base_graph_scomps = max(dart_scomp, default=-1) + 1
 
-    # Partition vertices `0..n-1` into connected 4-regular graph components
     comp_of_v = [-1] * n
     blocks: list[list[int]] = []
     for start_v in range(n):
@@ -499,15 +534,8 @@ def compute_diagram_layout(d: MarkedDiagram) -> DiagramLayout:
                     q.append(w)
         blocks.append(sorted(b_vs))
 
-    global_v_pos: list[tuple[float, float]] = [(0.0, 0.0)] * n
-    global_v_ang: list[float] = [0.0] * n
-    all_beziers: list[CubicBezierSegment] = []
-    all_markers: list[SaddleMarkerBar] = []
-    all_circles: list[FreeCirclePrimitive] = []
-
-    cursor_x = 0.0
-    spacing_gap = 0.45
-
+    # Solve Tutte + p-Laplacian positions ONCE per connected block:
+    solved_blocks: list[tuple[list[int], list[int], list[str], list[int], list[tuple[float, float]]]] = []
     for b_vs in blocks:
         m = len(b_vs)
         g2l = {gv: lv for lv, gv in enumerate(b_vs)}
@@ -519,79 +547,104 @@ def compute_diagram_layout(d: MarkedDiagram) -> DiagramLayout:
                 od = d.opp[4 * gv + s]
                 local_opp[4 * lv + s] = 4 * g2l[od >> 2] + (od & 3)
                 local_scomp[4 * lv + s] = dart_scomp[4 * gv + s]
+        sub_pos = _layout_connected_block(m, local_opp, local_vtype, local_scomp)
+        solved_blocks.append((b_vs, local_opp, local_vtype, local_scomp, sub_pos))
 
-        vp, va, bzs, mks = _layout_connected_block(m, local_opp, local_vtype, local_scomp)
-        pts_x = [p[0] for bz in bzs for p in (bz.p0, bz.p1, bz.p2, bz.p3)] + [p[0] for p in vp]
-        b_xmin, b_xmax = min(pts_x), max(pts_x)
-        shift_x = cursor_x - b_xmin
+    def _assemble_for_res(res_val: int, ref_bbox: tuple[float, float, float, float] | None) -> DiagramLayout:
+        global_v_pos: list[tuple[float, float]] = [(0.0, 0.0)] * n
+        global_v_ang: list[float] = [0.0] * n
+        all_beziers: list[CubicBezierSegment] = []
+        all_markers: list[SaddleMarkerBar] = []
+        all_circles: list[FreeCirclePrimitive] = []
 
-        for lv, gv in enumerate(b_vs):
-            global_v_pos[gv] = (vp[lv][0] + shift_x, vp[lv][1])
-            global_v_ang[gv] = va[lv]
-        for bz in bzs:
-            all_beziers.append(
-                CubicBezierSegment(
-                    p0=(bz.p0[0] + shift_x, bz.p0[1]),
-                    p1=(bz.p1[0] + shift_x, bz.p1[1]),
-                    p2=(bz.p2[0] + shift_x, bz.p2[1]),
-                    p3=(bz.p3[0] + shift_x, bz.p3[1]),
-                    surface_component=bz.surface_component,
-                    layer=bz.layer,
+        cursor_x = 0.0
+        spacing_gap = 0.45
+
+        for b_vs, local_opp, local_vtype, local_scomp, sub_pos in solved_blocks:
+            m = len(b_vs)
+            _, _, bzs0, _ = _build_splines_from_positions(m, local_opp, local_vtype, local_scomp, sub_pos, 0)
+            vp, va, bzs, mks = _build_splines_from_positions(
+                m, local_opp, local_vtype, local_scomp, sub_pos, res_val
+            )
+            pts_x = [p[0] for bz in bzs0 for p in (bz.p0, bz.p1, bz.p2, bz.p3)] + [p[0] for p in vp]
+            b_xmin, b_xmax = min(pts_x), max(pts_x)
+            shift_x = cursor_x - b_xmin
+
+            for lv, gv in enumerate(b_vs):
+                global_v_pos[gv] = (vp[lv][0] + shift_x, vp[lv][1])
+                global_v_ang[gv] = va[lv]
+            for bz in bzs:
+                all_beziers.append(
+                    CubicBezierSegment(
+                        p0=(bz.p0[0] + shift_x, bz.p0[1]),
+                        p1=(bz.p1[0] + shift_x, bz.p1[1]),
+                        p2=(bz.p2[0] + shift_x, bz.p2[1]),
+                        p3=(bz.p3[0] + shift_x, bz.p3[1]),
+                        surface_component=bz.surface_component,
+                        layer=bz.layer,
+                    )
+                )
+            for mk in mks:
+                all_markers.append(
+                    SaddleMarkerBar(
+                        center=(mk.center[0] + shift_x, mk.center[1]),
+                        a=(mk.a[0] + shift_x, mk.a[1]),
+                        b=(mk.b[0] + shift_x, mk.b[1]),
+                        kind=mk.kind,
+                        surface_component=mk.surface_component,
+                    )
+                )
+            cursor_x += (b_xmax - b_xmin) + spacing_gap
+
+        for i in range(d.free_loops):
+            r_circ = 0.72
+            cx = cursor_x + r_circ
+            all_circles.append(
+                FreeCirclePrimitive(
+                    center=(cx, 0.0),
+                    radius=r_circ,
+                    surface_component=base_graph_scomps + i,
                 )
             )
-        for mk in mks:
-            all_markers.append(
-                SaddleMarkerBar(
-                    center=(mk.center[0] + shift_x, mk.center[1]),
-                    a=(mk.a[0] + shift_x, mk.a[1]),
-                    b=(mk.b[0] + shift_x, mk.b[1]),
-                    kind=mk.kind,
-                    surface_component=mk.surface_component,
-                )
-            )
-        cursor_x += (b_xmax - b_xmin) + spacing_gap
+            cursor_x += 2.0 * r_circ + spacing_gap
 
-    for i in range(d.free_loops):
-        r_circ = 0.72
-        cx = cursor_x + r_circ
-        all_circles.append(
-            FreeCirclePrimitive(
-                center=(cx, 0.0),
-                radius=r_circ,
-                surface_component=base_graph_scomps + i,
-            )
+        if ref_bbox is not None:
+            bbox = ref_bbox
+        else:
+            xs_all: list[float] = []
+            ys_all: list[float] = []
+            for bz in all_beziers:
+                for px, py in (bz.p0, bz.p1, bz.p2, bz.p3):
+                    xs_all.append(px)
+                    ys_all.append(py)
+            for mk in all_markers:
+                for px, py in (mk.a, mk.b):
+                    xs_all.append(px)
+                    ys_all.append(py)
+            for cc in all_circles:
+                xs_all.extend([cc.center[0] - cc.radius, cc.center[0] + cc.radius])
+                ys_all.extend([cc.center[1] - cc.radius, cc.center[1] + cc.radius])
+            bbox = (-1.0, -1.0, 1.0, 1.0) if not xs_all else (min(xs_all), min(ys_all), max(xs_all), max(ys_all))
+
+        return DiagramLayout(
+            vertex_positions=tuple(global_v_pos),
+            vertex_angles=tuple(global_v_ang),
+            beziers=tuple(all_beziers),
+            markers=tuple(all_markers),
+            circles=tuple(all_circles),
+            bbox=bbox,
+            num_surface_components=total_scomps,
         )
-        cursor_x += 2.0 * r_circ + spacing_gap
 
-    # Compute overall bounding box
-    xs_all: list[float] = []
-    ys_all: list[float] = []
-    for bz in all_beziers:
-        for px, py in (bz.p0, bz.p1, bz.p2, bz.p3):
-            xs_all.append(px)
-            ys_all.append(py)
-    for mk in all_markers:
-        for px, py in (mk.a, mk.b):
-            xs_all.append(px)
-            ys_all.append(py)
-    for cc in all_circles:
-        xs_all.extend([cc.center[0] - cc.radius, cc.center[0] + cc.radius])
-        ys_all.extend([cc.center[1] - cc.radius, cc.center[1] + cc.radius])
+    lay_zero = _assemble_for_res(0, None)
+    lay_minus = _assemble_for_res(-1, lay_zero.bbox)
+    lay_plus = _assemble_for_res(1, lay_zero.bbox)
+    return (lay_minus, lay_zero, lay_plus)
 
-    if not xs_all:
-        bbox = (-1.0, -1.0, 1.0, 1.0)
-    else:
-        bbox = (min(xs_all), min(ys_all), max(xs_all), max(ys_all))
 
-    return DiagramLayout(
-        vertex_positions=tuple(global_v_pos),
-        vertex_angles=tuple(global_v_ang),
-        beziers=tuple(all_beziers),
-        markers=tuple(all_markers),
-        circles=tuple(all_circles),
-        bbox=bbox,
-        num_surface_components=total_scomps,
-    )
+def compute_diagram_layout(d: MarkedDiagram) -> DiagramLayout:
+    """Compute a complete, crossing-free `DiagramLayout` for any planar `MarkedDiagram`."""
+    return compute_splitting_layouts(d)[1]
 
 
 def render_svg(
@@ -711,6 +764,193 @@ def render_svg(
     return "\n".join(lines)
 
 
+def render_splitting_movie_svg(
+    d: MarkedDiagram,
+    *,
+    title: str | None = None,
+    subtitle: str | None = None,
+    panel_size: int = 248,
+) -> str:
+    """Render a pixel-registered 3-panel hyperbolic splitting movie card (`L_-(D) -> D -> L_+(D)`)."""
+    lay_minus, lay_zero, lay_plus = compute_splitting_layouts(d)
+    topo = d.surface_topology()
+    xmin, ymin, xmax, ymax = lay_zero.bbox
+    w_math = max(xmax - xmin, 1e-3)
+    h_math = max(ymax - ymin, 1e-3)
+    span = max(w_math, h_math)
+    cx_math = 0.5 * (xmin + xmax)
+    cy_math = 0.5 * (ymin + ymax)
+
+    outer_x = 14
+    gap_x = 12
+    header_h = 50 if (title or subtitle) else 14
+    panel_top_h = 24
+    footer_h = 26
+    pad = 22.0
+    draw_box = float(panel_size) - 2.0 * pad
+    scale = draw_box / span
+
+    total_w = 2 * outer_x + 3 * panel_size + 2 * gap_x
+    total_h = header_h + panel_top_h + panel_size + footer_h
+
+    stroke_w = max(2.2, min(3.2, panel_size * 0.0096))
+    bar_w = stroke_w * 1.65
+    halo_w = stroke_w * 2.50
+    card_bg = "#FAFAFC"
+    panel_bg = "#FFFFFF"
+
+    lines: list[str] = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {total_w} {total_h}" '
+        f'width="{total_w}" height="{total_h}" role="img" '
+        f'aria-label="{html.escape((title or "Surface-link") + " hyperbolic splitting movie")}">',
+        f'  <rect x="1" y="1" width="{total_w - 2}" height="{total_h - 2}" rx="12" '
+        f'fill="{card_bg}" stroke="#CBD5E1" stroke-width="1.5"/>',
+    ]
+
+    if title:
+        lines.append(
+            f'  <text x="{outer_x + 4}" y="24" '
+            f'font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" '
+            f'font-size="15" font-weight="700" fill="#0F172A">{html.escape(title)}</text>'
+        )
+    if subtitle:
+        lines.append(
+            f'  <text x="{outer_x + 4}" y="41" '
+            f'font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" '
+            f'font-size="11" fill="#475569">{html.escape(subtitle)}</text>'
+        )
+    if lay_zero.num_surface_components >= 2:
+        for ci in range(lay_zero.num_surface_components):
+            col = COMPONENT_PALETTE[ci % len(COMPONENT_PALETTE)]
+            dot_x = total_w - outer_x - 6 - (lay_zero.num_surface_components - 1 - ci) * 14
+            lines.append(f'  <circle cx="{dot_x:.1f}" cy="22" r="4.5" fill="{col}"/>')
+
+    c_m = topo.num_circles_minus
+    c_p = topo.num_circles_plus
+    m_cnt = d.num_marked
+    c_cnt = d.num_classical
+
+    panels = (
+        (
+            0,
+            lay_minus,
+            -1,
+            f"t = -\u03b5 : L\u208b(D)  [{c_m} circle{'' if c_m == 1 else 's'}]",
+            "#F8FAFC",
+        ),
+        (
+            1,
+            lay_zero,
+            0,
+            f"t = 0 : Marked D  [c={c_cnt}, m={m_cnt}]",
+            panel_bg,
+        ),
+        (
+            2,
+            lay_plus,
+            1,
+            f"t = +\u03b5 : L\u208a(D)  [{c_p} circle{'' if c_p == 1 else 's'}]",
+            "#F8FAFC",
+        ),
+    )
+
+    for idx, lay, res_mode, p_label, p_fill in panels:
+        px0 = outer_x + idx * (panel_size + gap_x)
+        py0 = header_h + panel_top_h
+        pcx = px0 + 0.5 * panel_size
+        pcy = py0 + 0.5 * panel_size
+
+        lines.append(
+            f'  <text x="{pcx:.1f}" y="{header_h + 16}" text-anchor="middle" '
+            f'font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" '
+            f'font-size="11" font-weight="600" fill="#334155">{html.escape(p_label)}</text>'
+        )
+        lines.append(
+            f'  <rect x="{px0}" y="{py0}" width="{panel_size}" height="{panel_size}" rx="8" '
+            f'fill="{p_fill}" stroke="#E2E8F0" stroke-width="1.2"/>'
+        )
+
+        def to_p(pt: tuple[float, float], _cx: float = pcx, _cy: float = pcy) -> tuple[float, float]:
+            return (_cx + (pt[0] - cx_math) * scale, _cy - (pt[1] - cy_math) * scale)
+
+        # In t = -eps and t = +eps panels, draw faint dashed saddle guide bars beneath smoothed strands
+        if res_mode != 0:
+            for mk in lay.markers:
+                sa, sb = to_p(mk.a), to_p(mk.b)
+                lines.append(
+                    f'  <line x1="{sa[0]:.2f}" y1="{sa[1]:.2f}" x2="{sb[0]:.2f}" y2="{sb[1]:.2f}" '
+                    f'stroke="#94A3B8" stroke-width="1.35" stroke-dasharray="2.4,2.4" stroke-linecap="round"/>'
+                )
+
+        for cc in lay.circles:
+            scx, scy = to_p(cc.center)
+            sr = cc.radius * scale
+            col = COMPONENT_PALETTE[cc.surface_component % len(COMPONENT_PALETTE)]
+            lines.append(
+                f'  <circle cx="{scx:.2f}" cy="{scy:.2f}" r="{sr:.2f}" fill="none" '
+                f'stroke="{col}" stroke-width="{stroke_w:.2f}"/>'
+            )
+
+        for bz in lay.beziers:
+            if bz.layer != 0:
+                continue
+            p0, p1, p2, p3 = to_p(bz.p0), to_p(bz.p1), to_p(bz.p2), to_p(bz.p3)
+            col = COMPONENT_PALETTE[bz.surface_component % len(COMPONENT_PALETTE)]
+            lines.append(
+                f'  <path d="M {p0[0]:.2f} {p0[1]:.2f} C {p1[0]:.2f} {p1[1]:.2f}, '
+                f'{p2[0]:.2f} {p2[1]:.2f}, {p3[0]:.2f} {p3[1]:.2f}" '
+                f'fill="none" stroke="{col}" stroke-width="{stroke_w:.2f}" stroke-linecap="butt"/>'
+            )
+
+        for bz in lay.beziers:
+            if bz.layer != 1:
+                continue
+            p0, p1, p2, p3 = to_p(bz.p0), to_p(bz.p1), to_p(bz.p2), to_p(bz.p3)
+            col = COMPONENT_PALETTE[bz.surface_component % len(COMPONENT_PALETTE)]
+            lines.append(
+                f'  <path d="M {p0[0]:.2f} {p0[1]:.2f} C {p1[0]:.2f} {p1[1]:.2f}, '
+                f'{p2[0]:.2f} {p2[1]:.2f}, {p3[0]:.2f} {p3[1]:.2f}" '
+                f'fill="none" stroke="{col}" stroke-width="{stroke_w:.2f}" stroke-linecap="round"/>'
+            )
+
+        if res_mode == 0:
+            for mk in lay.markers:
+                sa, sb = to_p(mk.a), to_p(mk.b)
+                sc = to_p(mk.center)
+                lines.append(
+                    f'  <line x1="{sa[0]:.2f}" y1="{sa[1]:.2f}" x2="{sb[0]:.2f}" y2="{sb[1]:.2f}" '
+                    f'stroke="{p_fill}" stroke-width="{halo_w:.2f}" stroke-linecap="round"/>'
+                )
+                lines.append(
+                    f'  <line x1="{sa[0]:.2f}" y1="{sa[1]:.2f}" x2="{sb[0]:.2f}" y2="{sb[1]:.2f}" '
+                    f'stroke="#0F172A" stroke-width="{bar_w:.2f}" stroke-linecap="round"/>'
+                )
+                lines.append(
+                    f'  <circle cx="{sc[0]:.2f}" cy="{sc[1]:.2f}" r="{0.72 * stroke_w:.2f}" fill="#0F172A"/>'
+                )
+
+    for sep_i in (0, 1):
+        ax = outer_x + (sep_i + 1) * panel_size + sep_i * gap_x + 0.5 * gap_x
+        ay = header_h + panel_top_h + 0.5 * panel_size
+        lines.append(
+            f'  <text x="{ax:.1f}" y="{ay + 4:.1f}" text-anchor="middle" '
+            f'font-family="ui-sans-serif, sans-serif" font-size="13" font-weight="700" fill="#64748B">\u2192</text>'
+        )
+
+    euler_line = (
+        f"Hyperbolic splitting cobordism:  \u03c7(F) = c\u208b \u2212 m + c\u208a = "
+        f"{c_m} \u2212 {m_cnt} + {c_p} = {topo.euler_characteristic}"
+    )
+    lines.append(
+        f'  <text x="{0.5 * total_w:.1f}" y="{total_h - 8}" text-anchor="middle" '
+        f'font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" '
+        f'font-size="11" fill="#475569">{html.escape(euler_line)}</text>'
+    )
+
+    lines.append("</svg>\n")
+    return "\n".join(lines)
+
+
 def render_tikz(
     d: MarkedDiagram,
     *,
@@ -815,10 +1055,41 @@ def _format_grid_section(items: list[dict[str, str]], cols: int = 3) -> str:
     return "\n".join(rows)
 
 
-def _build_gallery_readme(manifest: list[dict[str, str]]) -> str:
+def _build_gallery_readme(
+    manifest: list[dict[str, str]],
+    *,
+    family_items: list[dict[str, str]] | None = None,
+    movie_items: list[dict[str, str]] | None = None,
+) -> str:
     yosh = [m for m in manifest if m["group"] == "yoshikawa_ch10"]
     ch11 = [m for m in manifest if m["group"] == "expanded_ch11"]
     pkt = [m for m in manifest if m["group"] == "expanded_ch11_packet"]
+
+    extra_blocks = ""
+    if movie_items:
+        movie_lines = [
+            "",
+            "---",
+            "",
+            "## 6. Hyperbolic Splitting Movie Triptychs ($L_-(D) \\to D \\to L_+(D)$)",
+            "",
+            "Each triptych shares a single pixel-registered Tutte $p$-Laplacian layout across all three level slices ($t = -\\varepsilon, 0, +\\varepsilon$), displaying the classical resolution circles $c_-$ and $c_+$, faint dashed saddle attachment loci, and the topological Euler balance $\\chi(F) = c_- - m + c_+$.",
+            "",
+        ]
+        for mv in movie_items:
+            movie_lines.append(
+                f"### `{mv['label']}` (`{mv['components']}`) — {mv['note']}\n\n"
+                f"![{mv['label']} splitting movie](./{mv['movie_rel']})\n"
+            )
+        extra_blocks += "\n".join(movie_lines)
+
+    if family_items:
+        extra_blocks += (
+            "\n---\n\n"
+            "## 7. Certified Exact $\\operatorname{ch}(F) = 12$ & Parametric Spoke Showcase\n\n"
+            + _format_grid_section(family_items, cols=3)
+            + "\n"
+        )
 
     return f"""# `/pics` — Diagrammatic Gallery & Planar Rendering Specification
 
@@ -867,7 +1138,7 @@ Every surface-link $F \\subset \\mathbb{{R}}^4$ in hyperbolic splitting position
 ## 5. Move-Component Packet Representatives (`11_1.a`, `11_1.b`, `11_1.c`)
 
 {_format_grid_section(pkt, cols=3)}
-"""
+{extra_blocks}"""
 
 
 def export_canonical_gallery(
@@ -957,3 +1228,119 @@ def export_canonical_gallery(
         (pics_dir / "README.md").write_text(_build_gallery_readme(manifest))
 
     return manifest
+
+
+def export_extended_gallery(
+    data_dir: Path,
+    pics_dir: Path,
+    *,
+    update_readme: bool = True,
+) -> dict[str, list[dict[str, str]]]:
+    """Export hyperbolic splitting movie triptychs (`pics/movies/`) and showcase parametric
+    family SVG + TikZ figures (`pics/families/{svg,tikz}/`), including all 5 proven exact
+    `ch = 12` classes, Brunnian Borromean links, and non-reciprocal 1-fusion ribbon 2-knots.
+    """
+    base_manifest = export_canonical_gallery(data_dir, pics_dir, update_readme=False)
+
+    fam_svg_dir = pics_dir / "families" / "svg"
+    fam_tikz_dir = pics_dir / "families" / "tikz"
+    movies_dir = pics_dir / "movies"
+    fam_svg_dir.mkdir(parents=True, exist_ok=True)
+    fam_tikz_dir.mkdir(parents=True, exist_ok=True)
+    movies_dir.mkdir(parents=True, exist_ok=True)
+
+    yosh_by_lbl = {r["label"]: r for r in json.loads((data_dir / "yoshikawa_ch10.json").read_text())}
+    ch11_by_lbl = {
+        r["label"]: r for r in json.loads((data_dir / "expanded_ch11.json").read_text())["entries"]
+    }
+    fam_by_lbl = {
+        r["label"]: r
+        for r in json.loads((data_dir / "families" / "family_catalog.json").read_text())["entries"]
+    }
+
+    showcase_families = (
+        "Spin(5_1)",
+        "Spin(5_2)",
+        "Tube(4_1)",
+        "Tube(L4a1)",
+        "Mixed(L5a1)",
+        "Mixed(L6a4,01)",
+        "Tube(L6a4)",
+        "R(b^2*a)",
+        "R(b^2*a^-1)",
+    )
+    family_items: list[dict[str, str]] = []
+    for lbl in showcase_families:
+        rec = fam_by_lbl[lbl]
+        d = MarkedDiagram.from_epd(rec["epd"])
+        stem = label_to_stem(lbl)
+        comp_str = " u ".join(rec["component_types"])
+        lo, hi = int(rec["ch_lower"]), int(rec["ch_upper"])
+        ch_tag = f"ch={lo} (EXACT)" if lo == hi else f"ch in [{lo},{hi}]"
+        sub = f"{ch_tag} | {comp_str}"
+        (fam_svg_dir / f"{stem}.svg").write_text(render_svg(d, title=lbl, subtitle=sub))
+        (fam_tikz_dir / f"{stem}.tex").write_text(render_tikz(d, label=lbl, standalone=True))
+        family_items.append(
+            {
+                "label": lbl,
+                "stem": stem,
+                "components": f"{comp_str}; {ch_tag}",
+                "svg_rel": f"families/svg/{stem}.svg",
+                "tikz_rel": f"families/tikz/{stem}.tex",
+            }
+        )
+
+    movie_specs = (
+        ("2_1^1", yosh_by_lbl["2_1^1"], "Unknotted torus T^2 (ch = 2)"),
+        ("2_1^-1", yosh_by_lbl["2_1^-1"], "Standard projective plane RP^2 with e = +2 (ch = 2)"),
+        ("8_1", yosh_by_lbl["8_1"], "Artin spun trefoil 2-knot Spin(3_1) (ch = 8)"),
+        ("9_1", yosh_by_lbl["9_1"], "1-fusion ribbon trefoil 2-knot (ch = 9)"),
+        ("10_2", yosh_by_lbl["10_2"], "2-twist-spun trefoil; chiral via Mochizuki 3-cocycle & Q_6 (ch = 10)"),
+        ("10_1^0,1", yosh_by_lbl["10_1^0,1"], "Mixed sphere-torus link Mixed(L4a1) (ch = 10)"),
+        ("10_1^1,1", yosh_by_lbl["10_1^1,1"], "Satoh tube of Hopf link Tube(L2a1) (ch = 10)"),
+        ("11_1", ch11_by_lbl["11_1"], "Symmetric-union figure-eight 2-knot SymUnion(4_1,1) (ch = 11)"),
+        ("11_1^-2", ch11_by_lbl["11_1^-2"], "First prime knotted Klein bottle K^2 with e = 0 (ch = 11)"),
+        (
+            "11_1^0,0,-2",
+            ch11_by_lbl["11_1^0,0,-2"],
+            "Newly discovered 3-component Klein-sphere-sphere link (ch = 11)",
+        ),
+        ("Tube(4_1)", fam_by_lbl["Tube(4_1)"], "Certified exact ch = 12 Satoh figure-eight torus"),
+        (
+            "Mixed(L6a4,01)",
+            fam_by_lbl["Mixed(L6a4,01)"],
+            "Brunnian 3-component Borromean mixed link (ch <= 16)",
+        ),
+    )
+
+    movie_items: list[dict[str, str]] = []
+    for lbl, rec, note in movie_specs:
+        d = MarkedDiagram.from_epd(rec["epd"])
+        stem = label_to_stem(lbl)
+        comp_str = " u ".join(rec["component_types"])
+        ch_v = int(rec["ch_index_diagram"])
+        sub = f"ch_diag={ch_v} | {comp_str} | {note}"
+        mv_svg = render_splitting_movie_svg(d, title=lbl, subtitle=sub)
+        mv_rel = f"movies/{stem}_movie.svg"
+        (pics_dir / mv_rel).write_text(mv_svg)
+        movie_items.append(
+            {
+                "label": lbl,
+                "stem": stem,
+                "components": comp_str,
+                "note": note,
+                "movie_rel": mv_rel,
+            }
+        )
+
+    if update_readme:
+        (pics_dir / "README.md").write_text(
+            _build_gallery_readme(base_manifest, family_items=family_items, movie_items=movie_items)
+        )
+
+    return {
+        "canonical": base_manifest,
+        "families": family_items,
+        "movies": movie_items,
+    }
+
