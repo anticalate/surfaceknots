@@ -398,9 +398,9 @@
 
       \node[box, draw=skcrimson!60, fill=skrose] (s4) at (10.50,0) {
         \textcolor{skcrimson}{\scriptsize\bfseries STEP 4}\\[3pt]
-        \textcolor{sknavy}{\small\bfseries 4D Moves \& $\pi_1$}\\[5pt]
-        \textcolor{skslate}{\footnotesize Yoshikawa moves $\Omega_1$--$\Omega_8$}\\[-1pt]
-        \textcolor{skslate}{\footnotesize + cover/cocycle split}\\[6pt]
+        \textcolor{sknavy}{\small\bfseries 4D Moves \& $\pi_1$}\\[4pt]
+        \textcolor{skslate}{\scriptsize $742$ match $\ch\le 11$/sums;}\\[-1pt]
+        \textcolor{skslate}{\scriptsize $63$ new split by covers}\\[6pt]
         \textcolor{skcrimson}{\small\bfseries $34$ new classes}
       };
 
@@ -510,7 +510,7 @@
     \begin{column}{0.54\textwidth}
       \begin{tikzpicture}
         \node[draw=skamber!55, fill=skgold, rounded corners=6pt, inner sep=8pt, text width=0.94\linewidth] {
-          {\small\bfseries\color{skamber} Why the census caught a false conjecture:}\\[4pt]
+          {\small\bfseries\color{skamber} Breaking the ``$+1$ crossing'' rule ($4/4$ pairs at $\ch \le 11$):}\\[4pt]
           {\footnotesize For $w = b a b^{-1} a^{-1} b$, adding the non-orientable half-twist \textbf{cancels} a braid crossing:}\\[6pt]
           \begin{minipage}{0.48\linewidth}\centering
             \includestandalone[height=2.2cm,keepaspectratio]{../pics/tikz/11_1_sup_0_m2}\\[2pt]
@@ -646,16 +646,16 @@
 
     \begin{column}{0.48\textwidth}
       \begin{tikzpicture}[
-        card/.style={rounded corners=6pt, inner sep=8pt, text width=0.92\linewidth, font=\footnotesize, line width=0.8pt}
+        card/.style={rounded corners=6pt, inner sep=7.5pt, text width=0.92\linewidth, font=\footnotesize, line width=0.8pt}
       ]
-        \node[card, draw=skteal!65, fill=skmint] (b1) {
-          {\small\bfseries\color{skteal} 1. Provably Non-Ribbon \& Minimal}\\[3pt]
-          $BG \simeq T^3 \times_{A_0} S^1$ is a closed 4-manifold ($H_4(G;\Z) = \Z \implies \defi(\pi_1) = 0$). No CS sphere exists at $\ch \le 11$.
+        \node[card, draw=skcrimson!55, fill=skrose] (b1) {
+          {\small\bfseries\color{skcrimson} 1. Why Care? Smooth 4D Poincar\'e Testbeds}\\[3pt]
+          Gluck-twisting CS spheres gave the \#1 candidates for an \textbf{exotic smooth $S^4$} for $34$ years ($1976$--$2010$) until Akbulut \& Gompf's Kirby-calculus proofs.
         };
 
-        \node[card, draw=sknavy!50, fill=skbg, below=0.35cm of b1] (b2) {
-          {\small\bfseries\color{sknavy} 2. Five Handle Slides from Gompf's Model}\\[3pt]
-          By Hillman's theorem, $\pi_1$ determines the topological exterior up to Gluck twist, and its 2-skeleton is \textbf{5 pure handle slides} from Gompf's handlebody.
+        \node[card, draw=sknavy!50, fill=skbg, below=0.32cm of b1] (b2) {
+          {\small\bfseries\color{sknavy} 2. Minimal, Non-Ribbon \& $5$ Slides from Gompf}\\[3pt]
+          $BG \simeq T^3 \times_{A_0} S^1 \implies \defi(\pi_1)=0$ (non-ribbon; minimal at $\ch=12$), and its $2$-complex is \textbf{5 pure handle slides} from Gompf's model.
         };
       \end{tikzpicture}
     \end{column}

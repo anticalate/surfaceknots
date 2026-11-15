@@ -2,6 +2,8 @@
 
 A mathematical and computational research repository constructing a machine-verified atlas of **knotted surfaces and surface-links in $\mathbb{R}^4$**—orientable and non-orientable, connected and multi-component, up to $\mathrm{O}(4)$ equivalence—uniting exhaustive planar `ch`-diagram and braided bridge-trisection censuses with constructive parametric families, a 10-layer 4D topological invariant engine, and automated vector rendering.
 
+> **Live Interactive WebAtlas:** **[https://anticalate.github.io/surfaceknots/](https://anticalate.github.io/surfaceknots/)** &nbsp;·&nbsp; **[Slides (PDF)](https://anticalate.github.io/surfaceknots/slides.pdf)** &nbsp;·&nbsp; **[Report (PDF)](https://anticalate.github.io/surfaceknots/report.pdf)**
+
 | ![8_1](./pics/svg/8_1.svg) | ![10_2](./pics/svg/10_2.svg) | ![11_1^0,0,-2](./pics/svg/11_1_sup_0_0_m2.svg) |
 | :---: | :---: | :---: |
 | **`8_1` — Artin Spun Trefoil** ($S^2$, $\operatorname{ch}=8$)<br>$\pi_1$-ribbon · $c_{\text{tri}}\le 6$ · amphicheiral | **`10_2` — 2-Twist-Spun Trefoil** ($S^2$, $\operatorname{ch}=10$)<br>non-ribbon · $c_{\text{tri}}=6$ · oriented-chiral & non-invertible ($\Phi_{\theta_3}$) | **`11_1^{0,0,-2}` — Klein–Sphere–Sphere Link** ($K^2 \sqcup S^2 \sqcup S^2$, $\operatorname{ch}=11$)<br>3-component non-orientable · $e = (0, 0, 0)$ |
