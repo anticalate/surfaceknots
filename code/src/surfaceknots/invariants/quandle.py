@@ -55,14 +55,75 @@ def _snf_rank_and_torsion(rows: list[list[int]], num_cols: int) -> tuple[int, tu
     """Compute `(corank, sorted_nontrivial_torsion_factors)` of an integer relation matrix."""
     if num_cols == 0:
         return (0, ())
-    clean_rows = [r for r in rows if any(r)]
-    if not clean_rows:
+    sp_rows: list[dict[int, int]] = []
+    for r in rows:
+        d = {j: int(v) for j, v in enumerate(r) if v != 0}
+        if d:
+            sp_rows.append(d)
+    if not sp_rows:
         return (num_cols, ())
-    mat = sp.Matrix(clean_rows)
+
+    rem_cols = num_cols
+    # Sparse Markowitz `+-1` unit-pivot Gaussian elimination over Z:
+    while sp_rows and rem_cols > 0:
+        best_ri = -1
+        best_col = -1
+        best_len = 1 << 30
+        for ri, rd in enumerate(sp_rows):
+            rlen = len(rd)
+            if rlen >= best_len:
+                continue
+            for cj, val in rd.items():
+                if val in (1, -1) and max(abs(x) for x in rd.values()) <= 1000:
+                    best_ri = ri
+                    best_col = cj
+                    best_len = rlen
+                    break
+            if best_len <= 2:
+                break
+        if best_ri == -1:
+            break
+        piv_row = sp_rows[best_ri]
+        piv_sign = piv_row[best_col]  # +1 or -1: X_{best_col} = -piv_sign * sum_{k != best_col} piv_row[k] X_k
+        repl = {k: -piv_sign * v for k, v in piv_row.items() if k != best_col}
+        nxt_rows: list[dict[int, int]] = []
+        for ri, rd in enumerate(sp_rows):
+            if ri == best_ri:
+                continue
+            c_val = rd.get(best_col, 0)
+            if c_val == 0:
+                nxt_rows.append(rd)
+            else:
+                nd = {k: v for k, v in rd.items() if k != best_col}
+                for rk, rv in repl.items():
+                    nv = nd.get(rk, 0) + c_val * rv
+                    if nv:
+                        nd[rk] = nv
+                    else:
+                        nd.pop(rk, None)
+                if nd:
+                    nxt_rows.append(nd)
+        sp_rows = nxt_rows
+        rem_cols -= 1
+
+    if not sp_rows:
+        return (rem_cols, ())
+
+    active_cols = sorted({cj for rd in sp_rows for cj in rd})
+    unused_cols = rem_cols - len(active_cols)
+    col_map = {cj: idx for idx, cj in enumerate(active_cols)}
+    dense_rows = []
+    for rd in sp_rows:
+        dr = [0] * len(active_cols)
+        for cj, val in rd.items():
+            dr[col_map[cj]] = val
+        dense_rows.append(dr)
+
+    mat = sp.Matrix(dense_rows)
     snf = smith_normal_form(mat, domain=sp.ZZ)
     diag = [abs(int(snf[i, i])) for i in range(min(snf.rows, snf.cols))]
     nonzero = [x for x in diag if x > 0]
-    free_rank = num_cols - len(nonzero)
+    free_rank = unused_cols + (len(active_cols) - len(nonzero))
     torsion = tuple(sorted(x for x in nonzero if x > 1))
     return (free_rank, torsion)
 
@@ -153,24 +214,30 @@ def bikei_module_invariants(d: MarkedDiagram) -> tuple[int, tuple[int, ...]]:
     if n == 0:
         return (2 * d.free_loops, ())
     dart_edge, num_edges = _diagram_edge_ids(d)
-    total_vars = 2 * (num_edges + d.free_loops)
-    rows: list[list[int]] = []
+    # Unimodular s-monomial elimination (`s^2 = 1`): `X_e = s^{parity[e]} * Y_{root[e]}`
+    total_edges = num_edges + d.free_loops
+    parent = list(range(total_edges))
+    s_par = [0] * total_edges  # 0 => 1, 1 => s
 
-    def add_rs_eq(terms: list[tuple[int, int, int]]) -> None:
-        """Add equation `sum_k (c1_k + cs_k * s) * X_{edge_k} == 0` in `Z[s]/(s^2 - 1)`.
-        Since `(c1 + cs * s)(a + b * s) = (c1*a + cs*b) + (cs*a + c1*b) * s`, this gives 2 Z-rows!
-        """
-        r1 = [0] * total_vars
-        rs = [0] * total_vars
-        for e, c1, cs in terms:
-            r1[2 * e] += c1
-            r1[2 * e + 1] += cs
-            rs[2 * e] += cs
-            rs[2 * e + 1] += c1
-        if any(r1):
-            rows.append(r1)
-        if any(rs):
-            rows.append(rs)
+    def find_edge(x: int) -> tuple[int, int]:
+        p = 0
+        while parent[x] != x:
+            p ^= s_par[x]
+            x = parent[x]
+        return x, p
+
+    deferred_eqs: list[list[tuple[int, int, int]]] = []
+
+    def equate_edges(ea: int, eb: int, rel_s: int) -> None:
+        """Enforce `X_{ea} = s^{rel_s} * X_{eb}` (`rel_s in {0, 1}`)."""
+        ra, pa = find_edge(ea)
+        rb, pb = find_edge(eb)
+        need = pa ^ pb ^ rel_s
+        if ra != rb:
+            parent[ra] = rb
+            s_par[ra] = need
+        elif need == 1:
+            deferred_eqs.append([(rb, 1, -1)])
 
     for v in range(n):
         vt = d.vtype[v]
@@ -181,16 +248,36 @@ def bikei_module_invariants(d: MarkedDiagram) -> tuple[int, tuple[int, ...]]:
         if vt in ("Y", "Z"):
             for ek in (e1, e2, e3):
                 if ek != e0:
-                    add_rs_eq([(e0, 1, 0), (ek, -1, 0)])
+                    equate_edges(ek, e0, 0)
         else:
             if vt == "X0":
                 u1, u2, o1, o2 = e0, e2, e1, e3
             else:
                 u1, u2, o1, o2 = e1, e3, e0, e2
-            # o2 - s * o1 = 0
-            add_rs_eq([(o2, 1, 0), (o1, 0, -1)])
-            # u1 + u2 - (1 + s) * o1 = 0
-            add_rs_eq([(u1, 1, 0), (u2, 1, 0), (o1, -1, -1)])
+            equate_edges(o2, o1, 1)
+            deferred_eqs.append([(u1, 1, 0), (u2, 1, 0), (o1, -1, -1)])
+
+    roots = [i for i in range(total_edges) if parent[i] == i]
+    root_idx = {r: idx for idx, r in enumerate(roots)}
+    total_vars = 2 * len(roots)
+    rows: list[list[int]] = []
+
+    for terms in deferred_eqs:
+        r1 = [0] * total_vars
+        rs = [0] * total_vars
+        for e_orig, c1, cs in terms:
+            rt, pe = find_edge(e_orig)
+            ri = root_idx[rt]
+            # Multiply `(c1 + cs*s)` by `s^{pe}`: if `pe == 1`, swap `(c1, cs)`!
+            nc1, ncs = (cs, c1) if pe else (c1, cs)
+            r1[2 * ri] += nc1
+            r1[2 * ri + 1] += ncs
+            rs[2 * ri] += ncs
+            rs[2 * ri + 1] += nc1
+        if any(r1):
+            rows.append(r1)
+        if any(rs):
+            rows.append(rs)
 
     return _snf_rank_and_torsion(rows, total_vars)
 
@@ -354,13 +441,60 @@ def alexander_biquandle_invariants(
                         ]
                     )
 
+        # Unimodular Laurent-monomial elimination over `Z[t^{+-1}, s^{+-1}]`:
+        # Any 2-term equation `t^{te1} s^{se1} X_{e1} - t^{te2} s^{se2} X_{e2} = 0` with `root(e1) != root(e2)`
+        # substitutes `X_{r1} = t^{dt} s^{ds} X_{r2}` isomorphically across all quotient rings!
+        uf_p = list(range(total_edges))
+        uf_dt = [0] * total_edges
+        uf_ds = [0] * total_edges
+
+        def uf_find(x: int) -> tuple[int, int, int]:
+            dt_acc = 0
+            ds_acc = 0
+            while uf_p[x] != x:
+                dt_acc += uf_dt[x]
+                ds_acc += uf_ds[x]
+                x = uf_p[x]
+            return x, dt_acc, ds_acc
+
+        rem_eqs_raw: list[list[tuple[int, int, int, int]]] = []
+        for eq in eqs:
+            if len(eq) == 2 and sorted((eq[0][3], eq[1][3])) == [-1, 1]:
+                (e_pos, te_pos, se_pos, c_pos), (e_neg, te_neg, se_neg, _) = (
+                    (eq[0], eq[1]) if eq[0][3] == 1 else (eq[1], eq[0])
+                )
+                assert c_pos == 1
+                r1, dt1, ds1 = uf_find(e_pos)
+                r2, dt2, ds2 = uf_find(e_neg)
+                if r1 != r2:
+                    # `t^{te_pos + dt1} s^{se_pos + ds1} X_{r1} = t^{te_neg + dt2} s^{se_neg + ds2} X_{r2}`
+                    uf_p[r1] = r2
+                    uf_dt[r1] = (te_neg + dt2) - (te_pos + dt1)
+                    uf_ds[r1] = (se_neg + ds2) - (se_pos + ds1)
+                    continue
+            rem_eqs_raw.append(eq)
+
+        roots_abq = [i for i in range(total_edges) if uf_p[i] == i]
+        root_map_abq = {r: idx for idx, r in enumerate(roots_abq)}
+        num_red_edges = len(roots_abq)
+        red_eqs: list[list[tuple[int, int, int, int]]] = []
+        for eq in rem_eqs_raw:
+            acc: dict[tuple[int, int, int], int] = {}
+            for e_idx, te, se, coeff in eq:
+                rt, dte, dse = uf_find(e_idx)
+                key = (root_map_abq[rt], te + dte, se + dse)
+                acc[key] = acc.get(key, 0) + coeff
+            cleaned = [(ri, t_e, s_e, cf) for (ri, t_e, s_e), cf in acc.items() if cf != 0]
+            if cleaned:
+                red_eqs.append(cleaned)
+
         # 1. Compute SNF over `Z[t, s] / (t^a - 1, s^b - 1)` for each `(a, b)` in `specs`!
         cur_prof = []
         for a_mod, b_mod in specs:
             dim = a_mod * b_mod
-            num_cols = total_edges * dim
+            num_cols = num_red_edges * dim
             z_rows: list[list[int]] = []
-            for eq in eqs:
+            for eq in red_eqs:
                 for bt in range(a_mod):
                     for bs in range(b_mod):
                         row = [0] * num_cols
@@ -375,9 +509,8 @@ def alexander_biquandle_invariants(
         all_orient_profiles.extend([tuple(cur_prof)] * (1 << d.free_loops))
 
         # 2. Symbolic `t = 1` specialization in `Z[s]` (pure `s`-monodromy polynomial!):
-        # Eliminate singleton `X_e = s^k X_f` variables first so determinant is tiny and fast!
         sym_rows: list[dict[int, sp.Expr]] = []
-        for eq in eqs:
+        for eq in red_eqs:
             rd: dict[int, sp.Expr] = {}
             for e_idx, _te, se, coeff in eq:
                 term = coeff * (s_sym**se)
@@ -386,14 +519,17 @@ def alexander_biquandle_invariants(
             if rd:
                 sym_rows.append(rd)
 
-        active_vars = list(range(total_edges))
-        unit_pivots = {sp.Integer(1): sp.Integer(1), sp.Integer(-1): sp.Integer(-1)}
-        for k_pow in range(-4, 5):
-            if k_pow != 0:
-                u_pos = sp.expand(s_sym**k_pow)
-                u_neg = sp.expand(-(s_sym**k_pow))
-                unit_pivots[u_pos] = sp.expand(s_sym ** (-k_pow))
-                unit_pivots[u_neg] = sp.expand(-(s_sym ** (-k_pow)))
+        active_vars = list(range(num_red_edges))
+
+        def _laurent_unit_inv(expr: sp.Expr) -> sp.Expr | None:
+            for sign, e_abs in ((1, expr), (-1, -expr)):
+                if e_abs == 1:
+                    return sp.Integer(sign)
+                if e_abs == s_sym:
+                    return sign * (s_sym**-1)
+                if isinstance(e_abs, sp.Pow) and e_abs.base == s_sym and e_abs.exp.is_Integer:
+                    return sign * (s_sym ** (-e_abs.exp))
+            return None
 
         # Eliminate equations where a variable has a Laurent-monomial unit coefficient `+- s^k`!
         changed = True
@@ -403,9 +539,10 @@ def alexander_biquandle_invariants(
                 piv_var = None
                 piv_inv = sp.Integer(0)
                 for k, v_expr in rd.items():
-                    if v_expr in unit_pivots:
+                    inv_ex = _laurent_unit_inv(v_expr)
+                    if inv_ex is not None:
                         piv_var = k
-                        piv_inv = unit_pivots[v_expr]
+                        piv_inv = inv_ex
                         break
                 if piv_var is not None:
                     # `v_expr * X_{piv} + rest = 0` => `X_{piv} = -piv_inv * rest`

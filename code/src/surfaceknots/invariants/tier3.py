@@ -1117,7 +1117,8 @@ def _enumerate_q6_graph_colorings(d: MarkedDiagram) -> list[list[int]]:
                 elif comp_id[w] != cid or comp_flip[w] != want_fl:
                     return []
 
-    checks_at: list[list[tuple[int, int, int, int, int, int]]] = [[] for _ in range(num_sheets)]
+    raw_checks: list[tuple[int, int, int, int, int, int]] = []
+    sheet_deg = [0] * num_sheets
     for v in classical_vs:
         vt = d.vtype[v]
         if vt == "X0":
@@ -1132,7 +1133,53 @@ def _enumerate_q6_graph_colorings(d: MarkedDiagram) -> list[list[int]]:
             comp_id[do0],
             comp_flip[do0],
         )
-        checks_at[max(chk[0], chk[2], chk[4])].append(chk)
+        raw_checks.append(chk)
+        for s_id in {chk[0], chk[2], chk[4]}:
+            sheet_deg[s_id] += 1
+
+    # Greedy variable ordering: prioritize sheets uniquely determined by already-placed (cu0, co0) or (cu2, co0):
+    placed: set[int] = set()
+    rem: set[int] = set(range(num_sheets))
+    order_sheets: list[int] = []
+    unique_rule: list[tuple[int, int, int, int, int] | None] = []
+    while rem:
+        det_found: tuple[int, tuple[int, int, int, int, int]] | None = None
+        for cu0, fu0, cu2, fu2, co0, fo0 in raw_checks:
+            if cu2 in rem and cu0 in placed and co0 in placed:
+                det_found = (cu2, (cu0, fu0, co0, fo0, fu2))
+                break
+            if cu0 in rem and cu2 in placed and co0 in placed:
+                det_found = (cu0, (cu2, fu2, co0, fo0, fu0))
+                break
+        if det_found is not None:
+            s_next, rule = det_found
+            order_sheets.append(s_next)
+            unique_rule.append(rule)
+            placed.add(s_next)
+            rem.remove(s_next)
+        else:
+            s_next = max(
+                rem,
+                key=lambda s_cand: (
+                    sum(
+                        1
+                        for c0, _, c2, _, co, _ in raw_checks
+                        if s_cand in (c0, c2, co) and {c0, c2, co}.issubset(placed | {s_cand})
+                    ),
+                    sheet_deg[s_cand],
+                    -s_cand,
+                ),
+            )
+            order_sheets.append(s_next)
+            unique_rule.append(None)
+            placed.add(s_next)
+            rem.remove(s_next)
+
+    sheet_pos = {s_id: idx for idx, s_id in enumerate(order_sheets)}
+    checks_at: list[list[tuple[int, int, int, int, int, int]]] = [[] for _ in range(num_sheets)]
+    for chk in raw_checks:
+        max_pos = max(sheet_pos[chk[0]], sheet_pos[chk[2]], sheet_pos[chk[4]])
+        checks_at[max_pos].append(chk)
 
     assign = [-1] * num_sheets
     out: list[list[int]] = []
@@ -1141,8 +1188,11 @@ def _enumerate_q6_graph_colorings(d: MarkedDiagram) -> list[list[int]]:
         if idx == num_sheets:
             out.append([assign[comp_id[hd]] ^ comp_flip[hd] for hd in range(4 * n)])
             return
-        for val in range(6):
-            assign[idx] = val
+        s_cur = order_sheets[idx]
+        rule = unique_rule[idx]
+        if rule is not None:
+            c_src, f_src, c_ov, f_ov, f_dst = rule
+            assign[s_cur] = _q6_op(_q6_rho(assign[c_src] ^ f_src), assign[c_ov] ^ f_ov) ^ f_dst
             ok = True
             for cu0, fu0, cu2, fu2, co0, fo0 in checks_at[idx]:
                 if (assign[cu2] ^ fu2) != _q6_op(_q6_rho(assign[cu0] ^ fu0), assign[co0] ^ fo0):
@@ -1150,9 +1200,22 @@ def _enumerate_q6_graph_colorings(d: MarkedDiagram) -> list[list[int]]:
                     break
             if ok:
                 dfs(idx + 1)
-        assign[idx] = -1
+            assign[s_cur] = -1
+            return
+
+        for val in range(6):
+            assign[s_cur] = val
+            ok = True
+            for cu0, fu0, cu2, fu2, co0, fo0 in checks_at[idx]:
+                if (assign[cu2] ^ fu2) != _q6_op(_q6_rho(assign[cu0] ^ fu0), assign[co0] ^ fo0):
+                    ok = False
+                    break
+            if ok:
+                dfs(idx + 1)
+        assign[s_cur] = -1
 
     dfs(0)
+    out.sort()
     return out
 
 

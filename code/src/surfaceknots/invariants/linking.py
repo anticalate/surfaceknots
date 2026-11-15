@@ -421,8 +421,14 @@ def peripheral_sl2f3_profile(
             sl2_seen[cx] = True
         sl2_conj_classes.append((x0, len(cls_s)))
 
-    # Solve Hom(pi_1_arcs, SL(2, F_3)) with unit-propagation + root conjugacy symmetry on `0..g-1`:
+    # Solve Hom(pi_1_arcs, SL(2, F_3)) with unit/domain propagation + root conjugacy symmetry on `0..g-1`:
     rel_gens = [tuple(abs(x) - 1 for x in r) for r in rels]
+    gen_occ = [0] * g
+    for rg in rel_gens:
+        for gi in rg:
+            gen_occ[gi] += 1
+    first_gen = max(range(g), key=lambda i: (gen_occ[i], -i))
+
     assign = [-1] * g
     weighted_homs: list[tuple[tuple[int, ...], int]] = []
 
@@ -430,10 +436,12 @@ def peripheral_sl2f3_profile(
         v = assign[abs(lit) - 1]
         return v if lit > 0 else _SL2_INV[v]
 
-    def backtrack(mult: int) -> None:
+    def backtrack(mult: int, is_root: bool = False) -> None:
         changed: list[int] = []
+        best_domain: tuple[int, int, list[int]] | None = None
         while True:
             progressed = False
+            best_domain = None
             for r, rg in zip(rels, rel_gens):
                 unassigned_pos = [k for k, gi in enumerate(rg) if assign[gi] == -1]
                 if not unassigned_pos:
@@ -457,21 +465,62 @@ def peripheral_sl2f3_profile(
                     assign[gi] = val_lit if r[pos] > 0 else _SL2_INV[val_lit]
                     changed.append(gi)
                     progressed = True
+                else:
+                    u_gens = {rg[k] for k in unassigned_pos}
+                    if len(u_gens) == 1:
+                        gi = next(iter(u_gens))
+                        cands: list[int] = []
+                        for cand in range(24):
+                            assign[gi] = cand
+                            cur = _SL2_ID
+                            for lit in r:
+                                cur = _SL2_MUL[cur][eval_lit(lit)]
+                            if cur == _SL2_ID:
+                                cands.append(cand)
+                        assign[gi] = -1
+                        if not cands:
+                            for g_chg in changed:
+                                assign[g_chg] = -1
+                            return
+                        if len(cands) == 1:
+                            assign[gi] = cands[0]
+                            changed.append(gi)
+                            progressed = True
+                        elif best_domain is None or len(cands) < best_domain[0]:
+                            best_domain = (len(cands), gi, cands)
             if not progressed:
                 break
 
-        nxt_g = next((i for i in range(g) if assign[i] == -1), -1)
-        if nxt_g == -1:
+        rem_gens = [i for i in range(g) if assign[i] == -1]
+        if not rem_gens:
             weighted_homs.append((tuple(assign), mult))
-        elif nxt_g == 0:
+        elif is_root:
+            rg0 = max(rem_gens, key=lambda i: (gen_occ[i], -i))
             for rep_c, cls_sz in sl2_conj_classes:
-                assign[0] = rep_c
-                backtrack(mult * cls_sz)
-            assign[0] = -1
+                assign[rg0] = rep_c
+                backtrack(mult * cls_sz, False)
+            assign[rg0] = -1
+        elif best_domain is not None:
+            _, nxt_g, cands = best_domain
+            for cand in cands:
+                assign[nxt_g] = cand
+                backtrack(mult, False)
+            assign[nxt_g] = -1
         else:
+            # Pick unassigned generator participating in the most partially-assigned / shortest relators:
+            scores = {i: [0, 0, gen_occ[i], -i] for i in rem_gens}
+            for rg in rel_gens:
+                u_set = [gi for gi in set(rg) if assign[gi] == -1]
+                if len(u_set) == 2:
+                    for gi in u_set:
+                        scores[gi][0] += 1
+                elif 0 < len(u_set) < len(set(rg)):
+                    for gi in u_set:
+                        scores[gi][1] += 1
+            nxt_g = max(rem_gens, key=lambda i: scores[i])
             for cand in range(24):
                 assign[nxt_g] = cand
-                backtrack(mult)
+                backtrack(mult, False)
             assign[nxt_g] = -1
 
         for gi in changed:
@@ -505,7 +554,7 @@ def peripheral_sl2f3_profile(
             out_recs.extend([r_tup] * dist[r_tup])
         return (tot_homs, tuple(out_recs))
 
-    backtrack(free_mult)
+    backtrack(free_mult, True)
 
     periph_records: list[tuple[tuple[str, int, int], ...]] = []
     total_hom_count = 0

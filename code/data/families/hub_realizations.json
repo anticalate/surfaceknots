@@ -1,0 +1,192 @@
+{
+  "0_1": [
+    {
+      "family_id": "Spin(0_1)",
+      "spoke": "Spoke 1: Spun & Symmetric-Union 2-Knots",
+      "subfamily": "artin_spin",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 0,
+      "raw_ch": 0
+    },
+    {
+      "family_id": "R(1)",
+      "spoke": "Spoke 2: 1-Fusion Ribbon 2-Knots",
+      "subfamily": "ribbon_1fusion",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 0,
+      "raw_ch": 2
+    }
+  ],
+  "10_1": [
+    {
+      "family_id": "Spin(4_1)",
+      "spoke": "Spoke 1: Spun & Symmetric-Union 2-Knots",
+      "subfamily": "artin_spin",
+      "match_mode": "INVARIANT_MATCH",
+      "compiled_ch": 10,
+      "raw_ch": 10
+    },
+    {
+      "family_id": "R(b^-1*a*b*a^-1)",
+      "spoke": "Spoke 2: 1-Fusion Ribbon 2-Knots",
+      "subfamily": "ribbon_1fusion",
+      "match_mode": "INVARIANT_MATCH",
+      "compiled_ch": 18,
+      "raw_ch": 18
+    }
+  ],
+  "10_1^-2,-2": [
+    {
+      "family_id": "KleinTube(L2a1,11)",
+      "spoke": "Spoke 3: Satoh Tubes & Mixed Plat Surface-Links",
+      "subfamily": "klein_twisted_plat",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 10,
+      "raw_ch": 10
+    }
+  ],
+  "10_1^0,1": [
+    {
+      "family_id": "Mixed(L4a1)",
+      "spoke": "Spoke 3: Satoh Tubes & Mixed Plat Surface-Links",
+      "subfamily": "mixed_sphere_torus",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 10,
+      "raw_ch": 10
+    }
+  ],
+  "10_1^1": [
+    {
+      "family_id": "Tube(3_1)",
+      "spoke": "Spoke 3: Satoh Tubes & Mixed Plat Surface-Links",
+      "subfamily": "satoh_tube",
+      "match_mode": "INVARIANT_MATCH",
+      "compiled_ch": 10,
+      "raw_ch": 10
+    }
+  ],
+  "11_1": [
+    {
+      "family_id": "SymUnion(4_1,1)",
+      "spoke": "Spoke 1: Spun & Symmetric-Union 2-Knots",
+      "subfamily": "symmetric_union_2knot",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 11,
+      "raw_ch": 11
+    },
+    {
+      "family_id": "R(b^-1*a*b^-1*a^-1)",
+      "spoke": "Spoke 2: 1-Fusion Ribbon 2-Knots",
+      "subfamily": "ribbon_1fusion",
+      "match_mode": "INVARIANT_MATCH",
+      "compiled_ch": 18,
+      "raw_ch": 18
+    }
+  ],
+  "11_2": [
+    {
+      "family_id": "R(b^-1*a*b*a)",
+      "spoke": "Spoke 2: 1-Fusion Ribbon 2-Knots",
+      "subfamily": "ribbon_1fusion",
+      "match_mode": "INVARIANT_MATCH",
+      "compiled_ch": 18,
+      "raw_ch": 18
+    }
+  ],
+  "11_3^0,-2": [
+    {
+      "family_id": "KleinMixed(L4a1,1)",
+      "spoke": "Spoke 3: Satoh Tubes & Mixed Plat Surface-Links",
+      "subfamily": "klein_twisted_plat",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 11,
+      "raw_ch": 11
+    }
+  ],
+  "2_1^1": [
+    {
+      "family_id": "Tube(0_1)",
+      "spoke": "Spoke 3: Satoh Tubes & Mixed Plat Surface-Links",
+      "subfamily": "satoh_tube",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 2,
+      "raw_ch": 2
+    }
+  ],
+  "6_1^0,1": [
+    {
+      "family_id": "Mixed(L2a1)",
+      "spoke": "Spoke 3: Satoh Tubes & Mixed Plat Surface-Links",
+      "subfamily": "mixed_sphere_torus",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 6,
+      "raw_ch": 6
+    }
+  ],
+  "7_1^0,-2": [
+    {
+      "family_id": "KleinMixed(L2a1,1)",
+      "spoke": "Spoke 3: Satoh Tubes & Mixed Plat Surface-Links",
+      "subfamily": "klein_twisted_plat",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 7,
+      "raw_ch": 7
+    }
+  ],
+  "8_1": [
+    {
+      "family_id": "Spin(3_1)",
+      "spoke": "Spoke 1: Spun & Symmetric-Union 2-Knots",
+      "subfamily": "artin_spin",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 8,
+      "raw_ch": 8
+    },
+    {
+      "family_id": "R(b*a)",
+      "spoke": "Spoke 2: 1-Fusion Ribbon 2-Knots",
+      "subfamily": "ribbon_1fusion",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 8,
+      "raw_ch": 10
+    }
+  ],
+  "8_1^1,1": [
+    {
+      "family_id": "Tube(L2a1)",
+      "spoke": "Spoke 3: Satoh Tubes & Mixed Plat Surface-Links",
+      "subfamily": "satoh_tube",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 8,
+      "raw_ch": 8
+    }
+  ],
+  "9_1": [
+    {
+      "family_id": "SymUnion(3_1,1)",
+      "spoke": "Spoke 1: Spun & Symmetric-Union 2-Knots",
+      "subfamily": "symmetric_union_2knot",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 9,
+      "raw_ch": 9
+    },
+    {
+      "family_id": "R(b*a^-1)",
+      "spoke": "Spoke 2: 1-Fusion Ribbon 2-Knots",
+      "subfamily": "ribbon_1fusion",
+      "match_mode": "INVARIANT_MATCH",
+      "compiled_ch": 10,
+      "raw_ch": 10
+    }
+  ],
+  "9_1^1,-2": [
+    {
+      "family_id": "KleinMixed(L2a1,10)",
+      "spoke": "Spoke 3: Satoh Tubes & Mixed Plat Surface-Links",
+      "subfamily": "klein_twisted_plat",
+      "match_mode": "MOVE_CERTIFIED",
+      "compiled_ch": 9,
+      "raw_ch": 9
+    }
+  ]
+}

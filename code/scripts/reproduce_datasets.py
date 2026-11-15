@@ -299,6 +299,7 @@ def main() -> None:
     parser.add_argument("--ch11-enumerate", action="store_true", help="Run checkpointed ch=11 enumeration/tunneling")
     parser.add_argument("--ch11-export", action="store_true", help="Stratify & export expanded_ch11.{json,csv}")
     parser.add_argument("--gallery", action="store_true", help="Render SVG & TikZ gallery into pics/{svg,tikz}")
+    parser.add_argument("--families", action="store_true", help="Build & export parametric family catalogs and Hub join")
     parser.add_argument("--max-seconds", type=float, default=3600.0)
     args = parser.parse_args()
 
@@ -334,6 +335,17 @@ def main() -> None:
 
         manifest = export_canonical_gallery(args.data_dir, args.pics_dir)
         print(f"Exported {len(manifest)} SVG + TikZ diagram pairs to {args.pics_dir}")
+    if args.families:
+        from surfaceknots.families import export_family_datasets
+
+        fam_res = export_family_datasets(args.data_dir)
+        print(
+            f"Exported family_catalog.{{json,csv}} & hub_realizations.json: "
+            f"{fam_res['total_family_instances']} instances, "
+            f"{fam_res['distinct_hub_entries_realized']} Hub entries realized, "
+            f"{len(fam_res['exact_ch_12_certified_instances'])} proven exact ch=12 classes "
+            f"({fam_res['exact_ch_12_certified_instances']})."
+        )
 
 
 if __name__ == "__main__":
