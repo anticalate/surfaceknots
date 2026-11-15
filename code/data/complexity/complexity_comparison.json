@@ -1,0 +1,3631 @@
+{
+  "total_distinct_classes_compared": 78,
+  "newly_certified_ch12_spoke_promotions": {
+    "Spin(5_2)": "12_m2_S2_1",
+    "R(b^2*a)": "12_m2_S2_6",
+    "Spin(5_1)": "12_m2_S2_7"
+  },
+  "hopf_excess_ch_4_cohort": [
+    {
+      "label": "6_1^0,1",
+      "component_types": [
+        "T^2",
+        "S^2"
+      ],
+      "ch": 6,
+      "ch_0": 2,
+      "excess_ch": 4,
+      "c_cross": 4,
+      "c_self": 0,
+      "m": 2
+    },
+    {
+      "label": "7_1^0,-2",
+      "component_types": [
+        "K^2",
+        "S^2"
+      ],
+      "ch": 7,
+      "ch_0": 3,
+      "excess_ch": 4,
+      "c_cross": 4,
+      "c_self": 1,
+      "m": 2
+    },
+    {
+      "label": "8_1^1,1",
+      "component_types": [
+        "T^2",
+        "T^2"
+      ],
+      "ch": 8,
+      "ch_0": 4,
+      "excess_ch": 4,
+      "c_cross": 4,
+      "c_self": 0,
+      "m": 4
+    },
+    {
+      "label": "8_1^-1,-1",
+      "component_types": [
+        "RP^2",
+        "RP^2"
+      ],
+      "ch": 8,
+      "ch_0": 4,
+      "excess_ch": 4,
+      "c_cross": 4,
+      "c_self": 2,
+      "m": 2
+    },
+    {
+      "label": "9_1^1,-2",
+      "component_types": [
+        "T^2",
+        "K^2"
+      ],
+      "ch": 9,
+      "ch_0": 5,
+      "excess_ch": 4,
+      "c_cross": 4,
+      "c_self": 1,
+      "m": 4
+    },
+    {
+      "label": "10_1^-2,-2",
+      "component_types": [
+        "K^2",
+        "K^2"
+      ],
+      "ch": 10,
+      "ch_0": 6,
+      "excess_ch": 4,
+      "c_cross": 4,
+      "c_self": 2,
+      "m": 4
+    }
+  ],
+  "klein_bottle_subadditivity": {
+    "summand_a": "2_1^-1 (e=+2, ch=2)",
+    "summand_b": "2_1^-1* (e=-2, ch=2)",
+    "sum_of_ch": 4,
+    "true_ch_of_connected_sum": 3,
+    "defect": 1,
+    "minimal_epd": "X[1,2,3,4], Y[5,6,2,1], Y[5,4,3,6]",
+    "level_moves_at_n4": 3,
+    "total_yoshikawa_steps": 4,
+    "move_path_epds": [
+      "X[1,2,3,4], Y[4,3,2,5], Z[1,6,7,8], X[8,7,6,5]",
+      "X[1,2,3,4], Y[5,1,4,3], Z[5,6,7,8], X[8,7,6,2]",
+      "X[1,2,3,4], Y[5,1,4,6], Y[7,8,6,3], X[5,8,7,2]",
+      "X[1,2,3,4], Y[5,6,7,1], Y[5,4,3,6], X[8,2,7,8]",
+      "X[1,2,3,4], Y[5,6,2,1], Y[5,4,3,6]"
+    ]
+  },
+  "connected_sum_collapses": [
+    {
+      "expression": "8_1 # P+",
+      "knot_summand": "8_1",
+      "unknot_summand": "P+",
+      "topology": "RP^2",
+      "normal_euler": 2,
+      "naive_sum_ch": 10,
+      "unknot_floor_ch0": 2,
+      "pi1_presentation": "<x1, x2 | x1^-2 = 1, x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1>",
+      "hom_S3": 10,
+      "hom_A4": 4,
+      "hom_Q8": 2,
+      "sigma2_h1_torsion": [
+        3
+      ],
+      "viro_barden_collapse_to_unknot": false,
+      "certified_true_ch": null,
+      "ch_collapse_amount": 0,
+      "best_known_ch_upper": 10
+    },
+    {
+      "expression": "8_1 # T^2",
+      "knot_summand": "8_1",
+      "unknot_summand": "T^2",
+      "topology": "T^2",
+      "normal_euler": 0,
+      "naive_sum_ch": 10,
+      "unknot_floor_ch0": 2,
+      "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1>",
+      "hom_S3": 12,
+      "hom_A4": 36,
+      "hom_Q8": 8,
+      "sigma2_h1_torsion": [
+        3
+      ],
+      "viro_barden_collapse_to_unknot": false,
+      "certified_true_ch": null,
+      "ch_collapse_amount": 0,
+      "best_known_ch_upper": 10
+    },
+    {
+      "expression": "9_1 # P+",
+      "knot_summand": "9_1",
+      "unknot_summand": "P+",
+      "topology": "RP^2",
+      "normal_euler": 2,
+      "naive_sum_ch": 11,
+      "unknot_floor_ch0": 2,
+      "pi1_presentation": "<x1, x2 | x1^-2 = 1, x2^-2 = 1, x2^-1 x1^-1 x2 x1^-1 x2 x1 = 1>",
+      "hom_S3": 10,
+      "hom_A4": 4,
+      "hom_Q8": 2,
+      "sigma2_h1_torsion": [
+        3
+      ],
+      "viro_barden_collapse_to_unknot": false,
+      "certified_true_ch": null,
+      "ch_collapse_amount": 0,
+      "best_known_ch_upper": 11
+    },
+    {
+      "expression": "9_1 # T^2",
+      "knot_summand": "9_1",
+      "unknot_summand": "T^2",
+      "topology": "T^2",
+      "normal_euler": 0,
+      "naive_sum_ch": 11,
+      "unknot_floor_ch0": 2,
+      "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2 x1^-1 x2 x1 = 1>",
+      "hom_S3": 12,
+      "hom_A4": 12,
+      "hom_Q8": 8,
+      "sigma2_h1_torsion": [
+        3
+      ],
+      "viro_barden_collapse_to_unknot": false,
+      "certified_true_ch": null,
+      "ch_collapse_amount": 0,
+      "best_known_ch_upper": 11
+    },
+    {
+      "expression": "10_1 # P+",
+      "knot_summand": "10_1",
+      "unknot_summand": "P+",
+      "topology": "RP^2",
+      "normal_euler": 2,
+      "naive_sum_ch": 12,
+      "unknot_floor_ch0": 2,
+      "pi1_presentation": "<x1, x2 | x1^-2 = 1, x2^-1 x1^-1 x2^-1 x1 x2 x1 x2^-1 x1^-1 x2 x1^-1 = 1>",
+      "hom_S3": 4,
+      "hom_A4": 4,
+      "hom_Q8": 2,
+      "sigma2_h1_torsion": [
+        5
+      ],
+      "viro_barden_collapse_to_unknot": false,
+      "certified_true_ch": null,
+      "ch_collapse_amount": 0,
+      "best_known_ch_upper": 12
+    },
+    {
+      "expression": "10_1 # T^2",
+      "knot_summand": "10_1",
+      "unknot_summand": "T^2",
+      "topology": "T^2",
+      "normal_euler": 0,
+      "naive_sum_ch": 12,
+      "unknot_floor_ch0": 2,
+      "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1^-1 x2^-1 x1^-1 x2 x1 = 1>",
+      "hom_S3": 6,
+      "hom_A4": 36,
+      "hom_Q8": 8,
+      "sigma2_h1_torsion": [
+        5
+      ],
+      "viro_barden_collapse_to_unknot": false,
+      "certified_true_ch": null,
+      "ch_collapse_amount": 0,
+      "best_known_ch_upper": 12
+    },
+    {
+      "expression": "10_2 # P+",
+      "knot_summand": "10_2",
+      "unknot_summand": "P+",
+      "topology": "RP^2",
+      "normal_euler": 2,
+      "naive_sum_ch": 12,
+      "unknot_floor_ch0": 2,
+      "pi1_presentation": "<x1, x2 | x1^-2 = 1, x2^-2 = 1, x2^-1 x1^-1 x2 x1 x2^-1 x1 = 1>",
+      "hom_S3": 10,
+      "hom_A4": 4,
+      "hom_Q8": 2,
+      "sigma2_h1_torsion": [
+        3
+      ],
+      "viro_barden_collapse_to_unknot": false,
+      "certified_true_ch": null,
+      "ch_collapse_amount": 0,
+      "best_known_ch_upper": 12
+    },
+    {
+      "expression": "10_2 # T^2",
+      "knot_summand": "10_2",
+      "unknot_summand": "T^2",
+      "topology": "T^2",
+      "normal_euler": 0,
+      "naive_sum_ch": 12,
+      "unknot_floor_ch0": 2,
+      "pi1_presentation": "<x1, x2 | x2^-2 x1^2 = 1, x2^-1 x1^-1 x2 x1 x2^-1 x1 = 1>",
+      "hom_S3": 12,
+      "hom_A4": 12,
+      "hom_Q8": 8,
+      "sigma2_h1_torsion": [
+        3
+      ],
+      "viro_barden_collapse_to_unknot": false,
+      "certified_true_ch": null,
+      "ch_collapse_amount": 0,
+      "best_known_ch_upper": 12
+    },
+    {
+      "expression": "10_3 # P+",
+      "knot_summand": "10_3",
+      "unknot_summand": "P+",
+      "topology": "RP^2",
+      "normal_euler": 2,
+      "naive_sum_ch": 12,
+      "unknot_floor_ch0": 2,
+      "pi1_presentation": "<x1 | x1^-2 = 1>",
+      "hom_S3": 4,
+      "hom_A4": 4,
+      "hom_Q8": 2,
+      "sigma2_h1_torsion": [],
+      "viro_barden_collapse_to_unknot": true,
+      "certified_true_ch": 2,
+      "ch_collapse_amount": 10,
+      "best_known_ch_upper": 2
+    },
+    {
+      "expression": "10_3 # T^2",
+      "knot_summand": "10_3",
+      "unknot_summand": "T^2",
+      "topology": "T^2",
+      "normal_euler": 0,
+      "naive_sum_ch": 12,
+      "unknot_floor_ch0": 2,
+      "pi1_presentation": "<x1, x2 | x2^-1 x1^-1 x2^-1 x1 x2 x1 = 1, x2^-3 x1^3 = 1, x2^-2 x1^-1 x2^2 x1^-1 x2 x1 = 1>",
+      "hom_S3": 6,
+      "hom_A4": 36,
+      "hom_Q8": 8,
+      "sigma2_h1_torsion": [],
+      "viro_barden_collapse_to_unknot": false,
+      "certified_true_ch": null,
+      "ch_collapse_amount": 0,
+      "best_known_ch_upper": 12
+    }
+  ],
+  "notable_rank_inversions": [
+    {
+      "pair": [
+        "2_1^1 (T^2, e=0)",
+        "2_1^-1 (RP^2, |e|=2)"
+      ],
+      "ch_values": [
+        2,
+        2
+      ],
+      "c_tri_values": [
+        0,
+        1
+      ],
+      "mechanism": "c_tri charges classical crossings only: T^2 has a 0-crossing (3;1,1,1) trisection, whereas RP^2 requires >= 1 crossing by |e|/2 = 1."
+    },
+    {
+      "pair": [
+        "9_1 (ribbon 2-knot)",
+        "10_2 (2-twist-spun trefoil)"
+      ],
+      "ch_values": [
+        9,
+        10
+      ],
+      "c_tri_values": [
+        ">= 7 (at b=4)",
+        6
+      ],
+      "mechanism": "10_2 achieves c_tri = 6 at b = 4 via 90 concentrated (0,0,6) braided realizations, ALL 90 of which hit the A-B-A-B Meander Interleaving Obstruction (0 compilable), forcing +2 R2 crossings upon planarization (ch = 6 + 2 + 2 = 10 > ch(9_1) = 9)."
+    },
+    {
+      "pair": [
+        "6_1^0,1 .. 10_1^-2,-2 (6 Hopf-type 2-links)"
+      ],
+      "ch_values": [
+        6,
+        7,
+        8,
+        8,
+        9,
+        10
+      ],
+      "excess_ch_values": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "mechanism": "Raw ch conflates intrinsic genus / normal-Euler unknot floor ch_0 in {2,3,4,5,6} with linking; excess_ch = ch - ch_0 = 4 is constant across the entire Hopf cohort."
+    }
+  ],
+  "rows": [
+    {
+      "label": "0_1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 0,
+      "ch_lower": 0,
+      "ch_upper": 0,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 0,
+      "c": 0,
+      "c_self": 0,
+      "c_cross": 0,
+      "m": 0,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 0,
+      "excess_ch_upper": 0,
+      "weighted_ch": {
+        "0.0": 0.0,
+        "0.5": 0.0,
+        "1.0": 0.0,
+        "1.5": 0.0,
+        "2.0": 0.0
+      },
+      "bridge_bounds": [
+        1,
+        1
+      ],
+      "b4_census_bridge": 1,
+      "c_tri_b4_braided": 0,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": 0,
+      "c_tri_unconcentrated": 2
+    },
+    {
+      "label": "2_1^1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 2,
+      "ch_lower": 2,
+      "ch_upper": 2,
+      "num_components": 1,
+      "component_types": [
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 2,
+      "c": 0,
+      "c_self": 0,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": 0,
+      "excess_ch_upper": 0,
+      "weighted_ch": {
+        "0.0": 0.0,
+        "0.5": 1.0,
+        "1.0": 2.0,
+        "1.5": 3.0,
+        "2.0": 4.0
+      },
+      "bridge_bounds": [
+        3,
+        3
+      ],
+      "b4_census_bridge": 3,
+      "c_tri_b4_braided": 0,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": 0,
+      "c_tri_unconcentrated": 2
+    },
+    {
+      "label": "2_1^-1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 2,
+      "ch_lower": 2,
+      "ch_upper": 2,
+      "num_components": 1,
+      "component_types": [
+        "RP^2"
+      ],
+      "orientability": "Non",
+      "normal_euler_numbers": [
+        2
+      ],
+      "ch_diagram": 2,
+      "c": 1,
+      "c_self": 1,
+      "c_cross": 0,
+      "m": 1,
+      "ch_0": 2,
+      "c_0": 1,
+      "m_0": 1,
+      "excess_ch": 0,
+      "excess_ch_upper": 0,
+      "weighted_ch": {
+        "0.0": 1.0,
+        "0.5": 1.5,
+        "1.0": 2.0,
+        "1.5": 2.5,
+        "2.0": 3.0
+      },
+      "bridge_bounds": [
+        2,
+        2
+      ],
+      "b4_census_bridge": 2,
+      "c_tri_b4_braided": 1,
+      "c_tri_b4_lower": 1,
+      "c_tri_concentrated": 1,
+      "c_tri_unconcentrated": 2
+    },
+    {
+      "label": "6_1^0,1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 6,
+      "ch_lower": 6,
+      "ch_upper": 6,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 6,
+      "c": 4,
+      "c_self": 0,
+      "c_cross": 4,
+      "m": 2,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": 4,
+      "excess_ch_upper": 4,
+      "weighted_ch": {
+        "0.0": 4.0,
+        "0.5": 5.0,
+        "1.0": 6.0,
+        "1.5": 7.0,
+        "2.0": 8.0
+      },
+      "bridge_bounds": [
+        4,
+        6
+      ],
+      "b4_census_bridge": 4,
+      "c_tri_b4_braided": 4,
+      "c_tri_b4_lower": 4,
+      "c_tri_concentrated": 4,
+      "c_tri_unconcentrated": 4
+    },
+    {
+      "label": "7_1^0,-2",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 7,
+      "ch_lower": 7,
+      "ch_upper": 7,
+      "num_components": 2,
+      "component_types": [
+        "K^2",
+        "S^2"
+      ],
+      "orientability": "Mixed",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 7,
+      "c": 5,
+      "c_self": 1,
+      "c_cross": 4,
+      "m": 2,
+      "ch_0": 3,
+      "c_0": 1,
+      "m_0": 2,
+      "excess_ch": 4,
+      "excess_ch_upper": 4,
+      "weighted_ch": {
+        "0.0": 5.0,
+        "0.5": 6.0,
+        "1.0": 7.0,
+        "1.5": 8.0,
+        "2.0": 9.0
+      },
+      "bridge_bounds": [
+        4,
+        7
+      ],
+      "b4_census_bridge": 4,
+      "c_tri_b4_braided": 5,
+      "c_tri_b4_lower": 5,
+      "c_tri_concentrated": 5,
+      "c_tri_unconcentrated": 5
+    },
+    {
+      "label": "8_1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 8,
+      "ch_lower": 8,
+      "ch_upper": 8,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 8,
+      "c": 6,
+      "c_self": 6,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 8,
+      "excess_ch_upper": 8,
+      "weighted_ch": {
+        "0.0": 6.0,
+        "0.5": 7.0,
+        "1.0": 8.0,
+        "1.5": 9.0,
+        "2.0": 10.0
+      },
+      "bridge_bounds": [
+        4,
+        7
+      ],
+      "b4_census_bridge": 4,
+      "c_tri_b4_braided": 6,
+      "c_tri_b4_lower": 6,
+      "c_tri_concentrated": 6,
+      "c_tri_unconcentrated": 6
+    },
+    {
+      "label": "8_1^1,1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 8,
+      "ch_lower": 8,
+      "ch_upper": 8,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 8,
+      "c": 4,
+      "c_self": 0,
+      "c_cross": 4,
+      "m": 4,
+      "ch_0": 4,
+      "c_0": 0,
+      "m_0": 4,
+      "excess_ch": 4,
+      "excess_ch_upper": 4,
+      "weighted_ch": {
+        "0.0": 4.0,
+        "0.5": 6.0,
+        "1.0": 8.0,
+        "1.5": 10.0,
+        "2.0": 12.0
+      },
+      "bridge_bounds": [
+        6,
+        8
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "8_1^-1,-1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 8,
+      "ch_lower": 8,
+      "ch_upper": 8,
+      "num_components": 2,
+      "component_types": [
+        "RP^2",
+        "RP^2"
+      ],
+      "orientability": "Non",
+      "normal_euler_numbers": [
+        -2,
+        2
+      ],
+      "ch_diagram": 8,
+      "c": 6,
+      "c_self": 2,
+      "c_cross": 4,
+      "m": 2,
+      "ch_0": 4,
+      "c_0": 2,
+      "m_0": 2,
+      "excess_ch": 4,
+      "excess_ch_upper": 4,
+      "weighted_ch": {
+        "0.0": 6.0,
+        "0.5": 7.0,
+        "1.0": 8.0,
+        "1.5": 9.0,
+        "2.0": 10.0
+      },
+      "bridge_bounds": [
+        4,
+        7
+      ],
+      "b4_census_bridge": 4,
+      "c_tri_b4_braided": 6,
+      "c_tri_b4_lower": 6,
+      "c_tri_concentrated": 6,
+      "c_tri_unconcentrated": 6
+    },
+    {
+      "label": "9_1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 9,
+      "ch_lower": 9,
+      "ch_upper": 9,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 9,
+      "c": 7,
+      "c_self": 7,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 9,
+      "excess_ch_upper": 9,
+      "weighted_ch": {
+        "0.0": 7.0,
+        "0.5": 8.0,
+        "1.0": 9.0,
+        "1.5": 10.0,
+        "2.0": 11.0
+      },
+      "bridge_bounds": [
+        4,
+        8
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "9_1^0,1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 9,
+      "ch_lower": 9,
+      "ch_upper": 9,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 9,
+      "c": 7,
+      "c_self": 3,
+      "c_cross": 4,
+      "m": 2,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": 7,
+      "excess_ch_upper": 7,
+      "weighted_ch": {
+        "0.0": 7.0,
+        "0.5": 8.0,
+        "1.0": 9.0,
+        "1.5": 10.0,
+        "2.0": 11.0
+      },
+      "bridge_bounds": [
+        4,
+        8
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "9_1^1,-2",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 9,
+      "ch_lower": 9,
+      "ch_upper": 9,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "K^2"
+      ],
+      "orientability": "Mixed",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 9,
+      "c": 5,
+      "c_self": 1,
+      "c_cross": 4,
+      "m": 4,
+      "ch_0": 5,
+      "c_0": 1,
+      "m_0": 4,
+      "excess_ch": 4,
+      "excess_ch_upper": 4,
+      "weighted_ch": {
+        "0.0": 5.0,
+        "0.5": 7.0,
+        "1.0": 9.0,
+        "1.5": 11.0,
+        "2.0": 13.0
+      },
+      "bridge_bounds": [
+        6,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 1,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "10_1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 10,
+      "ch_lower": 10,
+      "ch_upper": 10,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 10,
+      "c": 8,
+      "c_self": 8,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 10,
+      "excess_ch_upper": 10,
+      "weighted_ch": {
+        "0.0": 8.0,
+        "0.5": 9.0,
+        "1.0": 10.0,
+        "1.5": 11.0,
+        "2.0": 12.0
+      },
+      "bridge_bounds": [
+        4,
+        8
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "10_2",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 10,
+      "ch_lower": 10,
+      "ch_upper": 10,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 10,
+      "c": 8,
+      "c_self": 8,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 10,
+      "excess_ch_upper": 10,
+      "weighted_ch": {
+        "0.0": 8.0,
+        "0.5": 9.0,
+        "1.0": 10.0,
+        "1.5": 11.0,
+        "2.0": 12.0
+      },
+      "bridge_bounds": [
+        4,
+        8
+      ],
+      "b4_census_bridge": 4,
+      "c_tri_b4_braided": 6,
+      "c_tri_b4_lower": 6,
+      "c_tri_concentrated": 6,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "10_3",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 10,
+      "ch_lower": 10,
+      "ch_upper": 10,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 10,
+      "c": 8,
+      "c_self": 8,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 10,
+      "excess_ch_upper": 10,
+      "weighted_ch": {
+        "0.0": 8.0,
+        "0.5": 9.0,
+        "1.0": 10.0,
+        "1.5": 11.0,
+        "2.0": 12.0
+      },
+      "bridge_bounds": [
+        4,
+        8
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "10_1^1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 10,
+      "ch_lower": 10,
+      "ch_upper": 10,
+      "num_components": 1,
+      "component_types": [
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 10,
+      "c": 6,
+      "c_self": 6,
+      "c_cross": 0,
+      "m": 4,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": 8,
+      "excess_ch_upper": 8,
+      "weighted_ch": {
+        "0.0": 6.0,
+        "0.5": 8.0,
+        "1.0": 10.0,
+        "1.5": 12.0,
+        "2.0": 14.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "10_1^0,1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 10,
+      "ch_lower": 10,
+      "ch_upper": 10,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 10,
+      "c": 8,
+      "c_self": 0,
+      "c_cross": 8,
+      "m": 2,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": 8,
+      "excess_ch_upper": 8,
+      "weighted_ch": {
+        "0.0": 8.0,
+        "0.5": 9.0,
+        "1.0": 10.0,
+        "1.5": 11.0,
+        "2.0": 12.0
+      },
+      "bridge_bounds": [
+        4,
+        8
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "10_2^0,1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 10,
+      "ch_lower": 10,
+      "ch_upper": 10,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 10,
+      "c": 8,
+      "c_self": 0,
+      "c_cross": 8,
+      "m": 2,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": 8,
+      "excess_ch_upper": 8,
+      "weighted_ch": {
+        "0.0": 8.0,
+        "0.5": 9.0,
+        "1.0": 10.0,
+        "1.5": 11.0,
+        "2.0": 12.0
+      },
+      "bridge_bounds": [
+        4,
+        8
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "10_1^1,1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 10,
+      "ch_lower": 10,
+      "ch_upper": 10,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 10,
+      "c": 6,
+      "c_self": 0,
+      "c_cross": 6,
+      "m": 4,
+      "ch_0": 4,
+      "c_0": 0,
+      "m_0": 4,
+      "excess_ch": 6,
+      "excess_ch_upper": 6,
+      "weighted_ch": {
+        "0.0": 6.0,
+        "0.5": 8.0,
+        "1.0": 10.0,
+        "1.5": 12.0,
+        "2.0": 14.0
+      },
+      "bridge_bounds": [
+        6,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "10_1^0,0,1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 10,
+      "ch_lower": 10,
+      "ch_upper": 10,
+      "num_components": 3,
+      "component_types": [
+        "T^2",
+        "S^2",
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0,
+        0
+      ],
+      "ch_diagram": 10,
+      "c": 8,
+      "c_self": 0,
+      "c_cross": 8,
+      "m": 2,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": 8,
+      "excess_ch_upper": 8,
+      "weighted_ch": {
+        "0.0": 8.0,
+        "0.5": 9.0,
+        "1.0": 10.0,
+        "1.5": 11.0,
+        "2.0": 12.0
+      },
+      "bridge_bounds": [
+        5,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "10_1^0,-2",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 10,
+      "ch_lower": 10,
+      "ch_upper": 10,
+      "num_components": 2,
+      "component_types": [
+        "S^2",
+        "K^2"
+      ],
+      "orientability": "Mixed",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 10,
+      "c": 8,
+      "c_self": 4,
+      "c_cross": 4,
+      "m": 2,
+      "ch_0": 3,
+      "c_0": 1,
+      "m_0": 2,
+      "excess_ch": 7,
+      "excess_ch_upper": 7,
+      "weighted_ch": {
+        "0.0": 8.0,
+        "0.5": 9.0,
+        "1.0": 10.0,
+        "1.5": 11.0,
+        "2.0": 12.0
+      },
+      "bridge_bounds": [
+        4,
+        8
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 1,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "10_2^0,-2",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 10,
+      "ch_lower": 10,
+      "ch_upper": 10,
+      "num_components": 2,
+      "component_types": [
+        "S^2",
+        "K^2"
+      ],
+      "orientability": "Mixed",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 10,
+      "c": 8,
+      "c_self": 2,
+      "c_cross": 6,
+      "m": 2,
+      "ch_0": 3,
+      "c_0": 1,
+      "m_0": 2,
+      "excess_ch": 7,
+      "excess_ch_upper": 7,
+      "weighted_ch": {
+        "0.0": 8.0,
+        "0.5": 9.0,
+        "1.0": 10.0,
+        "1.5": 11.0,
+        "2.0": 12.0
+      },
+      "bridge_bounds": [
+        4,
+        8
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 1,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "10_1^-1,-1",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 10,
+      "ch_lower": 10,
+      "ch_upper": 10,
+      "num_components": 2,
+      "component_types": [
+        "RP^2",
+        "RP^2"
+      ],
+      "orientability": "Non",
+      "normal_euler_numbers": [
+        -2,
+        2
+      ],
+      "ch_diagram": 10,
+      "c": 8,
+      "c_self": 2,
+      "c_cross": 6,
+      "m": 2,
+      "ch_0": 4,
+      "c_0": 2,
+      "m_0": 2,
+      "excess_ch": 6,
+      "excess_ch_upper": 6,
+      "weighted_ch": {
+        "0.0": 8.0,
+        "0.5": 9.0,
+        "1.0": 10.0,
+        "1.5": 11.0,
+        "2.0": 12.0
+      },
+      "bridge_bounds": [
+        4,
+        8
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 2,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "10_1^-2,-2",
+      "tier": "Hub (ch <= 10)",
+      "exact_ch": 10,
+      "ch_lower": 10,
+      "ch_upper": 10,
+      "num_components": 2,
+      "component_types": [
+        "K^2",
+        "K^2"
+      ],
+      "orientability": "Non",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 10,
+      "c": 6,
+      "c_self": 2,
+      "c_cross": 4,
+      "m": 4,
+      "ch_0": 6,
+      "c_0": 2,
+      "m_0": 4,
+      "excess_ch": 4,
+      "excess_ch_upper": 4,
+      "weighted_ch": {
+        "0.0": 6.0,
+        "0.5": 8.0,
+        "1.0": 10.0,
+        "1.5": 12.0,
+        "2.0": 14.0
+      },
+      "bridge_bounds": [
+        6,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 2,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "11_1",
+      "tier": "Hub (ch = 11)",
+      "exact_ch": 11,
+      "ch_lower": 11,
+      "ch_upper": 11,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 11,
+      "c": 9,
+      "c_self": 9,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 11,
+      "excess_ch_upper": 11,
+      "weighted_ch": {
+        "0.0": 9.0,
+        "0.5": 10.0,
+        "1.0": 11.0,
+        "1.5": 12.0,
+        "2.0": 13.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "11_2",
+      "tier": "Hub (ch = 11)",
+      "exact_ch": 11,
+      "ch_lower": 11,
+      "ch_upper": 11,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 11,
+      "c": 9,
+      "c_self": 9,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 11,
+      "excess_ch_upper": 11,
+      "weighted_ch": {
+        "0.0": 9.0,
+        "0.5": 10.0,
+        "1.0": 11.0,
+        "1.5": 12.0,
+        "2.0": 13.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "11_1^-2",
+      "tier": "Hub (ch = 11)",
+      "exact_ch": 11,
+      "ch_lower": 11,
+      "ch_upper": 11,
+      "num_components": 1,
+      "component_types": [
+        "K^2"
+      ],
+      "orientability": "Non",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 11,
+      "c": 7,
+      "c_self": 7,
+      "c_cross": 0,
+      "m": 4,
+      "ch_0": 3,
+      "c_0": 1,
+      "m_0": 2,
+      "excess_ch": 8,
+      "excess_ch_upper": 8,
+      "weighted_ch": {
+        "0.0": 7.0,
+        "0.5": 9.0,
+        "1.0": 11.0,
+        "1.5": 13.0,
+        "2.0": 15.0
+      },
+      "bridge_bounds": [
+        4,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 1,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "11_1^0,1",
+      "tier": "Hub (ch = 11)",
+      "exact_ch": 11,
+      "ch_lower": 11,
+      "ch_upper": 11,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 11,
+      "c": 9,
+      "c_self": 1,
+      "c_cross": 8,
+      "m": 2,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": 9,
+      "excess_ch_upper": 9,
+      "weighted_ch": {
+        "0.0": 9.0,
+        "0.5": 10.0,
+        "1.0": 11.0,
+        "1.5": 12.0,
+        "2.0": 13.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "11_2^0,1",
+      "tier": "Hub (ch = 11)",
+      "exact_ch": 11,
+      "ch_lower": 11,
+      "ch_upper": 11,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 11,
+      "c": 9,
+      "c_self": 5,
+      "c_cross": 4,
+      "m": 2,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": 9,
+      "excess_ch_upper": 9,
+      "weighted_ch": {
+        "0.0": 9.0,
+        "0.5": 10.0,
+        "1.0": 11.0,
+        "1.5": 12.0,
+        "2.0": 13.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "11_1^0,-2",
+      "tier": "Hub (ch = 11)",
+      "exact_ch": 11,
+      "ch_lower": 11,
+      "ch_upper": 11,
+      "num_components": 2,
+      "component_types": [
+        "S^2",
+        "K^2"
+      ],
+      "orientability": "Mixed",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 11,
+      "c": 9,
+      "c_self": 5,
+      "c_cross": 4,
+      "m": 2,
+      "ch_0": 3,
+      "c_0": 1,
+      "m_0": 2,
+      "excess_ch": 8,
+      "excess_ch_upper": 8,
+      "weighted_ch": {
+        "0.0": 9.0,
+        "0.5": 10.0,
+        "1.0": 11.0,
+        "1.5": 12.0,
+        "2.0": 13.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 1,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "11_2^0,-2",
+      "tier": "Hub (ch = 11)",
+      "exact_ch": 11,
+      "ch_lower": 11,
+      "ch_upper": 11,
+      "num_components": 2,
+      "component_types": [
+        "K^2",
+        "S^2"
+      ],
+      "orientability": "Mixed",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 11,
+      "c": 9,
+      "c_self": 1,
+      "c_cross": 8,
+      "m": 2,
+      "ch_0": 3,
+      "c_0": 1,
+      "m_0": 2,
+      "excess_ch": 8,
+      "excess_ch_upper": 8,
+      "weighted_ch": {
+        "0.0": 9.0,
+        "0.5": 10.0,
+        "1.0": 11.0,
+        "1.5": 12.0,
+        "2.0": 13.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 1,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "11_3^0,-2",
+      "tier": "Hub (ch = 11)",
+      "exact_ch": 11,
+      "ch_lower": 11,
+      "ch_upper": 11,
+      "num_components": 2,
+      "component_types": [
+        "K^2",
+        "S^2"
+      ],
+      "orientability": "Mixed",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 11,
+      "c": 9,
+      "c_self": 1,
+      "c_cross": 8,
+      "m": 2,
+      "ch_0": 3,
+      "c_0": 1,
+      "m_0": 2,
+      "excess_ch": 8,
+      "excess_ch_upper": 8,
+      "weighted_ch": {
+        "0.0": 9.0,
+        "0.5": 10.0,
+        "1.0": 11.0,
+        "1.5": 12.0,
+        "2.0": 13.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 1,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "11_1^1,-2",
+      "tier": "Hub (ch = 11)",
+      "exact_ch": 11,
+      "ch_lower": 11,
+      "ch_upper": 11,
+      "num_components": 2,
+      "component_types": [
+        "K^2",
+        "T^2"
+      ],
+      "orientability": "Mixed",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 11,
+      "c": 7,
+      "c_self": 3,
+      "c_cross": 4,
+      "m": 4,
+      "ch_0": 5,
+      "c_0": 1,
+      "m_0": 4,
+      "excess_ch": 6,
+      "excess_ch_upper": 6,
+      "weighted_ch": {
+        "0.0": 7.0,
+        "0.5": 9.0,
+        "1.0": 11.0,
+        "1.5": 13.0,
+        "2.0": 15.0
+      },
+      "bridge_bounds": [
+        6,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 1,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "11_1^0,0,-2",
+      "tier": "Hub (ch = 11)",
+      "exact_ch": 11,
+      "ch_lower": 11,
+      "ch_upper": 11,
+      "num_components": 3,
+      "component_types": [
+        "K^2",
+        "S^2",
+        "S^2"
+      ],
+      "orientability": "Mixed",
+      "normal_euler_numbers": [
+        0,
+        0,
+        0
+      ],
+      "ch_diagram": 11,
+      "c": 9,
+      "c_self": 1,
+      "c_cross": 8,
+      "m": 2,
+      "ch_0": 3,
+      "c_0": 1,
+      "m_0": 2,
+      "excess_ch": 8,
+      "excess_ch_upper": 8,
+      "weighted_ch": {
+        "0.0": 9.0,
+        "0.5": 10.0,
+        "1.0": 11.0,
+        "1.5": 12.0,
+        "2.0": 13.0
+      },
+      "bridge_bounds": [
+        5,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 1,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "12_m2_S2_1 (Spin(5_2))",
+      "tier": "Targeted Census (exact ch = 12, m = 2)",
+      "exact_ch": 12,
+      "ch_lower": 12,
+      "ch_upper": 12,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 12,
+      "c": 10,
+      "c_self": 10,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 12,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 10.0,
+        "0.5": 11.0,
+        "1.0": 12.0,
+        "1.5": 13.0,
+        "2.0": 14.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "12_m2_S2_2",
+      "tier": "Targeted Census (exact ch = 12, m = 2)",
+      "exact_ch": 12,
+      "ch_lower": 12,
+      "ch_upper": 12,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 12,
+      "c": 10,
+      "c_self": 10,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 12,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 10.0,
+        "0.5": 11.0,
+        "1.0": 12.0,
+        "1.5": 13.0,
+        "2.0": 14.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "12_m2_S2_3",
+      "tier": "Targeted Census (exact ch = 12, m = 2)",
+      "exact_ch": 12,
+      "ch_lower": 12,
+      "ch_upper": 12,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 12,
+      "c": 10,
+      "c_self": 10,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 12,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 10.0,
+        "0.5": 11.0,
+        "1.0": 12.0,
+        "1.5": 13.0,
+        "2.0": 14.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "12_m2_S2_4",
+      "tier": "Targeted Census (exact ch = 12, m = 2)",
+      "exact_ch": 12,
+      "ch_lower": 12,
+      "ch_upper": 12,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 12,
+      "c": 10,
+      "c_self": 10,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 12,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 10.0,
+        "0.5": 11.0,
+        "1.0": 12.0,
+        "1.5": 13.0,
+        "2.0": 14.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "12_m2_S2_5",
+      "tier": "Targeted Census (exact ch = 12, m = 2)",
+      "exact_ch": 12,
+      "ch_lower": 12,
+      "ch_upper": 12,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 12,
+      "c": 10,
+      "c_self": 10,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 12,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 10.0,
+        "0.5": 11.0,
+        "1.0": 12.0,
+        "1.5": 13.0,
+        "2.0": 14.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "12_m2_S2_6 (R(b^2*a))",
+      "tier": "Targeted Census (exact ch = 12, m = 2)",
+      "exact_ch": 12,
+      "ch_lower": 12,
+      "ch_upper": 12,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 12,
+      "c": 10,
+      "c_self": 10,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 12,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 10.0,
+        "0.5": 11.0,
+        "1.0": 12.0,
+        "1.5": 13.0,
+        "2.0": 14.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "12_m2_S2_7 (Spin(5_1))",
+      "tier": "Targeted Census (exact ch = 12, m = 2)",
+      "exact_ch": 12,
+      "ch_lower": 12,
+      "ch_upper": 12,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 12,
+      "c": 10,
+      "c_self": 10,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": 12,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 10.0,
+        "0.5": 11.0,
+        "1.0": 12.0,
+        "1.5": 13.0,
+        "2.0": 14.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Spin(6_1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 14,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 14,
+      "c": 12,
+      "c_self": 12,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 14,
+      "weighted_ch": {
+        "0.0": 12.0,
+        "0.5": 13.0,
+        "1.0": 14.0,
+        "1.5": 15.0,
+        "2.0": 16.0
+      },
+      "bridge_bounds": [
+        4,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Spin(6_2)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 14,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 14,
+      "c": 12,
+      "c_self": 12,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 14,
+      "weighted_ch": {
+        "0.0": 12.0,
+        "0.5": 13.0,
+        "1.0": 14.0,
+        "1.5": 15.0,
+        "2.0": 16.0
+      },
+      "bridge_bounds": [
+        4,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Spin(6_3)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 14,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 14,
+      "c": 12,
+      "c_self": 12,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 14,
+      "weighted_ch": {
+        "0.0": 12.0,
+        "0.5": 13.0,
+        "1.0": 14.0,
+        "1.5": 15.0,
+        "2.0": 16.0
+      },
+      "bridge_bounds": [
+        4,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Spin(7_1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 16,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 16,
+      "c": 14,
+      "c_self": 14,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 16,
+      "weighted_ch": {
+        "0.0": 14.0,
+        "0.5": 15.0,
+        "1.0": 16.0,
+        "1.5": 17.0,
+        "2.0": 18.0
+      },
+      "bridge_bounds": [
+        4,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Spin(7_2)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 16,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 16,
+      "c": 14,
+      "c_self": 14,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 16,
+      "weighted_ch": {
+        "0.0": 14.0,
+        "0.5": 15.0,
+        "1.0": 16.0,
+        "1.5": 17.0,
+        "2.0": 18.0
+      },
+      "bridge_bounds": [
+        4,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Spin(7_3)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 16,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 16,
+      "c": 14,
+      "c_self": 14,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 16,
+      "weighted_ch": {
+        "0.0": 14.0,
+        "0.5": 15.0,
+        "1.0": 16.0,
+        "1.5": 17.0,
+        "2.0": 18.0
+      },
+      "bridge_bounds": [
+        4,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Spin(7_4)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 16,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 16,
+      "c": 14,
+      "c_self": 14,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 16,
+      "weighted_ch": {
+        "0.0": 14.0,
+        "0.5": 15.0,
+        "1.0": 16.0,
+        "1.5": 17.0,
+        "2.0": 18.0
+      },
+      "bridge_bounds": [
+        4,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Spin(7_5)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 16,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 16,
+      "c": 14,
+      "c_self": 14,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 16,
+      "weighted_ch": {
+        "0.0": 14.0,
+        "0.5": 15.0,
+        "1.0": 16.0,
+        "1.5": 17.0,
+        "2.0": 18.0
+      },
+      "bridge_bounds": [
+        4,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Spin(7_6)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 16,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 16,
+      "c": 14,
+      "c_self": 14,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 16,
+      "weighted_ch": {
+        "0.0": 14.0,
+        "0.5": 15.0,
+        "1.0": 16.0,
+        "1.5": 17.0,
+        "2.0": 18.0
+      },
+      "bridge_bounds": [
+        4,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Spin(7_7)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 16,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 16,
+      "c": 14,
+      "c_self": 14,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 16,
+      "weighted_ch": {
+        "0.0": 14.0,
+        "0.5": 15.0,
+        "1.0": 16.0,
+        "1.5": 17.0,
+        "2.0": 18.0
+      },
+      "bridge_bounds": [
+        4,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "SymUnion(5_1,1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 13,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 13,
+      "c": 11,
+      "c_self": 11,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 13,
+      "weighted_ch": {
+        "0.0": 11.0,
+        "0.5": 12.0,
+        "1.0": 13.0,
+        "1.5": 14.0,
+        "2.0": 15.0
+      },
+      "bridge_bounds": [
+        4,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "SymUnion(5_2,1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 13,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 13,
+      "c": 11,
+      "c_self": 11,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 13,
+      "weighted_ch": {
+        "0.0": 11.0,
+        "0.5": 12.0,
+        "1.0": 13.0,
+        "1.5": 14.0,
+        "2.0": 15.0
+      },
+      "bridge_bounds": [
+        4,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "SymUnion(6_1,1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 15,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 15,
+      "c": 13,
+      "c_self": 13,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 15,
+      "weighted_ch": {
+        "0.0": 13.0,
+        "0.5": 14.0,
+        "1.0": 15.0,
+        "1.5": 16.0,
+        "2.0": 17.0
+      },
+      "bridge_bounds": [
+        4,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "SymUnion(6_2,1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 15,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 15,
+      "c": 13,
+      "c_self": 13,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 15,
+      "weighted_ch": {
+        "0.0": 13.0,
+        "0.5": 14.0,
+        "1.0": 15.0,
+        "1.5": 16.0,
+        "2.0": 17.0
+      },
+      "bridge_bounds": [
+        4,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "SymUnion(6_3,1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 15,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 15,
+      "c": 13,
+      "c_self": 13,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 15,
+      "weighted_ch": {
+        "0.0": 13.0,
+        "0.5": 14.0,
+        "1.0": 15.0,
+        "1.5": 16.0,
+        "2.0": 17.0
+      },
+      "bridge_bounds": [
+        4,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "R(b^2*a^-1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 14,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 14,
+      "c": 12,
+      "c_self": 12,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 14,
+      "weighted_ch": {
+        "0.0": 12.0,
+        "0.5": 13.0,
+        "1.0": 14.0,
+        "1.5": 15.0,
+        "2.0": 16.0
+      },
+      "bridge_bounds": [
+        4,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "R(b^3*a)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 18,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 18,
+      "c": 16,
+      "c_self": 16,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 18,
+      "weighted_ch": {
+        "0.0": 16.0,
+        "0.5": 17.0,
+        "1.0": 18.0,
+        "1.5": 19.0,
+        "2.0": 20.0
+      },
+      "bridge_bounds": [
+        4,
+        12
+      ],
+      "b4_census_bridge": 4,
+      "c_tri_b4_braided": 6,
+      "c_tri_b4_lower": 6,
+      "c_tri_concentrated": 6,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "R(b^3*a^-1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 18,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 18,
+      "c": 16,
+      "c_self": 16,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 18,
+      "weighted_ch": {
+        "0.0": 16.0,
+        "0.5": 17.0,
+        "1.0": 18.0,
+        "1.5": 19.0,
+        "2.0": 20.0
+      },
+      "bridge_bounds": [
+        4,
+        12
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "R(b^2*a^2)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 18,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 18,
+      "c": 16,
+      "c_self": 16,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 18,
+      "weighted_ch": {
+        "0.0": 16.0,
+        "0.5": 17.0,
+        "1.0": 18.0,
+        "1.5": 19.0,
+        "2.0": 20.0
+      },
+      "bridge_bounds": [
+        4,
+        12
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "R(b^2*a^-2)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 18,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 18,
+      "c": 16,
+      "c_self": 16,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 18,
+      "weighted_ch": {
+        "0.0": 16.0,
+        "0.5": 17.0,
+        "1.0": 18.0,
+        "1.5": 19.0,
+        "2.0": 20.0
+      },
+      "bridge_bounds": [
+        4,
+        12
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "R(b^-1*a^2*b*a^-1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 22,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 22,
+      "c": 20,
+      "c_self": 20,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 22,
+      "weighted_ch": {
+        "0.0": 20.0,
+        "0.5": 21.0,
+        "1.0": 22.0,
+        "1.5": 23.0,
+        "2.0": 24.0
+      },
+      "bridge_bounds": [
+        4,
+        14
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "R(b^2*a*b^-1*a)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 22,
+      "num_components": 1,
+      "component_types": [
+        "S^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 22,
+      "c": 20,
+      "c_self": 20,
+      "c_cross": 0,
+      "m": 2,
+      "ch_0": 0,
+      "c_0": 0,
+      "m_0": 0,
+      "excess_ch": null,
+      "excess_ch_upper": 22,
+      "weighted_ch": {
+        "0.0": 20.0,
+        "0.5": 21.0,
+        "1.0": 22.0,
+        "1.5": 23.0,
+        "2.0": 24.0
+      },
+      "bridge_bounds": [
+        4,
+        14
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Tube(4_1)",
+      "tier": "Spoke (exact ch = 12)",
+      "exact_ch": 12,
+      "ch_lower": 12,
+      "ch_upper": 12,
+      "num_components": 1,
+      "component_types": [
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 12,
+      "c": 8,
+      "c_self": 8,
+      "c_cross": 0,
+      "m": 4,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": 10,
+      "excess_ch_upper": 10,
+      "weighted_ch": {
+        "0.0": 8.0,
+        "0.5": 10.0,
+        "1.0": 12.0,
+        "1.5": 14.0,
+        "2.0": 16.0
+      },
+      "bridge_bounds": [
+        4,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Tube(5_1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 14,
+      "num_components": 1,
+      "component_types": [
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 14,
+      "c": 10,
+      "c_self": 10,
+      "c_cross": 0,
+      "m": 4,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": null,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 10.0,
+        "0.5": 12.0,
+        "1.0": 14.0,
+        "1.5": 16.0,
+        "2.0": 18.0
+      },
+      "bridge_bounds": [
+        4,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Tube(5_2)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 14,
+      "num_components": 1,
+      "component_types": [
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 14,
+      "c": 10,
+      "c_self": 10,
+      "c_cross": 0,
+      "m": 4,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": null,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 10.0,
+        "0.5": 12.0,
+        "1.0": 14.0,
+        "1.5": 16.0,
+        "2.0": 18.0
+      },
+      "bridge_bounds": [
+        4,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Tube(6_1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 16,
+      "num_components": 1,
+      "component_types": [
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0
+      ],
+      "ch_diagram": 16,
+      "c": 12,
+      "c_self": 12,
+      "c_cross": 0,
+      "m": 4,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": null,
+      "excess_ch_upper": 14,
+      "weighted_ch": {
+        "0.0": 12.0,
+        "0.5": 14.0,
+        "1.0": 16.0,
+        "1.5": 18.0,
+        "2.0": 20.0
+      },
+      "bridge_bounds": [
+        4,
+        12
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Tube(L4a1)",
+      "tier": "Spoke (exact ch = 12)",
+      "exact_ch": 12,
+      "ch_lower": 12,
+      "ch_upper": 12,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 12,
+      "c": 8,
+      "c_self": 0,
+      "c_cross": 8,
+      "m": 4,
+      "ch_0": 4,
+      "c_0": 0,
+      "m_0": 4,
+      "excess_ch": 8,
+      "excess_ch_upper": 8,
+      "weighted_ch": {
+        "0.0": 8.0,
+        "0.5": 10.0,
+        "1.0": 12.0,
+        "1.5": 14.0,
+        "2.0": 16.0
+      },
+      "bridge_bounds": [
+        6,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Tube(L5a1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 14,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 14,
+      "c": 10,
+      "c_self": 2,
+      "c_cross": 8,
+      "m": 4,
+      "ch_0": 4,
+      "c_0": 0,
+      "m_0": 4,
+      "excess_ch": null,
+      "excess_ch_upper": 10,
+      "weighted_ch": {
+        "0.0": 10.0,
+        "0.5": 12.0,
+        "1.0": 14.0,
+        "1.5": 16.0,
+        "2.0": 18.0
+      },
+      "bridge_bounds": [
+        6,
+        11
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Tube(L6a1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 16,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 16,
+      "c": 12,
+      "c_self": 4,
+      "c_cross": 8,
+      "m": 4,
+      "ch_0": 4,
+      "c_0": 0,
+      "m_0": 4,
+      "excess_ch": null,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 12.0,
+        "0.5": 14.0,
+        "1.0": 16.0,
+        "1.5": 18.0,
+        "2.0": 20.0
+      },
+      "bridge_bounds": [
+        6,
+        12
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Tube(L6a2)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 16,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 16,
+      "c": 12,
+      "c_self": 0,
+      "c_cross": 12,
+      "m": 4,
+      "ch_0": 4,
+      "c_0": 0,
+      "m_0": 4,
+      "excess_ch": null,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 12.0,
+        "0.5": 14.0,
+        "1.0": 16.0,
+        "1.5": 18.0,
+        "2.0": 20.0
+      },
+      "bridge_bounds": [
+        6,
+        12
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Tube(L6a3)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 16,
+      "num_components": 2,
+      "component_types": [
+        "T^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 16,
+      "c": 12,
+      "c_self": 0,
+      "c_cross": 12,
+      "m": 4,
+      "ch_0": 4,
+      "c_0": 0,
+      "m_0": 4,
+      "excess_ch": null,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 12.0,
+        "0.5": 14.0,
+        "1.0": 16.0,
+        "1.5": 18.0,
+        "2.0": 20.0
+      },
+      "bridge_bounds": [
+        6,
+        12
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Tube(L6a4)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 22,
+      "num_components": 3,
+      "component_types": [
+        "T^2",
+        "T^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0,
+        0
+      ],
+      "ch_diagram": 22,
+      "c": 16,
+      "c_self": 0,
+      "c_cross": 16,
+      "m": 6,
+      "ch_0": 6,
+      "c_0": 0,
+      "m_0": 6,
+      "excess_ch": null,
+      "excess_ch_upper": 16,
+      "weighted_ch": {
+        "0.0": 16.0,
+        "0.5": 19.0,
+        "1.0": 22.0,
+        "1.5": 25.0,
+        "2.0": 28.0
+      },
+      "bridge_bounds": [
+        9,
+        17
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Mixed(L5a1)",
+      "tier": "Spoke (exact ch = 12)",
+      "exact_ch": 12,
+      "ch_lower": 12,
+      "ch_upper": 12,
+      "num_components": 2,
+      "component_types": [
+        "S^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 12,
+      "c": 10,
+      "c_self": 2,
+      "c_cross": 8,
+      "m": 2,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": 10,
+      "excess_ch_upper": 10,
+      "weighted_ch": {
+        "0.0": 10.0,
+        "0.5": 11.0,
+        "1.0": 12.0,
+        "1.5": 13.0,
+        "2.0": 14.0
+      },
+      "bridge_bounds": [
+        4,
+        9
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Mixed(L6a1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 14,
+      "num_components": 2,
+      "component_types": [
+        "S^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 14,
+      "c": 12,
+      "c_self": 4,
+      "c_cross": 8,
+      "m": 2,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": null,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 12.0,
+        "0.5": 13.0,
+        "1.0": 14.0,
+        "1.5": 15.0,
+        "2.0": 16.0
+      },
+      "bridge_bounds": [
+        4,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Mixed(L6a2)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 14,
+      "num_components": 2,
+      "component_types": [
+        "S^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 14,
+      "c": 12,
+      "c_self": 0,
+      "c_cross": 12,
+      "m": 2,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": null,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 12.0,
+        "0.5": 13.0,
+        "1.0": 14.0,
+        "1.5": 15.0,
+        "2.0": 16.0
+      },
+      "bridge_bounds": [
+        4,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Mixed(L6a3)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 14,
+      "num_components": 2,
+      "component_types": [
+        "S^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 14,
+      "c": 12,
+      "c_self": 0,
+      "c_cross": 12,
+      "m": 2,
+      "ch_0": 2,
+      "c_0": 0,
+      "m_0": 2,
+      "excess_ch": null,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 12.0,
+        "0.5": 13.0,
+        "1.0": 14.0,
+        "1.5": 15.0,
+        "2.0": 16.0
+      },
+      "bridge_bounds": [
+        4,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "Mixed(L6a4,01)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 16,
+      "num_components": 3,
+      "component_types": [
+        "T^2",
+        "S^2",
+        "T^2"
+      ],
+      "orientability": "Ori",
+      "normal_euler_numbers": [
+        0,
+        0,
+        0
+      ],
+      "ch_diagram": 16,
+      "c": 12,
+      "c_self": 0,
+      "c_cross": 12,
+      "m": 4,
+      "ch_0": 4,
+      "c_0": 0,
+      "m_0": 4,
+      "excess_ch": null,
+      "excess_ch_upper": 12,
+      "weighted_ch": {
+        "0.0": 12.0,
+        "0.5": 14.0,
+        "1.0": 16.0,
+        "1.5": 18.0,
+        "2.0": 20.0
+      },
+      "bridge_bounds": [
+        7,
+        13
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 0,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    },
+    {
+      "label": "KleinMixed(L5a1,1)",
+      "tier": "Spoke (ch >= 12)",
+      "exact_ch": null,
+      "ch_lower": 12,
+      "ch_upper": 13,
+      "num_components": 2,
+      "component_types": [
+        "S^2",
+        "K^2"
+      ],
+      "orientability": "Mixed",
+      "normal_euler_numbers": [
+        0,
+        0
+      ],
+      "ch_diagram": 13,
+      "c": 11,
+      "c_self": 3,
+      "c_cross": 8,
+      "m": 2,
+      "ch_0": 3,
+      "c_0": 1,
+      "m_0": 2,
+      "excess_ch": null,
+      "excess_ch_upper": 10,
+      "weighted_ch": {
+        "0.0": 11.0,
+        "0.5": 12.0,
+        "1.0": 13.0,
+        "1.5": 14.0,
+        "2.0": 15.0
+      },
+      "bridge_bounds": [
+        4,
+        10
+      ],
+      "b4_census_bridge": null,
+      "c_tri_b4_braided": null,
+      "c_tri_b4_lower": 1,
+      "c_tri_concentrated": null,
+      "c_tri_unconcentrated": null
+    }
+  ]
+}

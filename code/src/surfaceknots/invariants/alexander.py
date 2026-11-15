@@ -397,12 +397,28 @@ def _ideal_evaluation_fingerprint(
 
 
 def compute_alexander_invariants(
-    d: MarkedDiagram,
+    d: MarkedDiagram | None = None,
     from_resolution: int = -1,
+    *,
+    pres: GroupPresentation | None = None,
+    topo: object | None = None,
 ) -> AlexanderResult:
     """Compute multivariable Alexander elementary ideals `E_1(F), E_2(F)` over `Z[H_1(S^4 \\ F)]`."""
-    topo = d.surface_topology()
-    pres = wirtinger_presentation(d, from_resolution=from_resolution, simplify=True)  # type: ignore[arg-type]
+    from surfaceknots.diagrams import SurfaceTopology
+
+    if topo is None:
+        if d is None:
+            raise ValueError("Either `d` or `(pres, topo)` must be supplied")
+        topo_obj: SurfaceTopology = d.surface_topology()
+    else:
+        assert isinstance(topo, SurfaceTopology)
+        topo_obj = topo
+    if pres is None:
+        if d is None:
+            raise ValueError("Either `d` or `pres` must be supplied")
+        pres = wirtinger_presentation(d, from_resolution=from_resolution, simplify=True)  # type: ignore[arg-type]
+    topo = topo_obj
+
 
     # Order components in Yoshikawa order: orientable (sorted by genus) then non-orientable (sorted by -k)
     comp_order = sorted(
@@ -662,7 +678,7 @@ def compute_alexander_invariants(
 
 
 def twisted_s3_invariants(
-    d: MarkedDiagram,
+    d: MarkedDiagram | None = None,
     pres: GroupPresentation | None = None,
 ) -> tuple[tuple[int, tuple[int, ...]], ...]:
     """Compute twisted homology `H_1(pi_1(S^4 \\ F); V_rho)` across conjugacy classes of surjective
@@ -675,6 +691,8 @@ def twisted_s3_invariants(
     from surfaceknots.invariants.fundamental_group import STANDARD_TEST_GROUPS
 
     if pres is None:
+        if d is None:
+            raise ValueError("Either `d` or `pres` must be supplied")
         pres = wirtinger_presentation(d, from_resolution=-1, simplify=True)
     g = pres.num_generators
     if g == 0:
