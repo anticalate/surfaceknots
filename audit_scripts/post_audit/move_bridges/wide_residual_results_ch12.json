@@ -1,0 +1,1225 @@
+[
+  {
+    "ch": 12,
+    "cell_idx": 0,
+    "tag": "ch<=10:10_1^-1,-1",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 7.909
+  },
+  {
+    "ch": 12,
+    "cell_idx": 1,
+    "tag": "ch<=10:10_1^0,1",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 6.137
+  },
+  {
+    "ch": 12,
+    "cell_idx": 2,
+    "tag": "ch<=10:10_2^0,1",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 6.985
+  },
+  {
+    "ch": 12,
+    "cell_idx": 3,
+    "tag": "ch<=10:9_1^0,1",
+    "input_diags": 1,
+    "collapsed_diags": 1,
+    "surviving_diags": 0,
+    "surviving_components": 0,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 19
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 76.987
+  },
+  {
+    "ch": 12,
+    "cell_idx": 4,
+    "tag": "ch=11:11_1",
+    "input_diags": 1,
+    "collapsed_diags": 1,
+    "surviving_diags": 0,
+    "surviving_components": 0,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 23
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 201.914
+  },
+  {
+    "ch": 12,
+    "cell_idx": 5,
+    "tag": "ch=11:11_2^0,1",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 6.064
+  },
+  {
+    "ch": 12,
+    "cell_idx": 6,
+    "tag": "composite:2_1^-1#10_1^1(c0+c0) | composite:2_1^-1#11_1^-2(c0+c0)",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 7.826
+  },
+  {
+    "ch": 12,
+    "cell_idx": 7,
+    "tag": "composite:2_1^-1#11_1^0,1(c0+c1) | composite:2_1^-1#11_1^0,1*(c0+c1)",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 7.465
+  },
+  {
+    "ch": 12,
+    "cell_idx": 8,
+    "tag": "composite:2_1^-1#11_2^0,1(c0+c0) | composite:2_1^-1#11_2^0,1*(c0+c0)",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 7.996
+  },
+  {
+    "ch": 12,
+    "cell_idx": 9,
+    "tag": "composite:2_1^-1#6_1^0,1(c0+c0)#P+*(c1) | composite:2_1^-1#6_1^0,1(c0+c0)#P-(c1)",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 6.854
+  },
+  {
+    "ch": 12,
+    "cell_idx": 10,
+    "tag": "composite:2_1^-1#6_1^0,1(c0+c1)",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 5.862
+  },
+  {
+    "ch": 12,
+    "cell_idx": 11,
+    "tag": "composite:2_1^-1#8_1^-1,-1(c0+c1)#P+*(c1) | composite:2_1^-1#8_1^-1,-1(c0+c1)#P-(c1)",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 6.847
+  },
+  {
+    "ch": 12,
+    "cell_idx": 12,
+    "tag": "composite:2_1^-1#9_1^0,1(c0+c1) | composite:2_1^-1#9_1^0,1*(c0+c1)",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 12.389
+  },
+  {
+    "ch": 12,
+    "cell_idx": 13,
+    "tag": "composite:2_1^1#10_1^0,1(c0+c1)",
+    "input_diags": 1,
+    "collapsed_diags": 1,
+    "surviving_diags": 0,
+    "surviving_components": 0,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 4,
+        "wave_h": 3,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 6
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 12.1
+  },
+  {
+    "ch": 12,
+    "cell_idx": 14,
+    "tag": "composite:2_1^1#10_1^1(c0+c0)",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 7.117
+  },
+  {
+    "ch": 12,
+    "cell_idx": 15,
+    "tag": "composite:2_1^1#10_2^0,-2(c0+c1)",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 5.665
+  },
+  {
+    "ch": 12,
+    "cell_idx": 16,
+    "tag": "composite:2_1^1#6_1^0,1(c0+c0)",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 3.7
+  },
+  {
+    "ch": 12,
+    "cell_idx": 17,
+    "tag": "composite:2_1^1#7_1^0,-2(c0+c0) | composite:2_1^1#7_1^0,-2*(c0+c0)",
+    "input_diags": 1,
+    "collapsed_diags": 1,
+    "surviving_diags": 0,
+    "surviving_components": 0,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 10,
+        "verified": true,
+        "num_steps": 23
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 6.899
+  },
+  {
+    "ch": 12,
+    "cell_idx": 18,
+    "tag": "composite:6_1^0,1#unknot(K^2,e=0)(c1+c0) | composite:6_1^0,1#unknot(K^2,e=0)*(c1+c0)",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 15.992
+  },
+  {
+    "ch": 12,
+    "cell_idx": 19,
+    "tag": "composite:9_1^0,1#unknot(#3RP^2,e=-2)(c0+c0) | composite:9_1^0,1#unknot(#3RP^2,e=2)*(c0+c0)",
+    "input_diags": 1,
+    "collapsed_diags": 0,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 6.572
+  },
+  {
+    "ch": 12,
+    "cell_idx": 20,
+    "tag": "ch<=10:10_1",
+    "input_diags": 2,
+    "collapsed_diags": 0,
+    "surviving_diags": 2,
+    "surviving_components": 2,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 20.025
+  },
+  {
+    "ch": 12,
+    "cell_idx": 21,
+    "tag": "ch<=10:10_2^0,-2",
+    "input_diags": 2,
+    "collapsed_diags": 2,
+    "surviving_diags": 0,
+    "surviving_components": 0,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 3,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 19
+      },
+      {
+        "owner": 1,
+        "kind": 1,
+        "wave_h": 3,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 13
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 245.895
+  },
+  {
+    "ch": 12,
+    "cell_idx": 22,
+    "tag": "ch<=10:7_1^0,-2",
+    "input_diags": 2,
+    "collapsed_diags": 2,
+    "surviving_diags": 0,
+    "surviving_components": 0,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 3,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 19
+      }
+    ],
+    "bridges_count": 1,
+    "bridges_all_verified": true,
+    "runtime_sec": 136.561
+  },
+  {
+    "ch": 12,
+    "cell_idx": 23,
+    "tag": "ch=11:11_2",
+    "input_diags": 2,
+    "collapsed_diags": 2,
+    "surviving_diags": 0,
+    "surviving_components": 0,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 3,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 11
+      }
+    ],
+    "bridges_count": 1,
+    "bridges_all_verified": true,
+    "runtime_sec": 109.833
+  },
+  {
+    "ch": 12,
+    "cell_idx": 24,
+    "tag": "composite:2_1^-1#10_1(c0+c0) | composite:2_1^-1#10_1*t(c0+c0)",
+    "input_diags": 2,
+    "collapsed_diags": 0,
+    "surviving_diags": 2,
+    "surviving_components": 2,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 19.515
+  },
+  {
+    "ch": 12,
+    "cell_idx": 25,
+    "tag": "composite:2_1^-1#8_1(c0+c0) | composite:2_1^-1#9_1(c0+c0)",
+    "input_diags": 2,
+    "collapsed_diags": 0,
+    "surviving_diags": 2,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 1,
+    "bridges_all_verified": true,
+    "runtime_sec": 122.204
+  },
+  {
+    "ch": 12,
+    "cell_idx": 26,
+    "tag": "composite:2_1^-1#9_1^0,1(c0+c0) | composite:2_1^-1#9_1^0,1*(c0+c0)",
+    "input_diags": 2,
+    "collapsed_diags": 1,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 4,
+        "wave_h": 1,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 9
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 37.758
+  },
+  {
+    "ch": 12,
+    "cell_idx": 27,
+    "tag": "composite:2_1^1#10_2(c0+c0) | composite:2_1^1#10_2*(c0+c0)",
+    "input_diags": 2,
+    "collapsed_diags": 0,
+    "surviving_diags": 2,
+    "surviving_components": 2,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 14.493
+  },
+  {
+    "ch": 12,
+    "cell_idx": 28,
+    "tag": "composite:2_1^1#10_3(c0+c0)",
+    "input_diags": 2,
+    "collapsed_diags": 0,
+    "surviving_diags": 2,
+    "surviving_components": 1,
+    "collapses_detail": [],
+    "bridges_count": 1,
+    "bridges_all_verified": true,
+    "runtime_sec": 68.114
+  },
+  {
+    "ch": 12,
+    "cell_idx": 29,
+    "tag": "composite:9_1^0,1#unknot(K^2,e=0)(c0+c0) | composite:9_1^0,1#unknot(K^2,e=0)*(c0+c0)",
+    "input_diags": 2,
+    "collapsed_diags": 1,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 4,
+        "wave_h": 2,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 19
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 48.696
+  },
+  {
+    "ch": 12,
+    "cell_idx": 30,
+    "tag": "ch<=10:0_1",
+    "input_diags": 3,
+    "collapsed_diags": 0,
+    "surviving_diags": 3,
+    "surviving_components": 3,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 16.637
+  },
+  {
+    "ch": 12,
+    "cell_idx": 31,
+    "tag": "ch<=10:6_1^0,1",
+    "input_diags": 3,
+    "collapsed_diags": 3,
+    "surviving_diags": 0,
+    "surviving_components": 0,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 22
+      },
+      {
+        "owner": 1,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 10,
+        "verified": true,
+        "num_steps": 19
+      },
+      {
+        "owner": 2,
+        "kind": 1,
+        "wave_h": 3,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 14
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 184.897
+  },
+  {
+    "ch": 12,
+    "cell_idx": 32,
+    "tag": "composite:2_1^1#9_1^0,1(c0+c0) | composite:2_1^1#9_1^0,1*(c0+c0)",
+    "input_diags": 3,
+    "collapsed_diags": 2,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 4,
+        "wave_h": 1,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 4
+      },
+      {
+        "owner": 1,
+        "kind": 1,
+        "wave_h": 3,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 14
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 36.57
+  },
+  {
+    "ch": 12,
+    "cell_idx": 33,
+    "tag": "composite:8_1#unknot(K^2,e=0)(c0+c0) | composite:8_1#unknot(K^2,e=0)*(c0+c0)",
+    "input_diags": 3,
+    "collapsed_diags": 0,
+    "surviving_diags": 3,
+    "surviving_components": 3,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 11.238
+  },
+  {
+    "ch": 12,
+    "cell_idx": 34,
+    "tag": "unknot:#4RP^2(e=-8) | unknot:#4RP^2(e=8)",
+    "input_diags": 3,
+    "collapsed_diags": 2,
+    "surviving_diags": 1,
+    "surviving_components": 1,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 3,
+        "term_nv": 8,
+        "verified": true,
+        "num_steps": 18
+      },
+      {
+        "owner": 1,
+        "kind": 1,
+        "wave_h": 3,
+        "term_nv": 10,
+        "verified": true,
+        "num_steps": 14
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 13.262
+  },
+  {
+    "ch": 12,
+    "cell_idx": 35,
+    "tag": "ch<=10:10_1^1",
+    "input_diags": 4,
+    "collapsed_diags": 0,
+    "surviving_diags": 4,
+    "surviving_components": 4,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 12.7
+  },
+  {
+    "ch": 12,
+    "cell_idx": 36,
+    "tag": "ch<=10:8_1^1,1",
+    "input_diags": 4,
+    "collapsed_diags": 1,
+    "surviving_diags": 3,
+    "surviving_components": 3,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 1,
+        "term_nv": 10,
+        "verified": true,
+        "num_steps": 10
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 25.67
+  },
+  {
+    "ch": 12,
+    "cell_idx": 37,
+    "tag": "composite:6_1^0,1#unknot(K^2,e=0)(c0+c0) | composite:6_1^0,1#unknot(K^2,e=0)*(c0+c0)",
+    "input_diags": 5,
+    "collapsed_diags": 0,
+    "surviving_diags": 5,
+    "surviving_components": 5,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 5.951
+  },
+  {
+    "ch": 12,
+    "cell_idx": 38,
+    "tag": "unknot:#6RP^2(e=-4) | unknot:#6RP^2(e=4)",
+    "input_diags": 6,
+    "collapsed_diags": 4,
+    "surviving_diags": 2,
+    "surviving_components": 2,
+    "collapses_detail": [
+      {
+        "owner": 1,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 28
+      },
+      {
+        "owner": 3,
+        "kind": 4,
+        "wave_h": 2,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 33
+      },
+      {
+        "owner": 4,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 25
+      },
+      {
+        "owner": 5,
+        "kind": 5,
+        "wave_h": 2,
+        "term_nv": 14,
+        "verified": true,
+        "num_steps": 13
+      }
+    ],
+    "bridges_count": 1,
+    "bridges_all_verified": true,
+    "runtime_sec": 24.23
+  },
+  {
+    "ch": 12,
+    "cell_idx": 39,
+    "tag": "ch<=10:2_1^-1 | composite:2_1^-1#10_3(c0+c0)",
+    "input_diags": 7,
+    "collapsed_diags": 0,
+    "surviving_diags": 7,
+    "surviving_components": 5,
+    "collapses_detail": [],
+    "bridges_count": 2,
+    "bridges_all_verified": true,
+    "runtime_sec": 52.655
+  },
+  {
+    "ch": 12,
+    "cell_idx": 40,
+    "tag": "unknot:#3RP^2(e=-6) | unknot:#3RP^2(e=6)",
+    "input_diags": 8,
+    "collapsed_diags": 2,
+    "surviving_diags": 6,
+    "surviving_components": 6,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 21
+      },
+      {
+        "owner": 1,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 21
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 55.795
+  },
+  {
+    "ch": 12,
+    "cell_idx": 41,
+    "tag": "unknot:#5RP^2(e=-6) | unknot:#5RP^2(e=6)",
+    "input_diags": 12,
+    "collapsed_diags": 0,
+    "surviving_diags": 12,
+    "surviving_components": 12,
+    "collapses_detail": [],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 3.177
+  },
+  {
+    "ch": 12,
+    "cell_idx": 42,
+    "tag": "unknot:K^2(e=-4) | unknot:K^2(e=4)",
+    "input_diags": 12,
+    "collapsed_diags": 1,
+    "surviving_diags": 11,
+    "surviving_components": 10,
+    "collapses_detail": [
+      {
+        "owner": 3,
+        "kind": 1,
+        "wave_h": 1,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 9
+      }
+    ],
+    "bridges_count": 1,
+    "bridges_all_verified": true,
+    "runtime_sec": 69.296
+  },
+  {
+    "ch": 12,
+    "cell_idx": 43,
+    "tag": "unknot:#6RP^2(e=0)",
+    "input_diags": 20,
+    "collapsed_diags": 10,
+    "surviving_diags": 10,
+    "surviving_components": 9,
+    "collapses_detail": [
+      {
+        "owner": 1,
+        "kind": 5,
+        "wave_h": 2,
+        "term_nv": 14,
+        "verified": true,
+        "num_steps": 13
+      },
+      {
+        "owner": 4,
+        "kind": 5,
+        "wave_h": 2,
+        "term_nv": 14,
+        "verified": true,
+        "num_steps": 13
+      },
+      {
+        "owner": 5,
+        "kind": 4,
+        "wave_h": 2,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 15
+      },
+      {
+        "owner": 7,
+        "kind": 4,
+        "wave_h": 2,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 19
+      },
+      {
+        "owner": 0,
+        "kind": 4,
+        "wave_h": 2,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 19
+      },
+      {
+        "owner": 2,
+        "kind": 4,
+        "wave_h": 2,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 13
+      },
+      {
+        "owner": 3,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 21
+      },
+      {
+        "owner": 4,
+        "kind": 5,
+        "wave_h": 2,
+        "term_nv": 14,
+        "verified": true,
+        "num_steps": 13
+      },
+      {
+        "owner": 0,
+        "kind": 4,
+        "wave_h": 2,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 16
+      },
+      {
+        "owner": 3,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 31
+      }
+    ],
+    "bridges_count": 2,
+    "bridges_all_verified": true,
+    "runtime_sec": 50.087
+  },
+  {
+    "ch": 12,
+    "cell_idx": 44,
+    "tag": "unknot:Sigma_2(e=0)",
+    "input_diags": 28,
+    "collapsed_diags": 2,
+    "surviving_diags": 26,
+    "surviving_components": 26,
+    "collapses_detail": [
+      {
+        "owner": 1,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 16
+      },
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 1,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 18
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 46.115
+  },
+  {
+    "ch": 12,
+    "cell_idx": 45,
+    "tag": "unknot:#5RP^2(e=-2) | unknot:#5RP^2(e=2)",
+    "input_diags": 29,
+    "collapsed_diags": 2,
+    "surviving_diags": 27,
+    "surviving_components": 25,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 1,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 18
+      },
+      {
+        "owner": 4,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 21
+      }
+    ],
+    "bridges_count": 2,
+    "bridges_all_verified": true,
+    "runtime_sec": 33.91
+  },
+  {
+    "ch": 12,
+    "cell_idx": 46,
+    "tag": "unknot:#4RP^2(e=-4) | unknot:#4RP^2(e=4)",
+    "input_diags": 35,
+    "collapsed_diags": 3,
+    "surviving_diags": 32,
+    "surviving_components": 32,
+    "collapses_detail": [
+      {
+        "owner": 1,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 22
+      },
+      {
+        "owner": 3,
+        "kind": 4,
+        "wave_h": 2,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 27
+      },
+      {
+        "owner": 0,
+        "kind": 5,
+        "wave_h": 2,
+        "term_nv": 14,
+        "verified": true,
+        "num_steps": 11
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 48.341
+  },
+  {
+    "ch": 12,
+    "cell_idx": 47,
+    "tag": "ch<=10:2_1^1",
+    "input_diags": 53,
+    "collapsed_diags": 4,
+    "surviving_diags": 49,
+    "surviving_components": 48,
+    "collapses_detail": [
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 1,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 15
+      },
+      {
+        "owner": 5,
+        "kind": 1,
+        "wave_h": 1,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 26
+      }
+    ],
+    "bridges_count": 3,
+    "bridges_all_verified": true,
+    "runtime_sec": 268.738
+  },
+  {
+    "ch": 12,
+    "cell_idx": 48,
+    "tag": "unknot:#3RP^2(e=-2) | unknot:#3RP^2(e=2)",
+    "input_diags": 91,
+    "collapsed_diags": 8,
+    "surviving_diags": 83,
+    "surviving_components": 83,
+    "collapses_detail": [
+      {
+        "owner": 6,
+        "kind": 1,
+        "wave_h": 1,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 30
+      },
+      {
+        "owner": 5,
+        "kind": 1,
+        "wave_h": 1,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 20
+      },
+      {
+        "owner": 2,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 25
+      },
+      {
+        "owner": 3,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 16
+      },
+      {
+        "owner": 7,
+        "kind": 1,
+        "wave_h": 1,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 22
+      },
+      {
+        "owner": 7,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 19
+      },
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 29
+      },
+      {
+        "owner": 0,
+        "kind": 4,
+        "wave_h": 3,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 23
+      }
+    ],
+    "bridges_count": 0,
+    "bridges_all_verified": true,
+    "runtime_sec": 272.34
+  },
+  {
+    "ch": 12,
+    "cell_idx": 49,
+    "tag": "unknot:K^2(e=0) | composite:10_3#unknot(K^2,e=0)(c0+c0)",
+    "input_diags": 94,
+    "collapsed_diags": 5,
+    "surviving_diags": 89,
+    "surviving_components": 86,
+    "collapses_detail": [
+      {
+        "owner": 7,
+        "kind": 1,
+        "wave_h": 1,
+        "term_nv": 10,
+        "verified": true,
+        "num_steps": 9
+      },
+      {
+        "owner": 0,
+        "kind": 4,
+        "wave_h": 1,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 8
+      },
+      {
+        "owner": 2,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 30
+      },
+      {
+        "owner": 7,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 16
+      },
+      {
+        "owner": 0,
+        "kind": 1,
+        "wave_h": 1,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 22
+      }
+    ],
+    "bridges_count": 3,
+    "bridges_all_verified": true,
+    "runtime_sec": 300.606
+  },
+  {
+    "ch": 12,
+    "cell_idx": 50,
+    "tag": "unknot:#4RP^2(e=0) | composite:10_3#unknot(#4RP^2,e=0)(c0+c0)",
+    "input_diags": 112,
+    "collapsed_diags": 11,
+    "surviving_diags": 101,
+    "surviving_components": 98,
+    "collapses_detail": [
+      {
+        "owner": 4,
+        "kind": 1,
+        "wave_h": 1,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 27
+      },
+      {
+        "owner": 5,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 25
+      },
+      {
+        "owner": 7,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 17
+      },
+      {
+        "owner": 6,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 21
+      },
+      {
+        "owner": 7,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 50
+      },
+      {
+        "owner": 3,
+        "kind": 3,
+        "wave_h": 2,
+        "term_nv": 12,
+        "verified": true,
+        "num_steps": 21
+      },
+      {
+        "owner": 5,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 32
+      },
+      {
+        "owner": 5,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 20
+      },
+      {
+        "owner": 3,
+        "kind": 4,
+        "wave_h": 2,
+        "term_nv": 13,
+        "verified": true,
+        "num_steps": 20
+      },
+      {
+        "owner": 6,
+        "kind": 1,
+        "wave_h": 2,
+        "term_nv": 11,
+        "verified": true,
+        "num_steps": 16
+      }
+    ],
+    "bridges_count": 4,
+    "bridges_all_verified": true,
+    "runtime_sec": 197.508
+  }
+]

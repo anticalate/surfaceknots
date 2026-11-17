@@ -672,6 +672,159 @@ def post_filter_and_merge_ch12_survivors(
     }
 
 
+def _dart_meridian_presentation(d: MarkedDiagram, darts: list[int]):
+    """Return `tietze_simplify(wirtinger_presentation(d))` carrying the exact co-oriented sheet
+    meridian word of each dart in `darts` inside `component_meridians`.
+    """
+    from surfaceknots.invariants.fundamental_group import GroupPresentation, tietze_simplify, wirtinger_presentation
+
+    n = d.num_vertices
+    is_classical = [vt in ("X0", "X1") for vt in d.vtype]
+
+    def is_under_slot(v: int, s: int) -> bool:
+        return ((s & 1) == 0) if d.vtype[v] == "X0" else ((s & 1) == 1)
+
+    def marked_partner(v: int, s: int) -> int:
+        return (3 - s) if d.vtype[v] == "Z" else (s ^ 1)
+
+    dart_dir = [0] * (4 * n)
+    cycles: list[list[int]] = []
+    for start_d in range(4 * n):
+        if dart_dir[start_d] != 0:
+            continue
+        cyc: list[int] = []
+        cur = start_d
+        while dart_dir[cur] == 0:
+            dart_dir[cur] = 1
+            cyc.append(cur)
+            v, s = cur >> 2, cur & 3
+            ex = (s ^ 2) if is_classical[v] else marked_partner(v, s)
+            dart_dir[(v << 2) | ex] = -1
+            cur = d.opp[(v << 2) | ex]
+        cycles.append(cyc)
+
+    dart_arc = [-1] * (4 * n)
+    nxt = 0
+    for cyc in cycles:
+        up = [k for k, hd in enumerate(cyc) if is_classical[hd >> 2] and is_under_slot(hd >> 2, hd & 3)]
+        if not up:
+            gid = nxt
+            nxt += 1
+            for hd in cyc:
+                v, s = hd >> 2, hd & 3
+                ex = (s ^ 2) if is_classical[v] else marked_partner(v, s)
+                dart_arc[hd] = gid
+                dart_arc[(v << 2) | ex] = gid
+        else:
+            for iu in range(len(up)):
+                gid = nxt
+                nxt += 1
+                ps, pe = up[iu], up[(iu + 1) % len(up)]
+                hs = cyc[ps]
+                vs, ss = hs >> 2, hs & 3
+                dart_arc[(vs << 2) | (ss ^ 2)] = gid
+                k = (ps + 1) % len(cyc)
+                while k != pe:
+                    hd = cyc[k]
+                    vv, sv = hd >> 2, hd & 3
+                    ex = (sv ^ 2) if is_classical[vv] else marked_partner(vv, sv)
+                    dart_arc[hd] = gid
+                    dart_arc[(vv << 2) | ex] = gid
+                    k = (k + 1) % len(cyc)
+                dart_arc[cyc[pe]] = gid
+
+    raw = wirtinger_presentation(d, from_resolution=-1, simplify=False)
+    extra_mers = tuple(
+        ((dart_arc[hd] + 1,) if dart_dir[hd] == 1 else (-(dart_arc[hd] + 1),)) for hd in darts
+    )
+    return tietze_simplify(GroupPresentation(raw.num_generators, raw.relators, extra_mers))
+
+
+def _conj_class_meridian_vectors(pres, group) -> list[tuple[int, ...]]:
+    """For each meridian word `m` in `pres.component_meridians`, return the exact tuple
+    `(N_G(pres, m; rep_c))_{c in Conj(G)}` where `N_G(pres, m; g) = #{rho in Hom(pres, G) : rho(m) = g}`.
+    """
+    from surfaceknots.invariants.fundamental_group import _get_conjugacy_classes, reduce_word
+
+    g = pres.num_generators
+    order = group.order
+    mul = group.mul
+    inv = group.inv
+    conj = _get_conjugacy_classes(group)
+    elem_to_cidx = [0] * order
+    for ci, (rep, _) in enumerate(conj):
+        for h in range(order):
+            elem_to_cidx[mul[mul[h][rep]][inv[h]]] = ci
+    mers = [reduce_word(m) for m in pres.component_meridians]
+    if g == 0:
+        id_ci = elem_to_cidx[0]
+        return [tuple(1 if ci == id_ci else 0 for ci in range(len(conj))) for _ in mers]
+
+    rels = [r for r in pres.relators if r]
+    rels_by_max: list[list[tuple[int, ...]]] = [[] for _ in range(g)]
+    u_solve: list[tuple[tuple[int, ...], int, bool] | None] = [None] * g
+    for r in rels:
+        mx = max(abs(lit) - 1 for lit in r)
+        rels_by_max[mx].append(r)
+    for idx in range(1, g):
+        for r in rels_by_max[idx]:
+            pos = [p for p, lit in enumerate(r) if abs(lit) - 1 == idx]
+            if len(pos) == 1:
+                u_solve[idx] = (r, pos[0], r[pos[0]] > 0)
+                break
+
+    raw_cls_totals = [[0] * len(conj) for _ in mers]
+    assign = [0] * g
+
+    def check(idx: int) -> bool:
+        for r in rels_by_max[idx]:
+            acc = 0
+            for lit in r:
+                acc = mul[acc][assign[lit - 1] if lit > 0 else inv[assign[-lit - 1]]]
+            if acc != 0:
+                return False
+        return True
+
+    def bt(idx: int, weight: int) -> None:
+        if idx == g:
+            for mi, mw in enumerate(mers):
+                acc = 0
+                for lit in mw:
+                    acc = mul[acc][assign[lit - 1] if lit > 0 else inv[assign[-lit - 1]]]
+                raw_cls_totals[mi][elem_to_cidx[acc]] += weight
+            return
+        ui = u_solve[idx]
+        if ui is not None:
+            ru, pos, is_pos = ui
+            pref = 0
+            for lit in ru[:pos]:
+                pref = mul[pref][assign[lit - 1] if lit > 0 else inv[assign[-lit - 1]]]
+            suff = 0
+            for lit in ru[pos + 1 :]:
+                suff = mul[suff][assign[lit - 1] if lit > 0 else inv[assign[-lit - 1]]]
+            vl = mul[inv[pref]][inv[suff]]
+            assign[idx] = vl if is_pos else inv[vl]
+            if check(idx):
+                bt(idx + 1, weight)
+            return
+        for val in range(order):
+            assign[idx] = val
+            if check(idx):
+                bt(idx + 1, weight)
+
+    for rep_val, cls_sz in conj:
+        assign[0] = rep_val
+        if check(0):
+            bt(1, cls_sz)
+
+    out: list[tuple[int, ...]] = []
+    for mi in range(len(mers)):
+        for ci, (_, csz) in enumerate(conj):
+            assert raw_cls_totals[mi][ci] % csz == 0
+        out.append(tuple(raw_cls_totals[mi][ci] // conj[ci][1] for ci in range(len(conj))))
+    return out
+
+
 def build_def5_1_high_composite_matches(
     target_ch: int,
     candidate_records: list[dict[str, object]],
@@ -679,12 +832,17 @@ def build_def5_1_high_composite_matches(
     num_workers: int = 32,
 ) -> dict[tuple, list[str]]:
     """Verify Yoshikawa Definition 5.1 weak primality (`not F_1 # F_2` with `ch(F_1) < target_ch` and
-    `ch(F_2) < target_ch`, so summand diagram sum up to `2 * (target_ch - 1)`) using a two-stage
-    exact topology + `(S3, Q8, A4)` filter followed by full 10-layer invariant evaluation on any
-    matching composite!
+    `ch(F_2) < target_ch`, so summand diagram sum up to `2 * (target_ch - 1)`) using exact
+    Seifert-van Kampen amalgamated-product homomorphism counts across all 10 test groups followed by
+    full 10-layer invariant evaluation on any matching composite!
     """
     from concurrent.futures import ProcessPoolExecutor
-    from surfaceknots.invariants.fundamental_group import finite_quotient_profile, tietze_simplify, wirtinger_presentation
+    from surfaceknots.invariants.fundamental_group import (
+        STANDARD_TEST_GROUPS,
+        _get_conjugacy_classes,
+        tietze_simplify,
+        wirtinger_presentation,
+    )
 
     if not candidate_records:
         return {}
@@ -794,7 +952,26 @@ def build_def5_1_high_composite_matches(
                         if _is_admissible(cs):
                             add_s(f"({la}#{lb}:c{ca}+c{cb})", cs)
 
-    # Precompute surface_topology + rep darts for each item in `pool_s`:
+    # Precompute surface_topology, rep darts, and exact Seifert-van Kampen conjugacy-class
+    # meridian vectors across all 10 finite test groups for each item in `pool_s`:
+    grp_by_name = {g.name: g for g in STANDARD_TEST_GROUPS}
+    grp_order_names = ("S3", "Q8", "A4", "D10", "F21", "D8", "Dic12", "Dic16", "S4", "A5")
+    grp_meta = []
+    for gname in grp_order_names:
+        grp = grp_by_name[gname]
+        conj = _get_conjugacy_classes(grp)
+        elem_to_ci = [0] * grp.order
+        for ci, (rep, _) in enumerate(conj):
+            for h in range(grp.order):
+                elem_to_ci[grp.mul[grp.mul[h][rep]][grp.inv[h]]] = ci
+        inv_ci = tuple(elem_to_ci[grp.inv[rep]] for rep, _ in conj)
+        cls_szs = tuple(sz for _, sz in conj)
+        grp_meta.append((grp, cls_szs, inv_ci))
+
+    wanted_topo_gen = {k[:3] for k in wanted_stage2}
+    wanted_topo_gen_s3 = {k[:3] + (k[6],) for k in wanted_stage2}
+    wanted_topo_gen_hom = {k[:3] + k[6:16] for k in wanted_stage2}
+
     pool_meta = []
     for la, da in pool_s:
         st_a = da.surface_topology()
@@ -802,19 +979,82 @@ def build_def5_1_high_composite_matches(
         rep_a: dict[int, int] = {}
         for hd in range(4 * da.num_vertices):
             rep_a.setdefault(dc_a[hd], hd)
-        pool_meta.append((la, da, st_a, rep_a))
+        comp_ids = sorted(rep_a)
+        darts = [rep_a[c] for c in comp_ids]
+        comp_pos = {c: mi for mi, c in enumerate(comp_ids)}
+        pres = _dart_meridian_presentation(da, darts)
+        vecs = [_conj_class_meridian_vectors(pres, grp) for grp, _, _ in grp_meta]
+        pool_meta.append((la, da, st_a, rep_a, comp_pos, vecs))
+
+    s3_szs = grp_meta[0][1]
+    s3_inv = grp_meta[0][2]
 
     full_eval_queue: list[tuple[MarkedDiagram, str, bool]] = []
     tags_by_eval_ck: dict[tuple, list[str]] = defaultdict(list)
-    for i, (la, da, st_a, rep_a) in enumerate(pool_meta):
+    for i, (la, da, st_a, rep_a, pos_a, vecs_a) in enumerate(pool_meta):
+        comps_a = st_a.components
+        na = st_a.num_components
         for j in range(i, len(pool_meta)):
-            lb, db, st_b, rep_b = pool_meta[j]
-            res_ncomp = st_a.num_components + st_b.num_components - 1
+            lb, db, st_b, rep_b, pos_b, vecs_b = pool_meta[j]
+            nb = st_b.num_components
+            res_ncomp = na + nb - 1
             if res_ncomp not in wanted_ncomps:
                 continue
+            comps_b = st_b.components
             for ca, hda in rep_a.items():
+                cta = comps_a[ca]
+                ma = pos_a[ca]
+                rem_a_ori = [comps_a[k].orientable for k in range(na) if k != ca]
+                rem_a_gen = [comps_a[k].genus_symbol for k in range(na) if k != ca]
                 for cb, hdb in rep_b.items():
+                    ctb = comps_b[cb]
+                    mb = pos_b[cb]
+                    m_ori = cta.orientable and ctb.orientable
+                    m_chi = cta.euler_characteristic + ctb.euler_characteristic - 2
+                    m_gen = (2 - m_chi) // 2 if m_ori else -(2 - m_chi)
+                    all_ori = (
+                        rem_a_ori
+                        + [comps_b[k].orientable for k in range(nb) if k != cb]
+                        + [m_ori]
+                    )
+                    if all(all_ori):
+                        ori_s_pred = "Ori"
+                    elif not any(all_ori):
+                        ori_s_pred = "Non"
+                    else:
+                        ori_s_pred = "Mixed"
+                    gens_pred = tuple(
+                        sorted(
+                            rem_a_gen
+                            + [comps_b[k].genus_symbol for k in range(nb) if k != cb]
+                            + [m_gen]
+                        )
+                    )
+                    tg_key = (res_ncomp, ori_s_pred, gens_pred)
+                    if tg_key not in wanted_topo_gen:
+                        continue
+                    va0 = vecs_a[0][ma]
+                    vb0 = vecs_b[0][mb]
                     for fl in (False, True):
+                        if not fl:
+                            c_s3 = sum(sz * va0[ci] * vb0[ci] for ci, sz in enumerate(s3_szs))
+                        else:
+                            c_s3 = sum(sz * va0[ci] * vb0[s3_inv[ci]] for ci, sz in enumerate(s3_szs))
+                        if tg_key + (c_s3,) not in wanted_topo_gen_s3:
+                            continue
+                        hom_vals = [c_s3]
+                        for gi in range(1, 10):
+                            _, g_szs, g_inv = grp_meta[gi]
+                            va = vecs_a[gi][ma]
+                            vb = vecs_b[gi][mb]
+                            if not fl:
+                                hv = sum(sz * va[ci] * vb[ci] for ci, sz in enumerate(g_szs))
+                            else:
+                                hv = sum(sz * va[ci] * vb[g_inv[ci]] for ci, sz in enumerate(g_szs))
+                            hom_vals.append(hv)
+                        hom_tup = tuple(hom_vals)
+                        if tg_key + hom_tup not in wanted_topo_gen_hom:
+                            continue
                         cs = planar_connected_sum(da, hda, db, hdb, flip_splice=fl)
                         st = cs.surface_topology()
                         ori_s = st.orientability_label
@@ -828,26 +1068,7 @@ def build_def5_1_high_composite_matches(
                             continue
                         wp = tietze_simplify(wirtinger_presentation(cs))
                         h1_rk, h1_tor = wp.abelianization_invariant_factors()
-                        fqp1 = finite_quotient_profile(wp, ("S3", "Q8", "A4", "D10", "F21"))
-                        s1_key = t_key + (
-                            h1_rk,
-                            h1_tor,
-                            fqp1["S3"],
-                            fqp1["Q8"],
-                            fqp1["A4"],
-                            fqp1["D10"],
-                            fqp1["F21"],
-                        )
-                        if s1_key not in wanted_stage1:
-                            continue
-                        fqp2 = finite_quotient_profile(wp, ("D8", "Dic12", "Dic16", "S4", "A5"))
-                        s2_key = s1_key + (
-                            fqp2["D8"],
-                            fqp2["Dic12"],
-                            fqp2["Dic16"],
-                            fqp2["S4"],
-                            fqp2["A5"],
-                        )
+                        s2_key = t_key + (h1_rk, h1_tor) + hom_tup
                         if s2_key not in wanted_stage2:
                             continue
                         if not _is_admissible(cs):

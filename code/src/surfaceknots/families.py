@@ -805,10 +805,11 @@ def _eval_spoke_worker(args: tuple[str, str]) -> tuple[str, dict[str, object]]:
     return simp_d.to_epd(), inv_rec
 
 
-def build_family_catalog(data_dir: Path) -> dict[str, object]:
+def build_family_catalog(data_dir: Path, num_workers: int = 16) -> dict[str, object]:
     """Compile all Spoke 1-3 family entries, compute full Tier 1-3 invariants, cross-join against
-    the exhaustive `ch <= 11` Hub (`yoshikawa_ch10.json` + `expanded_ch11.json`) and composite/split
-    reference catalog (`max_composite_ch = 12`), and certify exact `[ch_lower, ch_upper]` intervals.
+    the exhaustive `ch <= 12` Hub (`yoshikawa_ch10.json` + `expanded_ch11.json` + `expanded_ch12.json`)
+    and composite/split reference catalog (`max_composite_ch = hub_max_ch + 1`), and certify exact
+    `[ch_lower, ch_upper]` intervals.
     """
     yosh_path = data_dir / "yoshikawa_ch10.json"
     ch11_path = data_dir / "expanded_ch11.json"
@@ -855,7 +856,9 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
             if str(m_tag) not in residual_by_inv[rk]:
                 residual_by_inv[rk].append(str(m_tag))
 
-    ref_catalog = build_reference_catalog(max_composite_ch=max(12, hub_max_ch + 1), num_workers=16)
+    ref_catalog = build_reference_catalog(
+        max_composite_ch=max(12, hub_max_ch + 1), num_workers=max(1, num_workers)
+    )
 
     spoke_specs = _enumerate_spoke_specs()
     entries_out: list[dict[str, object]] = []
@@ -866,7 +869,7 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
 
     worker_args = [(str(sp["family_id"]), sp["diagram"].to_epd()) for sp in spoke_specs]  # type: ignore[union-attr]
     with ProcessPoolExecutor(
-        max_workers=24, mp_context=multiprocessing.get_context("forkserver")
+        max_workers=max(1, num_workers), mp_context=multiprocessing.get_context("forkserver")
     ) as pool:
         spoke_results = list(pool.map(_eval_spoke_worker, worker_args, chunksize=2))
 
@@ -1037,7 +1040,9 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
     if unmatched_cands and hub_max_ch >= 11:
         from surfaceknots.ch12_census import build_def5_1_high_composite_matches
 
-        def5_1_spoke = build_def5_1_high_composite_matches(hub_max_ch + 1, unmatched_cands, data_dir, num_workers=16)
+        def5_1_spoke = build_def5_1_high_composite_matches(
+            hub_max_ch + 1, unmatched_cands, data_dir, num_workers=max(1, num_workers)
+        )
         for e in unmatched_cands:
             dk = invariant_discrimination_key(e)
             if dk in def5_1_spoke:
@@ -1089,12 +1094,12 @@ def build_family_catalog(data_dir: Path) -> dict[str, object]:
     }
 
 
-def export_family_datasets(data_dir: Path) -> dict[str, object]:
+def export_family_datasets(data_dir: Path, num_workers: int = 16) -> dict[str, object]:
     """Build and write `code/data/families/family_catalog.{json,csv}` and `hub_realizations.json`."""
     fam_dir = data_dir / "families"
     fam_dir.mkdir(parents=True, exist_ok=True)
 
-    payload = build_family_catalog(data_dir)
+    payload = build_family_catalog(data_dir, num_workers=num_workers)
     json_path = fam_dir / "family_catalog.json"
     json_path.write_text(json.dumps(payload, indent=2) + "\n")
 
